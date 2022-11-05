@@ -20,6 +20,9 @@ paths:
         If the user does not exist, it will be created,
         and an identifier is returned.
         If the user exists, the user identifier is returned.
+
+        Later, the returned user identifier can be used an authentication token
+        to authenticate subsequent requests.
       operationId: doLogin
       requestBody:
         description: User login details
