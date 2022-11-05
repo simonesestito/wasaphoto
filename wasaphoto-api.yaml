@@ -185,6 +185,8 @@ paths:
         - UserIdAuth: [ ]
 
   /users/{id}/followings:
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
     get:
       tags: [ "user" ]
       operationId: listFollowings
@@ -418,7 +420,7 @@ paths:
                     readOnly: true
                     properties:
                       pageData:
-                        description: Photos of the current page
+                        description: Comments of the current page
                         type: array
                         items: { $ref: "#/components/schemas/Comment" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -699,6 +701,8 @@ components:
           example: true
         pageData:
           type: array
+          items:
+            type: object
           description: Data of this page
 
   securitySchemes:
