@@ -205,48 +205,6 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-    post:
-      tags: [ "user" ]
-      operationId: followUser
-      summary: Follow a user
-      description: |
-        Add yourself as a follower of the user
-        identified by the ID in the path.
-
-        You may not have the authorization to follow someone,
-        for instance if the user you want to follow already banned you.
-      responses:
-        "204":
-          description: You are now following this user
-        "404":
-          description: A user with this ID doesn't exist
-        "409":
-          description: You already follow this user
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
-    delete:
-      tags: [ "user" ]
-      operationId: unfollowUser
-      summary: Unfollow a user
-      description: |
-        Remove yourself as a follower
-        of the user identified by the ID in the path.
-      responses:
-        "204":
-          description: |
-            You are not following this user anymore,
-            or you wasn't following him/her in the first place
-        "404":
-          description: A user with this ID doesn't exist
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
-
   /users/{id}/followings:
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -270,6 +228,59 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/me/followings:
+    description: Collection of the users I follow.
+    post:
+      tags: [ "user" ]
+      operationId: followUser
+      summary: Follow a user
+      description: |
+        Add the user you want to follow in your followings collection.
+
+        You may not have the authorization to follow someone,
+        for instance if the user you want to follow already banned you.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Specify the user you want to follow.
+              type: object
+              properties:
+                userId: { $ref: "#/components/schemas/ResourceId" }
+      responses:
+        "204":
+          description: You are now following this user
+        "404":
+          description: A user with this ID doesn't exist
+        "409":
+          description: You already follow this user
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/me/followings/{id}:
+    description: The representation of a user I'm currently following
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
+    delete:
+      tags: [ "user" ]
+      operationId: unfollowUser
+      summary: Unfollow a user
+      description: |
+        Remove yourself as a follower
+        of the user identified by the ID in the path.
+      responses:
+        "204":
+          description: |
+            You are not following this user anymore,
+            or you wasn't following him/her in the first place
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
 
   /users/me/blockedPeople/{blockedId}:
     description: Collection of people blocked by the current user
