@@ -48,6 +48,7 @@ paths:
               schema: { $ref: "#/components/schemas/User" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+      security: []
 
   /users:
     description: Users collection
@@ -77,8 +78,6 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
   /users/{id}:
     description: Actions performed on a single user, identified by the given ID
@@ -109,8 +108,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
     get:
       tags: [ "user" ]
       operationId: getUserProfile
@@ -134,8 +131,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
   
   /users/{id}/followers:
     description: Actions on someone's followers
@@ -161,8 +156,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
     post:
       tags: [ "user" ]
@@ -191,8 +184,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
     delete:
       tags: [ "user" ]
       operationId: unfollowUser
@@ -211,8 +202,6 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
   /users/{id}/followings:
     parameters:
@@ -237,8 +226,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
   /users/{id}/blockedPeople/{blockedId}:
     parameters:
@@ -305,8 +292,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photos:
     description: Photos collection
@@ -334,8 +319,6 @@ paths:
             Otherwise, the data sent was not compliant with the documentation.
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photos/{id}:
     parameters:
@@ -356,8 +339,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photoFiles:
     description: Photo files collection
@@ -393,8 +374,6 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photoFiles/{id}:
     description: A single photo file
@@ -433,6 +412,7 @@ paths:
             neither on this nor on other servers.
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+      security: []
 
   /photos/{id}/likes:
     parameters:
@@ -456,8 +436,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
     delete:
       tags: [ "photo" ]
       operationId: unlikePhoto
@@ -476,8 +454,6 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photos/{id}/comments:
     parameters:
@@ -520,8 +496,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
     post:
       tags: [ "photo" ]
@@ -548,8 +522,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
   /photos/{id}/comments/{commentId}:
     parameters:
@@ -574,8 +546,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-      security:
-        - UserIdAuth: [ ]
 
   /stream:
     get:
@@ -594,8 +564,6 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-      security:
-        - UserIdAuth: [ ]
 
 components:
   parameters:
@@ -818,3 +786,7 @@ components:
         according to the project specification.
       type: http
       scheme: bearer
+
+# Apply security scheme globally, disabling it explicitly when unnecessary.
+security:
+  - UserIdAuth: []
