@@ -9,7 +9,7 @@ info:
     you can upload your photos, and they will be visible to everyone
     who is following you.
 
-    Project details at [https://gamificationlab.uniroma1.it/notes/Project.pdf]()
+    **Project details at [https://gamificationlab.uniroma1.it/notes/Project.pdf]()**
   version: "1"
 paths:
   /sessions:
@@ -67,7 +67,7 @@ paths:
           schema:
             type: string
             minimum: 3
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -75,7 +75,7 @@ paths:
   /users/{id}:
     description: Actions performed on a single user, identified by the given ID
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
     put:
       tags: [ "user" ]
       operationId: setMyUserName
@@ -124,7 +124,7 @@ paths:
   /users/{id}/followers:
     description: Actions on someone's followers
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: [ "user" ]
       operationId: listFollowers
@@ -132,7 +132,7 @@ paths:
       description: |
         List, with cursor pagination, all the followers of the specified user.
       parameters:
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -189,7 +189,7 @@ paths:
 
   /users/{id}/followings:
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: [ "user" ]
       operationId: listFollowings
@@ -197,7 +197,7 @@ paths:
       description: |
         List, with cursor pagination, all the followings of the specified user.
       parameters:
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -208,7 +208,7 @@ paths:
 
   /users/{id}/blockedPeople/{blockedId}:
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
       - name: blockedId
         required: true
         in: path
@@ -252,14 +252,14 @@ paths:
   /users/{id}/photos:
     description: Photos collection of a user
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: [ "user", "photo" ]
       operationId: listUserPhotos
       summary: Get someone's photos
       description: List all photos of a user, using a paginated requests.
       parameters:
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -299,7 +299,7 @@ paths:
 
   /photos/{id}:
     parameters:
-      - { $ref: "#/components/parameters/PhotoId" }
+      - $ref: "#/components/parameters/PhotoId"
     delete:
       tags: [ "photo" ]
       operationId: deletePhoto
@@ -396,7 +396,7 @@ paths:
 
   /photos/{id}/likes:
     parameters:
-      - { $ref: "#/components/parameters/PhotoId" }
+      - $ref: "#/components/parameters/PhotoId"
     post:
       tags: [ "photo" ]
       operationId: likePhoto
@@ -440,7 +440,7 @@ paths:
 
   /photos/{id}/comments:
     parameters:
-      - { $ref: "#/components/parameters/PhotoId" }
+      - $ref: "#/components/parameters/PhotoId"
     get:
       tags: [ "photo" ]
       operationId: getPhotoComments
@@ -450,7 +450,7 @@ paths:
         in reverse chronological order,
         using cursor pagination not to overwhelm the client.
       parameters:
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200":
           description: |
@@ -460,7 +460,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - { $ref: "#/components/schemas/PaginationInfo" }
+                  - $ref: "#/components/schemas/PaginationInfo"
                   - description: Current selected page
                     type: object
                     readOnly: true
@@ -501,8 +501,8 @@ paths:
 
   /photos/{id}/comments/{commentId}:
     parameters:
-      - { $ref: "#/components/parameters/PhotoId" }
-      - { $ref: "#/components/parameters/CommentId" }
+      - $ref: "#/components/parameters/PhotoId"
+      - $ref: "#/components/parameters/CommentId"
     delete:
       tags: [ "photo" ]
       operationId: uncommentPhoto
@@ -535,7 +535,7 @@ paths:
         It will contain posts from the profiles you follow,
         in reverse chronological order.
       parameters:
-        - { $ref: "#/components/parameters/PageCursor" }
+        - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
@@ -609,7 +609,7 @@ components:
         application/json:
           schema:
             allOf:
-              - { $ref: "#/components/schemas/PaginationInfo" }
+              - $ref: "#/components/schemas/PaginationInfo"
               - description: Current selected page
                 type: object
                 readOnly: true
@@ -626,7 +626,7 @@ components:
         application/json:
           schema:
             allOf:
-              - { $ref: "#/components/schemas/PaginationInfo" }
+              - $ref: "#/components/schemas/PaginationInfo"
               - description: Current selected page
                 type: object
                 readOnly: true
@@ -735,7 +735,7 @@ components:
             id: { $ref: "#/components/schemas/ResourceId" }
             publishDate: { $ref: "#/components/schemas/DateTime" }
             author: { $ref: "#/components/schemas/User" }
-        - { $ref: "#/components/schemas/NewComment" }
+        - $ref: "#/components/schemas/NewComment"
 
     PaginationInfo:
       type: object
