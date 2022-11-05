@@ -86,7 +86,7 @@ paths:
     put:
       tags: [ "user" ]
       operationId: setMyUserName
-      summary: Update a user's details
+      summary: Update user details
       description: Update user details like name, surname, username, etc
       requestBody:
         description: Fields to update on an existing user
@@ -578,13 +578,13 @@ components:
       required: true
       in: path
       description: The unique ID of a post, not the image file directly
-      schema: { $ref: "#/components/schemas/FileId" }
+      schema: { $ref: "#/components/schemas/ResourceId" }
     PhotoFileId:
       name: id
       description: The ID of an image file
       required: true
       in: path
-      schema: { $ref: "#/components/schemas/ResourceId" }
+      schema: { $ref: "#/components/schemas/FileId" }
     CommentId:
       name: commentId
       description: The unique ID of a comment
