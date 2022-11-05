@@ -195,7 +195,7 @@ paths:
         "403": { $ref: "#/components/responses/AuthorizationError" }
       security:
         - UserIdAuth: [ ]
-        
+
   /photoFiles:
     description: Photo files collection
     post:
@@ -271,6 +271,50 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /photos/{id}/likes:
+    parameters:
+      - { $ref: "#/components/parameters/PhotoId" }
+    post:
+      tags: [ "photo" ]
+      operationId: likePhoto
+      summary: Like a photo
+      description: Leave a like on a photo
+      responses:
+        "200":
+          description: Your like was added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "404":
+          description: A post with this ID doesn't exist
+        "409":
+          description: You already liked this post
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+    delete:
+      tags: [ "photo" ]
+      operationId: unlikePhoto
+      summary: Unlike a photo
+      description: Remove a like from a photo
+      responses:
+        "200":
+          description: Your like was removed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "404":
+          description: A post with this ID doesn't exist
+        "409":
+          description: You didn't like this post in the first place
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+        
 components:
   parameters:
     UserId:
