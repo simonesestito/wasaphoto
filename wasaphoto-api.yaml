@@ -764,6 +764,12 @@ components:
           minimum: 0
           example: 300
           readOnly: true
+        liked:
+          description: |
+            The current user liked this photo.
+            If the request isn't authenticated, this will always be false.
+          type: boolean
+          readOnly: true
 
     NewComment:
       type: object
