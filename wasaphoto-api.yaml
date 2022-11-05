@@ -23,6 +23,9 @@ paths:
 
         Later, the returned user identifier can be used an authentication token
         to authenticate subsequent requests.
+
+        In case a new user is created, it'll use the given username as
+        his/her first name, and the surname will be empty.
       operationId: doLogin
       requestBody:
         description: User login details
@@ -648,7 +651,7 @@ components:
           description: User's surname
           type: string
           example: Doe
-          minLength: 2
+          default: ""
         username:
           $ref: "#/components/schemas/Username"
         followersCount:
