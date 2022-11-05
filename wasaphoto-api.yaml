@@ -83,18 +83,32 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-
-  /users/{id}:
-    description: Actions performed on a single user, identified by the given ID
-    parameters:
-      - $ref: "#/components/parameters/UserId"
+  
+  /users/me:
+    description: Special resource which points to the currently logged in user.
+    get:
+      tags: [ "user" ]
+      operationId: getCurrentUser
+      summary: Get current user
+      description: |
+        Get the currently logged in user.
+        Equivalent to /users/{id} where the ID is the current user's.
+      responses:
+        "200":
+          description: Get details about current user's profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
     put:
       tags: [ "user" ]
-      operationId: setMyUserName
+      operationId: setMyDetails
       summary: Update user details
       description: Update user details like name, surname, username, etc
       requestBody:
-        description: Fields to update on an existing user
+        description: Fields to update on the current user
         required: true
         content:
           application/json:
@@ -105,14 +119,43 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
-        "404":
-          description: User with given ID doesn't exist and wasn't created
         "409":
           description: A user with the requested new username already exists
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/me/username:
+    description: |
+      Special resource which points to
+      the username field of the currently logged in user.
+    put:
+      tags: [ "user" ]
+      operationId: setMyUserName
+      summary: Update username
+      description: Update current user's username
+      requestBody:
+        description: New username to assign to the current user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+      responses:
+        "200":
+          description: User username have been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+
+  /users/{id}:
+    description: Actions performed on a single user, identified by the given ID
+    parameters:
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: [ "user" ]
       operationId: getUserProfile
@@ -228,9 +271,9 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{id}/blockedPeople/{blockedId}:
+  /users/me/blockedPeople/{blockedId}:
+    description: Collection of people blocked by the current user
     parameters:
-      - $ref: "#/components/parameters/UserId"
       - name: blockedId
         required: true
         in: path
