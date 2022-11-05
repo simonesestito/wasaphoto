@@ -672,6 +672,13 @@ components:
           readOnly: true
           minimum: 0
           example: 12
+        banned:
+          description: |
+            It indicates if the user performing this request
+            has banned the user represented by this resource.
+          type: boolean
+          readOnly: true
+          example: false
 
     DateTime:
       description: Standard datetime representation
