@@ -314,7 +314,60 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
       security:
         - UserIdAuth: [ ]
-        
+
+  /photos/{id}/comments:
+    parameters:
+      - { $ref: "#/components/parameters/PhotoId" }
+    post:
+      tags: [ "photo" ]
+      operationId: commentPhoto
+      summary: Comment a photo
+      description: Leave a comment on a photo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewComment" }
+      responses:
+        "200":
+          description: Your comment was added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Comment" }
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+
+  /photos/{id}/comments/{commentId}:
+    parameters:
+      - { $ref: "#/components/parameters/PhotoId" }
+      - { $ref: "#/components/parameters/CommentId" }
+    delete:
+      tags: [ "photo" ]
+      operationId: uncommentPhoto
+      summary: Delete a comment
+      description: |
+        Delete a comment from a photo.
+        A comment can only be deleted by its author.
+      responses:
+        "200":
+          description: Your comment was deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "404":
+          description: A post or a comment with the given ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
+
 components:
   parameters:
     UserId:
@@ -332,6 +385,12 @@ components:
     PhotoFileId:
       name: id
       description: The ID of an image file
+      required: true
+      in: path
+      schema: { $ref: "#/components/schemas/ResourceId" }
+    CommentId:
+      name: commentId
+      description: The unique ID of a comment
       required: true
       in: path
       schema: { $ref: "#/components/schemas/ResourceId" }
@@ -433,6 +492,21 @@ components:
       description: The unique ID of a file
       type: string
       example: 162b0b32f02482d5aca0a7c93dd03cea3acd7
+    NewComment:
+      type: object
+      properties:
+        text:
+          type: string
+          example: Great post! Keep up the good work.
+    Comment:
+      description: A comment left on a post
+      allOf:
+        - type: object
+          properties:
+            id: { $ref: "#/components/schemas/ResourceId" }
+            publishDate: { $ref: "#/components/schemas/DateTime" }
+            author: { $ref: "#/components/schemas/User" }
+        - { $ref: "#/components/schemas/NewComment" }
 
   securitySchemes:
     UserIdAuth:
