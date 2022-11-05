@@ -145,6 +145,110 @@ paths:
       security:
         - UserIdAuth: [ ]
 
+  /photos:
+    description: Photos collection
+    post:
+      tags: [ "photo" ]
+      operationId: uploadPhoto
+      summary: Upload photo
+      description: |
+        Upload a new photo to your personal account.
+        The photo image file must have been previously uploaded,
+        here you can pass the file ID.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Photo" }
+      responses:
+        "201":
+          description: The post was created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "400":
+          description: |
+            The photo didn't exist. Make sure to upload it first.
+            Otherwise, the data sent was not compliant with the documentation.
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+
+  /photoFiles:
+    description: Photo files collection
+    post:
+      tags: [ "files" ]
+      operationId: uploadPhotoFile
+      summary: Upload the file of a photo
+      description: |
+        Upload the file of a photo you are going to use
+        in a post that will be published very soon,
+        presumably that the user is writing right now.
+        The server could decide to delete this file automatically
+        after a variable amount of time, if not used in any post.
+      requestBody:
+        required: true
+        description: The binary image file to upload
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: The image was successfully uploaded and elaborated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photoId: { $ref: "#/components/schemas/FileId" }
+        "415":
+          description: The file sent cannot be processed as an image
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+
+  /photoFiles/{id}:
+    description: A single photo file
+    parameters:
+      - {$ref: "#/components/parameters/PhotoFileId"}
+    get:
+      tags: [ "files" ]
+      operationId: downloadPhotoFile
+      summary: Get a photo file
+      description: |
+        Download the file of an existing photo.
+        Simple caching is allowed because the file at a given ID 
+        is guaranteed to never change. At most it can be deleted.
+      responses:
+        "200":
+          description: An image file with the given ID was found and it's stored on this server
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+                description: The image as a binary compressed WEBP file
+        "301":
+          description: |
+            An image file with the given ID was found, but it's stored somewhere else,
+            such as a CDN or another dedicated server for static resources.
+          headers:
+            Location:
+              description: The URL where the image file can be download from
+              schema:
+                type: string
+                format: uri
+        "404":
+          description: |
+            An image file with the given ID cannot be found
+            neither on this nor on other servers.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
 components:
   parameters:
     UserId:
@@ -153,7 +257,19 @@ components:
       in: path
       description: The unique ID of a user
       schema: { $ref: "#/components/schemas/ResourceId" }
-
+    PhotoId:
+      name: id
+      required: true
+      in: path
+      description: The unique ID of a post, not the image file directly
+      schema: { $ref: "#/components/schemas/FileId" }
+    PhotoFileId:
+      name: id
+      description: The ID of an image file
+      required: true
+      in: path
+      schema: { $ref: "#/components/schemas/ResourceId" }
+      
   responses:
     BadRequest:
       description: |
@@ -220,6 +336,37 @@ components:
           readOnly: true
           minimum: 0
           example: 12
+
+    DateTime:
+      description: Standard datetime representation
+      type: string
+      example: 2017-07-21T17:32:28Z
+      readOnly: true
+    
+    Photo:
+      description: |
+        A photo post, with aggregate information about likes and comments.
+        Detailed comments can be requested separately using an appropriate paginated endpoint.
+      type: object
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        imageId: { $ref: "#/components/schemas/FileId" }
+        author: { $ref: "#/components/schemas/User" }
+        publishDate: { $ref: "#/components/schemas/DateTime" }
+        likesCount:
+          description: Total count of the likes this post received
+          type: integer
+          minimum: 0
+          example: 1200
+        commentsCount:
+          description: Total count of the comments this post received
+          type: integer
+          minimum: 0
+          example: 300
+    FileId:
+      description: The unique ID of a file
+      type: string
+      example: 162b0b32f02482d5aca0a7c93dd03cea3acd7
 
   securitySchemes:
     UserIdAuth:
