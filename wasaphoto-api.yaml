@@ -58,6 +58,9 @@ paths:
       description: |
         Search users by their username, or partial username.
         A text search is performed on usernames.
+
+        A user must be logged in. This is required in order to hide
+        other users who banned the one who is performing the search.
       parameters:
         - name: username
           in: query
@@ -71,6 +74,11 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "204": { $ref: "#/components/responses/EndOfPagination" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
 
   /users/{id}:
     description: Actions performed on a single user, identified by the given ID
@@ -110,6 +118,10 @@ paths:
       description: |
         Get user's profile details,
         including the list of his/her photos, paginated.
+
+        Who requests the user info must be authenticated,
+        in order to detect if it's allowed to see other's information
+        (e.g. banned or not).
       responses:
         "200":
           description: Get details about this user's profile
@@ -120,6 +132,10 @@ paths:
           description: User with given ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
   
   /users/{id}/followers:
     description: Actions on someone's followers
@@ -131,6 +147,9 @@ paths:
       summary: List someone's followers
       description: |
         List, with cursor pagination, all the followers of the specified user.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
@@ -140,6 +159,10 @@ paths:
           description: A user with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
 
     post:
       tags: [ "user" ]
@@ -148,6 +171,9 @@ paths:
       description: |
         Add yourself as a follower of the user
         identified by the ID in the path.
+
+        You may not have the authorization to follow someone,
+        for instance if the user you want to follow already banned you.
       responses:
         "200":
           description: You are now following this user
@@ -164,6 +190,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
       security:
         - UserIdAuth: [ ]
     delete:
@@ -196,6 +223,9 @@ paths:
       summary: List someone's followings
       description: |
         List, with cursor pagination, all the followings of the specified user.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
@@ -205,6 +235,10 @@ paths:
           description: A user with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
 
   /users/{id}/blockedPeople/{blockedId}:
     parameters:
@@ -229,7 +263,6 @@ paths:
         "409":
           description: You cannot ban yourself
         "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
     delete:
@@ -258,6 +291,9 @@ paths:
       operationId: listUserPhotos
       summary: Get someone's photos
       description: List all photos of a user, using a paginated requests.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
@@ -267,6 +303,10 @@ paths:
           description: A user with this ID cannot be found
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
 
   /photos:
     description: Photos collection
@@ -415,6 +455,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
       security:
         - UserIdAuth: [ ]
     delete:
@@ -449,6 +490,9 @@ paths:
         List all the comments users left to a photo,
         in reverse chronological order,
         using cursor pagination not to overwhelm the client.
+
+        You must be logged in, because the author of the post may have banned you.
+        In that case, you are not authorized to see.
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
@@ -474,12 +518,19 @@ paths:
           description: A post with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
 
     post:
       tags: [ "photo" ]
       operationId: commentPhoto
       summary: Comment a photo
-      description: Leave a comment on a photo
+      description: |
+        Leave a comment on a photo, if authorized.
+        For instance, you cannot leave a comment
+        under a photo of a user who banned you.
       requestBody:
         required: true
         content:
@@ -496,6 +547,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
       security:
         - UserIdAuth: [ ]
 
@@ -597,6 +649,9 @@ components:
       description: |
         A valid authentication is included in this request,
         but you are not authorized to perform this action.
+
+        For instance, you are trying to modify someone else's data,
+        or access to information about someone who banned you.
     EndOfPagination:
       description: |
         The current page was successfully found
