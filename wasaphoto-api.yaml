@@ -49,6 +49,8 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
+              examples:
+                NewUser: { $ref: "#/components/examples/NewUser" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
       security: []
@@ -756,6 +758,19 @@ components:
           items:
             type: object
           description: Data of this page
+    
+  examples:
+    NewUser:
+      summary: The User resource when it has just been created (sign-up).
+      value:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        name: john_doe_42
+        surname: ""
+        username: john_doe_42
+        followersCount: 0
+        followingsCount: 0
+        postsCount: 0
+        banned: false
 
   securitySchemes:
     UserIdAuth:
