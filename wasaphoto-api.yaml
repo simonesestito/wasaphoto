@@ -32,7 +32,7 @@ paths:
             schema:
               type: object
               properties:
-                name: { $ref: "#/components/schemas/User" }
+                name: { $ref: "#/components/schemas/Username" }
       responses:
         '200':
           description: User log-in action successful, user already exists
@@ -643,6 +643,14 @@ components:
       example: "123e4567-e89b-12d3-a456-426614174000"
       readOnly: true
 
+    Username:
+      description: User's personal and unique username
+      type: string
+      example: john_doe_42
+      pattern: '^.*?$'
+      minLength: 3
+      maxLength: 16
+
     User:
       description: |
         Representation of a user, with all the details useful in his/her profile.
@@ -660,12 +668,7 @@ components:
           type: string
           example: Doe
         username:
-          description: User's personal and unique username
-          type: string
-          example: john_doe_42
-          pattern: '^.*?$'
-          minLength: 3
-          maxLength: 16
+          $ref: "#/components/schemas/Username"
         followersCount:
           description: Total count of the followers of a user
           type: integer
