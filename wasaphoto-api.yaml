@@ -173,11 +173,8 @@ paths:
         You may not have the authorization to follow someone,
         for instance if the user you want to follow already banned you.
       responses:
-        "200":
+        "204":
           description: You are now following this user
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
         "404":
           description: A user with this ID doesn't exist
         "409":
@@ -197,11 +194,10 @@ paths:
         Remove yourself as a follower
         of the user identified by the ID in the path.
       responses:
-        "200":
-          description: You are not following this user anymore, or you wasn't following him/her in the first place
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
+        "204":
+          description: |
+            You are not following this user anymore,
+            or you wasn't following him/her in the first place
         "404":
           description: A user with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -391,11 +387,8 @@ paths:
       summary: Like a photo
       description: Leave a like on a photo
       responses:
-        "200":
+        "204":
           description: Your like was added
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Photo" }
         "404":
           description: A post with this ID doesn't exist
         "409":
@@ -410,11 +403,8 @@ paths:
       summary: Unlike a photo
       description: Remove a like from a photo
       responses:
-        "200":
+        "204":
           description: Your like was removed
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Photo" }
         "404":
           description: A post with this ID doesn't exist
         "409":
@@ -479,7 +469,7 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/NewComment" }
       responses:
-        "200":
+        "201":
           description: Your comment was added
           content:
             application/json:
@@ -503,11 +493,8 @@ paths:
         Delete a comment from a photo.
         A comment can only be deleted by its author.
       responses:
-        "200":
-          description: Your comment was deleted
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Photo" }
+        "204":
+          description: Your comment was deleted.
         "404":
           description: A post or a comment with the given ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
