@@ -46,6 +46,29 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /users:
+    description: Users collection
+    get:
+      tags: [ "user" ]
+      operationId: searchUsers
+      summary: Search users
+      description: |
+        Search users by their username, or partial username.
+        A text search is performed on usernames.
+      parameters:
+        - name: username
+          in: query
+          description: Username or part of the username to search
+          required: false
+          example: john
+          schema:
+            type: string
+            minimum: 3
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+
   /users/{id}:
     description: Actions performed on a single user, identified by the given ID
     parameters:
@@ -99,6 +122,22 @@ paths:
     description: Actions on someone's followers
     parameters:
       - { $ref: "#/components/parameters/UserId" }
+    get:
+      tags: [ "user" ]
+      operationId: listFollowers
+      summary: List someone's followers
+      description: |
+        List, with cursor pagination, all the followers of the specified user.
+      parameters:
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
     post:
       tags: [ "user" ]
       operationId: followUser
@@ -144,6 +183,42 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
       security:
         - UserIdAuth: [ ]
+
+  /users/{id}/followings:
+    get:
+      tags: [ "user" ]
+      operationId: listFollowings
+      summary: List someone's followings
+      description: |
+        List, with cursor pagination, all the followings of the specified user.
+      parameters:
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /users/{id}/photos:
+    description: Photos collection of a user
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
+    get:
+      tags: [ "user", "photo" ]
+      operationId: listUserPhotos
+      summary: Get someone's photos
+      description: List all photos of a user, using a paginated requests.
+      parameters:
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+        "404":
+          description: A user with this ID cannot be found
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
 
   /photos:
     description: Photos collection
@@ -318,6 +393,40 @@ paths:
   /photos/{id}/comments:
     parameters:
       - { $ref: "#/components/parameters/PhotoId" }
+    get:
+      tags: [ "photo" ]
+      operationId: getPhotoComments
+      summary: List comments left to a photo
+      description: |
+        List all the comments users left to a photo,
+        in reverse chronological order,
+        using cursor pagination not to overwhelm the client.
+      parameters:
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200":
+          description: |
+            The current page was successfully returned
+            and it contains some comments.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/PaginationInfo" }
+                  - description: Current selected page
+                    type: object
+                    readOnly: true
+                    properties:
+                      pageData:
+                        description: Photos of the current page
+                        type: array
+                        items: { $ref: "#/components/schemas/Comment" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
     post:
       tags: [ "photo" ]
       operationId: commentPhoto
@@ -368,6 +477,26 @@ paths:
       security:
         - UserIdAuth: [ ]
 
+  /stream:
+    get:
+      tags: [ "user" ]
+      operationId: getMyStream
+      summary: Get my own stream
+      description: |
+        Get my own post stream, using cursor pagination.
+        It will contain posts from the profiles you follow,
+        in reverse chronological order.
+      parameters:
+        - { $ref: "#/components/parameters/PageCursor" }
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
+        "204": { $ref: "#/components/responses/EndOfPagination" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+      security:
+        - UserIdAuth: [ ]
+
 components:
   parameters:
     UserId:
@@ -394,6 +523,14 @@ components:
       required: true
       in: path
       schema: { $ref: "#/components/schemas/ResourceId" }
+    PageCursor:
+      name: pageCursor
+      description: |
+        In cursor pagination, this refers to 
+        the ID of the latest resource received by the client.
+      required: false
+      in: query
+      schema: { $ref: "#/components/schemas/ResourceId" }
 
   responses:
     BadRequest:
@@ -412,6 +549,44 @@ components:
       description: |
         A valid authentication is included in this request,
         but you are not authorized to perform this action.
+    EndOfPagination:
+      description: |
+        The current page was successfully found
+        but it has no more data to send to the client at the moment.
+    PaginatedPhotosResult:
+      description: |
+        The current page was successfully returned
+        and it contains some photos.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - { $ref: "#/components/schemas/PaginationInfo" }
+              - description: Current selected page
+                type: object
+                readOnly: true
+                properties:
+                  pageData:
+                    description: Photos of the current page
+                    type: array
+                    items: { $ref: "#/components/schemas/Photo" }
+    PaginatedUsersResult:
+      description: |
+        The current page was successfully returned
+        and it contains some users.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - { $ref: "#/components/schemas/PaginationInfo" }
+              - description: Current selected page
+                type: object
+                readOnly: true
+                properties:
+                  pageData:
+                    description: Users of the current page
+                    type: array
+                    items: { $ref: "#/components/schemas/User" }
 
   schemas:
     ResourceId:
@@ -488,16 +663,19 @@ components:
           type: integer
           minimum: 0
           example: 300
+
     FileId:
       description: The unique ID of a file
       type: string
       example: 162b0b32f02482d5aca0a7c93dd03cea3acd7
+
     NewComment:
       type: object
       properties:
         text:
           type: string
           example: Great post! Keep up the good work.
+
     Comment:
       description: A comment left on a post
       allOf:
@@ -507,6 +685,21 @@ components:
             publishDate: { $ref: "#/components/schemas/DateTime" }
             author: { $ref: "#/components/schemas/User" }
         - { $ref: "#/components/schemas/NewComment" }
+
+    PaginationInfo:
+      type: object
+      description: |
+        Additional data necessary to handle
+        paginated responses and subsequent requests.
+      properties:
+        hasMoreData:
+          type: boolean
+          description: |
+            It reports to the client if next page may contain more data
+          example: true
+        pageData:
+          type: array
+          description: Data of this page
 
   securitySchemes:
     UserIdAuth:
