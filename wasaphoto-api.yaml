@@ -174,6 +174,28 @@ paths:
       security:
         - UserIdAuth: [ ]
 
+  /photos/{id}:
+    parameters:
+      - { $ref: "#/components/parameters/PhotoId" }
+    delete:
+      tags: [ "photo" ]
+      operationId: deletePhoto
+      summary: Delete a photo
+      description: |
+        Delete an existing published post.
+        A user can only delete his own photos.
+      responses:
+        "204":
+          description: The post was deleted
+        "404":
+          description: The post doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
+        
   /photoFiles:
     description: Photo files collection
     post:
@@ -269,7 +291,7 @@ components:
       required: true
       in: path
       schema: { $ref: "#/components/schemas/ResourceId" }
-      
+
   responses:
     BadRequest:
       description: |
