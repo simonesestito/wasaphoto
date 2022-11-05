@@ -30,7 +30,6 @@ paths:
               type: object
               properties:
                 name: { $ref: "#/components/schemas/User" }
-
       responses:
         '200':
           description: User log-in action successful, user already exists
@@ -58,6 +57,14 @@ components:
       description: |
         An unexpected error occurred on the server
         while processing this request.
+    LoginError:
+      description: |
+        Authentication is required to perform this action,
+        and no *valid* authentication was included in this request.
+    AuthorizationError:
+      description: |
+        A valid authentication is included in this request,
+        but you are not authorized to perform this action.
 
   schemas:
     ResourceId:
@@ -107,3 +114,13 @@ components:
           readOnly: true
           minimum: 0
           example: 12
+
+  securitySchemes:
+    UserIdAuth:
+      description: |
+        User authentication with the user ID passed
+        as it would be an authentication token.
+        Of course, that's extremely insecure, but it's done 
+        according to the project specification.
+      type: http
+      scheme: bearer
