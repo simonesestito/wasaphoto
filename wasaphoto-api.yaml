@@ -686,10 +686,12 @@ components:
           description: User's name
           type: string
           example: John
+          minLength: 2
         surname:
           description: User's surname
           type: string
           example: Doe
+          minLength: 2
         username:
           $ref: "#/components/schemas/Username"
         followersCount:
@@ -732,16 +734,19 @@ components:
           type: integer
           minimum: 0
           example: 1200
+          readOnly: true
         commentsCount:
           description: Total count of the comments this post received
           type: integer
           minimum: 0
           example: 300
+          readOnly: true
 
     FileId:
       description: The unique ID of a file
       type: string
       example: 162b0b32f02482d5aca0a7c93dd03cea3acd7
+      # TODO: Set length, based on hash implementation
 
     NewComment:
       type: object
@@ -762,6 +767,7 @@ components:
 
     PaginationInfo:
       type: object
+      readOnly: true
       description: |
         Additional data necessary to handle
         paginated responses and subsequent requests.
