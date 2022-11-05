@@ -9,7 +9,7 @@ info:
     you can upload your photos, and they will be visible to everyone
     who is following you.
 
-    **Project details at [https://gamificationlab.uniroma1.it/notes/Project.pdf]()**
+    **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
   version: "1"
 paths:
   /sessions:
