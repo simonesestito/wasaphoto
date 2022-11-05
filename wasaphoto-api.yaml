@@ -362,57 +362,20 @@ paths:
               format: binary
       responses:
         "201":
-          description: The image was successfully uploaded and elaborated
+          description: |
+            The image was successfully uploaded and elaborated.
+            You can use the given URL to use this image in a new post.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  photoId: { $ref: "#/components/schemas/FileId" }
+                  photoUrl: { $ref: "#/components/schemas/StaticImageUrl" }
         "415":
           description: The file sent cannot be processed as an image
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-
-  /photoFiles/{id}:
-    description: A single photo file
-    parameters:
-      - {$ref: "#/components/parameters/PhotoFileId"}
-    get:
-      tags: [ "files" ]
-      operationId: downloadPhotoFile
-      summary: Get a photo file
-      description: |
-        Download the file of an existing photo.
-        Simple caching is allowed because the file at a given ID 
-        is guaranteed to never change. At most it can be deleted.
-      responses:
-        "200":
-          description: An image file with the given ID was found and it's stored on this server
-          content:
-            image/webp:
-              schema:
-                type: string
-                format: binary
-                description: The image as a binary compressed WEBP file
-        "301":
-          description: |
-            An image file with the given ID was found, but it's stored somewhere else,
-            such as a CDN or another dedicated server for static resources.
-          headers:
-            Location:
-              description: The URL where the image file can be download from
-              schema:
-                type: string
-                format: uri
-        "404":
-          description: |
-            An image file with the given ID cannot be found
-            neither on this nor on other servers.
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-      security: []
 
   /photos/{id}/likes:
     parameters:
@@ -579,12 +542,6 @@ components:
       in: path
       description: The unique ID of a post, not the image file directly
       schema: { $ref: "#/components/schemas/ResourceId" }
-    PhotoFileId:
-      name: id
-      description: The ID of an image file
-      required: true
-      in: path
-      schema: { $ref: "#/components/schemas/FileId" }
     CommentId:
       name: commentId
       description: The unique ID of a comment
@@ -718,6 +675,19 @@ components:
       type: string
       example: 2017-07-21T17:32:28Z
       readOnly: true
+
+    StaticImageUrl:
+      description: |
+        The direct URL to the image file.
+
+        It may also be stored on a different server,
+        which can be dedicated to serve static resources,
+        or maybe a CDN or may also be simply this server.
+
+        The file can be cached and it's guaranteed to never change.
+      type: string
+      format: uri
+      example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
     
     Photo:
       description: |
@@ -726,7 +696,7 @@ components:
       type: object
       properties:
         id: { $ref: "#/components/schemas/ResourceId" }
-        imageId: { $ref: "#/components/schemas/FileId" }
+        imageUrl: { $ref: "#/components/schemas/StaticImageUrl" }
         author: { $ref: "#/components/schemas/User" }
         publishDate: { $ref: "#/components/schemas/DateTime" }
         likesCount:
@@ -741,12 +711,6 @@ components:
           minimum: 0
           example: 300
           readOnly: true
-
-    FileId:
-      description: The unique ID of a file
-      type: string
-      example: 162b0b32f02482d5aca0a7c93dd03cea3acd7
-      # TODO: Set length, based on hash implementation
 
     NewComment:
       type: object
