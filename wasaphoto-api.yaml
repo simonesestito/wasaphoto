@@ -203,6 +203,49 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /users/{id}/blockedPeople/{blockedId}:
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
+      - name: blockedId
+        required: true
+        in: path
+        description: The unique ID of the user to block
+        schema: { $ref: "#/components/schemas/ResourceId" }
+    put:
+      tags: [ "user" ]
+      operationId: banUser
+      summary: Ban a user
+      description: Ban another existing user
+      responses:
+        "204":
+          description: User banned, but it already was
+        "201":
+          description: User banned, and it wasn't before
+        "404":
+          description: User who bans or user who is banned not found
+        "409":
+          description: You cannot ban yourself
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: [ "user" ]
+      operationId: unbanUser
+      summary: Unban a user
+      description: Unban a previously banned user
+      responses:
+        "204":
+          description: User unbanned
+        "404":
+          description: User who unbans or user who has to be unbanned not found
+        "409":
+          description: You cannot unban yourself
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
   /users/{id}/photos:
     description: Photos collection of a user
     parameters:
