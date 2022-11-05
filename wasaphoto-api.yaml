@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: WASAPhoto API Specification
+  description: |
+    This OpenAPI document describes the WASAPhoto project REST API.
+
+    Keep in touch with your friends by sharing photos of special moments,
+    thanks to WASAPhoto! Directly from your PC,
+    you can upload your photos, and they will be visible to everyone
+    who is following you.
+
+    Project details at [https://gamificationlab.uniroma1.it/notes/Project.pdf]()
+  version: "1"
+paths:
+  /sessions:
+    post:
+      tags: [ "login" ]
+      summary: Logs in the user
+      description: |
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User login details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { $ref: "#/components/schemas/User" }
+
+      responses:
+        '200':
+          description: User log-in action successful, user already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        '201':
+          description: |
+            User log-in action successful,
+            user didn't exist and it has just been created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+
+components:
+  responses:
+    BadRequest:
+      description: |
+        The request was not compliant with the documentation
+        (eg. missing fields, etc).
+    ServerError:
+      description: |
+        An unexpected error occurred on the server
+        while processing this request.
+
+  schemas:
+    ResourceId:
+      description: The unique resource ID as a UUID string
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      readOnly: true
+
+    User:
+      description: |
+        Representation of a user, with all the details useful in his/her profile.
+        It won't directly include his/her photos, because they must be
+        requested separately, using pagination.
+      type: object
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        name:
+          description: User's name
+          type: string
+          example: John
+        surname:
+          description: User's surname
+          type: string
+          example: Doe
+        username:
+          description: User's personal and unique username
+          type: string
+          example: john_doe_42
+          pattern: '^.*?$'
+          minLength: 3
+          maxLength: 16
+        followersCount:
+          description: Total count of the followers of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 500
+        followingsCount:
+          description: Total count of the followings of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 80
+        postsCount:
+          description: Total count of the posts of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 12
