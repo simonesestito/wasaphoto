@@ -46,8 +46,64 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /users/{id}:
+    description: Actions performed on a single user, identified by the given ID
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
+    put:
+      tags: [ "user" ]
+      operationId: setMyUserName
+      summary: Update a user's details
+      description: Update user details like name, surname, username, etc
+      requestBody:
+        description: Fields to update on an existing user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User" }
+      responses:
+        "200":
+          description: User fields have been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404":
+          description: User with given ID doesn't exist and wasn't created
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+      security:
+        - UserIdAuth: [ ]
+    get:
+      tags: [ "user" ]
+      operationId: getUserProfile
+      summary: Get user's profile details
+      description: |
+        Get user's profile details,
+        including the list of his/her photos, paginated.
+      responses:
+        "200":
+          description: Get details about this user's profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404":
+          description: User with given ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
 
 components:
+  parameters:
+    UserId:
+      name: id
+      required: true
+      in: path
+      description: The unique ID of a user
+      schema: { $ref: "#/components/schemas/ResourceId" }
+
   responses:
     BadRequest:
       description: |
