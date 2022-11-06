@@ -688,7 +688,7 @@ components:
     LoginResult:
       type: object
       properties:
-        name: { $ref: "#/components/schemas/ResourceId" }
+        userId: { $ref: "#/components/schemas/ResourceId" }
 
     User:
       description: |
