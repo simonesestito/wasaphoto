@@ -168,7 +168,7 @@ paths:
 
   /users/{userId}/username:
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
     description: |
       Special resource which points to
       the username field of the currently logged in user.
@@ -244,39 +244,11 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-    post:
-      tags: ["user"]
-      operationId: followUser
-      summary: Follow a user
-      description: |
-        Add the user you want to follow in your followings collection.
-
-        You may not have the authorization to follow someone,
-        for instance if the user you want to follow already banned you.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: Specify the user you want to follow.
-              type: object
-              properties:
-                userId: { $ref: "#/components/schemas/ResourceId" }
-      responses:
-        "204":
-          description: You are now following this user
-        "404":
-          description: A user with this ID doesn't exist
-        "409":
-          description: You already follow this user
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
   
   /users/{userId}/followings/{followedId}:
     description: A resource to identify a follower.
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
       - name: followedId
         in: path
         required: true
@@ -299,11 +271,32 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
+    put:
+      tags: ["user"]
+      operationId: followUser
+      summary: Follow a user
+      description: |
+        Add the user you want to follow in the followings collection.
 
-  /users/{userId}/blockedPeople/{blockedId}:
-    description: Collection of people blocked by the current user
+        You may not have the authorization to follow someone,
+        for instance if the user you want to follow already banned you.
+        Also, you cannot add followers to someone else's followings.
+      responses:
+        "201":
+          description: You are now following this user.
+        "204":
+          description: You were already following this user (idempotent).
+        "404":
+          description: A user with the "userId" doesn't exist.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{userId}/bannedPeople/{blockedId}:
+    description: Collection of people blocked by the specified user
     parameters:
-      - { $ref: "#/components/parameters/UserId" }
+      - $ref: "#/components/parameters/UserId"
       - name: blockedId
         required: true
         in: path
@@ -315,15 +308,16 @@ paths:
       summary: Ban a user
       description: Ban another existing user
       responses:
-        "204":
-          description: User banned, but it already was
         "201":
           description: User banned, and it wasn't before
+        "204":
+          description: User banned, but it already was
         "404":
-          description: User who bans or user who is banned not found
+          description: User to ban not found
         "409":
           description: You cannot ban yourself
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
     delete:
@@ -335,9 +329,7 @@ paths:
         "204":
           description: User unbanned
         "404":
-          description: User who unbans or user who has to be unbanned not found
-        "409":
-          description: You cannot unban yourself
+          description: User to unban not found
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -451,21 +443,22 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
-  /photos/{photoId}/likes:
+  /photos/{photoId}/likes/{userId}:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
-    post:
+      - $ref: "#/components/parameters/UserId"
+    put:
       tags: ["photo"]
       operationId: likePhoto
       summary: Like a photo
-      description: Leave a like on a photo
+      description: The specified user will leave a like on a photo
       responses:
-        "204":
+        "201":
           description: Your like was added
+        "204":
+          description: Your like was already added
         "404":
           description: A post with this ID doesn't exist
-        "409":
-          description: You already liked this post
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -480,11 +473,10 @@ paths:
           description: Your like was removed
         "404":
           description: A post with this ID doesn't exist
-        "409":
-          description: You didn't like this post in the first place
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
 
   /photos/{photoId}/comments:
     parameters:
@@ -569,7 +561,7 @@ paths:
         "204":
           description: Your comment was deleted.
         "404":
-          description: A post or a comment with the given ID doesn't exist
+          description: A post with the given ID doesn't exist.
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
