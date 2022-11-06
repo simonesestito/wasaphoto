@@ -72,10 +72,7 @@ paths:
           in: query
           description: Username or part of the username to search
           required: true
-          example: john
-          schema:
-            type: string
-            minimum: 3
+          schema: { $ref: "#/components/schemas/Username" }
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
