@@ -10,7 +10,7 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1"
+  version: "0.9.0"
 paths:
   /sessions/:
     post:
@@ -76,7 +76,6 @@ paths:
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -211,7 +210,6 @@ paths:
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "404":
           description: A user with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -235,7 +233,6 @@ paths:
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "404":
           description: A user with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -352,7 +349,6 @@ paths:
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "404":
           description: A user with this ID cannot be found
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -499,7 +495,7 @@ paths:
         "200":
           description: |
             The current page was successfully returned
-            and it contains some comments.
+            and it may contain some comments.
           content:
             application/json:
               schema:
@@ -513,7 +509,6 @@ paths:
                         description: Comments of the current page
                         type: array
                         items: { $ref: "#/components/schemas/Comment" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "404":
           description: A post with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -585,7 +580,6 @@ paths:
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
-        "204": { $ref: "#/components/responses/EndOfPagination" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -640,14 +634,11 @@ components:
 
         For instance, you are trying to modify someone else's data,
         or access to information about someone who banned you.
-    EndOfPagination:
-      description: |
-        The current page was successfully found
-        but it has no more data to send to the client at the moment.
+
     PaginatedPhotosResult:
       description: |
         The current page was successfully returned
-        and it contains some photos.
+        and it may contain some photos.
       content:
         application/json:
           schema:
@@ -664,7 +655,7 @@ components:
     PaginatedUsersResult:
       description: |
         The current page was successfully returned
-        and it contains some users.
+        and it may contain some users.
       content:
         application/json:
           schema:
@@ -822,11 +813,16 @@ components:
           description: |
             It reports to the client if next page may contain more data
           example: true
+        totalCount:
+          type: integer
+          minimum: 0
+          description: Number of total items in all pages
+          example: 420
         pageData:
           type: array
           items:
             type: object
-          description: Data of this page
+          description: Data of this page, if any
 
   securitySchemes:
     UserIdAuth:
