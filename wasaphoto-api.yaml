@@ -26,6 +26,8 @@ paths:
 
         In case a new user is created, it'll use the given username as
         his/her first name, and the surname will be empty.
+
+        You can later get the full user information with the appropriate endpoint.
       operationId: doLogin
       requestBody:
         description: User login details
@@ -41,16 +43,14 @@ paths:
           description: User log-in action successful, user already exists
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/User" }
+              schema: { $ref: "#/components/schemas/LoginResult" }
         "201":
           description: |
             User log-in action successful,
             user didn't exist and it has just been created.
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/User" }
-              examples:
-                NewUser: { $ref: "#/components/examples/NewUser" }
+              schema: { $ref: "#/components/schemas/LoginResult" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
       security: []
@@ -688,6 +688,11 @@ components:
       minLength: 3
       maxLength: 16
 
+    LoginResult:
+      type: object
+      properties:
+        name: { $ref: "#/components/schemas/ResourceId" }
+
     User:
       description: |
         Representation of a user, with all the details useful in his/her profile.
@@ -816,19 +821,6 @@ components:
           items:
             type: object
           description: Data of this page
-
-  examples:
-    NewUser:
-      summary: The User resource when it has just been created (sign-up).
-      value:
-        id: "123e4567-e89b-12d3-a456-426614174000"
-        name: john_doe_42
-        surname: ""
-        username: john_doe_42
-        followersCount: 0
-        followingsCount: 0
-        postsCount: 0
-        banned: false
 
   securitySchemes:
     UserIdAuth:
