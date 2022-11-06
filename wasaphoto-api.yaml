@@ -84,7 +84,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
-  /users/{id}:
+  /users/{userId}:
     description: Actions performed on a single user, identified by the given ID
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -166,7 +166,7 @@ paths:
         "404":
           description: The user cannot be found
 
-  /users/{id}/username:
+  /users/{userId}/username:
     parameters:
       - { $ref: "#/components/parameters/UserId" }
     description: |
@@ -196,7 +196,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{id}/followers:
+  /users/{userId}/followers:
     description: Actions on someone's followers
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -221,7 +221,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{id}/followings:
+  /users/{userId}/followings:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
@@ -273,7 +273,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
   
-  /users/{id}/followings/{followedId}:
+  /users/{userId}/followings/{followedId}:
     description: A resource to identify a follower.
     parameters:
       - { $ref: "#/components/parameters/UserId" }
@@ -300,7 +300,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{id}/blockedPeople/{blockedId}:
+  /users/{userId}/blockedPeople/{blockedId}:
     description: Collection of people blocked by the current user
     parameters:
       - { $ref: "#/components/parameters/UserId" }
@@ -343,7 +343,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
-  /users/{id}/photos:
+  /users/{userId}/photos:
     description: Photos collection of a user
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -394,7 +394,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
-  /photos/{id}:
+  /photos/{photoId}:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     delete:
@@ -451,7 +451,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
-  /photos/{id}/likes:
+  /photos/{photoId}/likes:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     post:
@@ -486,7 +486,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
-  /photos/{id}/comments:
+  /photos/{photoId}/comments:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     get:
@@ -554,7 +554,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /photos/{id}/comments/{commentId}:
+  /photos/{photoId}/comments/{commentId}:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
       - $ref: "#/components/parameters/CommentId"
@@ -596,13 +596,13 @@ paths:
 components:
   parameters:
     UserId:
-      name: id
+      name: userId
       required: true
       in: path
       description: The unique ID of a user
       schema: { $ref: "#/components/schemas/ResourceId" }
     PhotoId:
-      name: id
+      name: photoId
       required: true
       in: path
       description: The unique ID of a post, not the image file directly
@@ -745,7 +745,7 @@ components:
     DateTime:
       description: Standard datetime representation
       type: string
-      example: 2017-07-21T17:32:28Z
+      example: "2017-07-21T17:32:28Z"
       readOnly: true
 
     StaticImageUrl:
