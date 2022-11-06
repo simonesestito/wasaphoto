@@ -12,7 +12,7 @@ info:
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
   version: "1"
 paths:
-  /sessions:
+  /sessions/:
     post:
       tags: ["login"]
       summary: Logs in the user
@@ -55,7 +55,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
       security: []
 
-  /users:
+  /users/:
     description: Users collection
     get:
       tags: ["user"]
@@ -196,7 +196,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{userId}/followers:
+  /users/{userId}/followers/:
     description: Actions on someone's followers
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -221,7 +221,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{userId}/followings:
+  /users/{userId}/followings/:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
@@ -335,7 +335,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
 
-  /users/{userId}/photos:
+  /users/{userId}/photos/:
     description: Photos collection of a user
     parameters:
       - $ref: "#/components/parameters/UserId"
@@ -359,7 +359,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /photos:
+  /photos/:
     description: Photos collection
     post:
       tags: ["photo"]
@@ -406,7 +406,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /photoFiles:
+  /photoFiles/:
     description: Photo files collection
     post:
       tags: ["files"]
@@ -478,7 +478,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /photos/{photoId}/comments:
+  /photos/{photoId}/comments/:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     get:
