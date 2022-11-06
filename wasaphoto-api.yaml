@@ -14,7 +14,7 @@ info:
 paths:
   /sessions:
     post:
-      tags: [ "login" ]
+      tags: ["login"]
       summary: Logs in the user
       description: |
         If the user does not exist, it will be created,
@@ -37,12 +37,12 @@ paths:
               properties:
                 name: { $ref: "#/components/schemas/Username" }
       responses:
-        '200':
+        "200":
           description: User log-in action successful, user already exists
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
-        '201':
+        "201":
           description: |
             User log-in action successful,
             user didn't exist and it has just been created.
@@ -58,7 +58,7 @@ paths:
   /users:
     description: Users collection
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: searchUsers
       summary: Search users
       description: |
@@ -83,81 +83,13 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
-  
-  /users/me:
-    description: Special resource which points to the currently logged in user.
-    get:
-      tags: [ "user" ]
-      operationId: getCurrentUser
-      summary: Get current user
-      description: |
-        Get the currently logged in user.
-        Equivalent to /users/{id} where the ID is the current user's.
-      responses:
-        "200":
-          description: Get details about current user's profile
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
-    put:
-      tags: [ "user" ]
-      operationId: setMyDetails
-      summary: Update user details
-      description: Update user details like name, surname, username, etc
-      requestBody:
-        description: Fields to update on the current user
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/User" }
-      responses:
-        "200":
-          description: User fields have been updated successfully
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
-        "409":
-          description: A user with the requested new username already exists
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
-
-  /users/me/username:
-    description: |
-      Special resource which points to
-      the username field of the currently logged in user.
-    put:
-      tags: [ "user" ]
-      operationId: setMyUserName
-      summary: Update username
-      description: Update current user's username
-      requestBody:
-        description: New username to assign to the current user
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Username" }
-      responses:
-        "200":
-          description: User username have been updated successfully
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User" }
-        "409":
-          description: A user with the requested new username already exists
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
 
   /users/{id}:
     description: Actions performed on a single user, identified by the given ID
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: getUserProfile
       summary: Get user's profile details
       description: |
@@ -179,13 +111,68 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-  
+    put:
+      tags: ["user"]
+      operationId: setMyDetails
+      summary: Update user details
+      description: |
+        Update user details like name, surname, username, etc.
+        You can only update your own details.
+      requestBody:
+        description: Fields to update on the specified user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User" }
+      responses:
+        "200":
+          description: User fields have been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{id}/username:
+    parameters:
+      - { $ref: "#/components/parameters/UserId" }
+    description: |
+      Special resource which points to
+      the username field of the currently logged in user.
+    put:
+      tags: ["user"]
+      operationId: setMyUserName
+      summary: Update username
+      description: Update current user's username
+      requestBody:
+        description: New username to assign to the current user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+      responses:
+        "200":
+          description: User username have been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
   /users/{id}/followers:
     description: Actions on someone's followers
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: listFollowers
       summary: List someone's followers
       description: |
@@ -209,7 +196,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: listFollowings
       summary: List someone's followings
       description: |
@@ -228,11 +215,8 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-
-  /users/me/followings:
-    description: Collection of the users I follow.
     post:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: followUser
       summary: Follow a user
       description: |
@@ -259,13 +243,17 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-
-  /users/me/followings/{id}:
-    description: The representation of a user I'm currently following
+  
+  /users/{id}/followings/{followedId}:
+    description: A resource to identify a follower.
     parameters:
       - { $ref: "#/components/parameters/UserId" }
+      - name: followedId
+        in: path
+        required: true
+        schema: { $ref: "#/components/schemas/ResourceId" }
     delete:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: unfollowUser
       summary: Unfollow a user
       description: |
@@ -281,17 +269,19 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/me/blockedPeople/{blockedId}:
+  /users/{id}/blockedPeople/{blockedId}:
     description: Collection of people blocked by the current user
     parameters:
+      - { $ref: "#/components/parameters/UserId" }
       - name: blockedId
         required: true
         in: path
         description: The unique ID of the user to block
         schema: { $ref: "#/components/schemas/ResourceId" }
     put:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: banUser
       summary: Ban a user
       description: Ban another existing user
@@ -308,7 +298,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
     delete:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: unbanUser
       summary: Unban a user
       description: Unban a previously banned user
@@ -329,7 +319,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user", "photo" ]
+      tags: ["user", "photo"]
       operationId: listUserPhotos
       summary: Get someone's photos
       description: List all photos of a user, using a paginated requests.
@@ -351,7 +341,7 @@ paths:
   /photos:
     description: Photos collection
     post:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: uploadPhoto
       summary: Upload photo
       description: |
@@ -379,7 +369,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     delete:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: deletePhoto
       summary: Delete a photo
       description: |
@@ -398,7 +388,7 @@ paths:
   /photoFiles:
     description: Photo files collection
     post:
-      tags: [ "files" ]
+      tags: ["files"]
       operationId: uploadPhotoFile
       summary: Upload the file of a photo
       description: |
@@ -436,7 +426,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     post:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: likePhoto
       summary: Like a photo
       description: Leave a like on a photo
@@ -452,7 +442,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
     delete:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: unlikePhoto
       summary: Unlike a photo
       description: Remove a like from a photo
@@ -471,7 +461,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     get:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: getPhotoComments
       summary: List comments left to a photo
       description: |
@@ -510,7 +500,7 @@ paths:
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
     post:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: commentPhoto
       summary: Comment a photo
       description: |
@@ -540,7 +530,7 @@ paths:
       - $ref: "#/components/parameters/PhotoId"
       - $ref: "#/components/parameters/CommentId"
     delete:
-      tags: [ "photo" ]
+      tags: ["photo"]
       operationId: uncommentPhoto
       summary: Delete a comment
       description: |
@@ -558,7 +548,7 @@ paths:
 
   /stream:
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: getMyStream
       summary: Get my own stream
       description: |
@@ -673,7 +663,7 @@ components:
       description: User's personal and unique username
       type: string
       example: john_doe_42
-      pattern: '^.*?$'
+      pattern: "^.*?$"
       minLength: 3
       maxLength: 16
 
@@ -741,7 +731,7 @@ components:
       type: string
       format: uri
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
-    
+
     Photo:
       description: |
         A photo post, with aggregate information about likes and comments.
@@ -805,7 +795,7 @@ components:
           items:
             type: object
           description: Data of this page
-    
+
   examples:
     NewUser:
       summary: The User resource when it has just been created (sign-up).
