@@ -91,7 +91,8 @@ paths:
       summary: Get user's profile details
       description: |
         Get user's profile details,
-        including the list of his/her photos, paginated.
+        not including the list of his/her photos,
+        which can be requested using the dedicated endpoint.
 
         Who requests the user info must be authenticated,
         in order to detect if it's allowed to see other's information
@@ -182,7 +183,7 @@ paths:
             schema: { $ref: "#/components/schemas/Username" }
       responses:
         "200":
-          description: User username have been updated successfully
+          description: User username has been updated successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
@@ -249,6 +250,9 @@ paths:
       - name: followedId
         in: path
         required: true
+        description: |
+          Unique ID of the user to follow.
+          If A wants to follow B, followedId = B's ID
         schema: { $ref: "#/components/schemas/ResourceId" }
     delete:
       tags: ["user"]
@@ -365,7 +369,7 @@ paths:
       description: |
         Upload a new photo to your personal account.
         The photo image file must have been previously uploaded,
-        here you can pass the file ID.
+        here you can pass the file URL.
       requestBody:
         content:
           application/json:
@@ -564,13 +568,17 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /stream:
+  /users/{userId}/stream:
+    description: Resource of photos stream for a user
+    parameters:
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: ["user"]
       operationId: getMyStream
       summary: Get my own stream
       description: |
-        Get my own post stream, using cursor pagination.
+        Get my own post stream (you are not allowed to see others' stream),
+        using cursor pagination.
         It will contain posts from the profiles you follow,
         in reverse chronological order.
       parameters:
@@ -581,6 +589,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
 
 components:
   parameters:
