@@ -37,7 +37,7 @@ paths:
             schema:
               type: object
               properties:
-                name: { $ref: "#/components/schemas/Username" }
+                username: { $ref: "#/components/schemas/Username" }
       responses:
         "200":
           description: User log-in action successful, user already exists
