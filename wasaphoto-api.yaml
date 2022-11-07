@@ -14,7 +14,7 @@ info:
 paths:
   /sessions/:
     post:
-      tags: ["login"]
+      tags: ["auth"]
       summary: Logs in the user
       description: |
         If the user does not exist, it will be created,
@@ -173,7 +173,7 @@ paths:
       tags: ["user"]
       operationId: setMyUserName
       summary: Update username
-      description: Update current user's username
+      description: Update user's username. You are not allowed to edit others username.
       requestBody:
         description: New username to assign to the current user
         required: true
@@ -198,7 +198,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: ["user"]
+      tags: ["follow"]
       operationId: listFollowers
       summary: List someone's followers
       description: |
@@ -221,7 +221,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: ["user"]
+      tags: ["follow"]
       operationId: listFollowings
       summary: List someone's followings
       description: |
@@ -252,7 +252,7 @@ paths:
           If A wants to follow B, followedId = B's ID
         schema: { $ref: "#/components/schemas/ResourceId" }
     delete:
-      tags: ["user"]
+      tags: ["follow"]
       operationId: unfollowUser
       summary: Unfollow a user
       description: |
@@ -270,7 +270,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
     put:
-      tags: ["user"]
+      tags: ["follow"]
       operationId: followUser
       summary: Follow a user
       description: |
@@ -338,7 +338,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: ["user", "photo"]
+      tags: ["photo"]
       operationId: listUserPhotos
       summary: Get someone's photos
       description: List all photos of a user, using a paginated requests.
@@ -445,7 +445,7 @@ paths:
       - $ref: "#/components/parameters/PhotoId"
       - $ref: "#/components/parameters/UserId"
     put:
-      tags: ["photo"]
+      tags: ["likes"]
       operationId: likePhoto
       summary: Like a photo
       description: The specified user will leave a like on a photo
@@ -461,7 +461,7 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
     delete:
-      tags: ["photo"]
+      tags: ["likes"]
       operationId: unlikePhoto
       summary: Unlike a photo
       description: Remove a like from a photo
@@ -479,11 +479,11 @@ paths:
     parameters:
       - $ref: "#/components/parameters/PhotoId"
     get:
-      tags: ["photo"]
+      tags: ["comments"]
       operationId: getPhotoComments
-      summary: List comments left to a photo
+      summary: List comments left on a photo
       description: |
-        List all the comments users left to a photo,
+        List all the comments users left on a photo,
         in reverse chronological order,
         using cursor pagination not to overwhelm the client.
 
@@ -517,7 +517,7 @@ paths:
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
     post:
-      tags: ["photo"]
+      tags: ["comments"]
       operationId: commentPhoto
       summary: Comment a photo
       description: |
@@ -547,7 +547,7 @@ paths:
       - $ref: "#/components/parameters/PhotoId"
       - $ref: "#/components/parameters/CommentId"
     delete:
-      tags: ["photo"]
+      tags: ["comments"]
       operationId: uncommentPhoto
       summary: Delete a comment
       description: |
@@ -568,7 +568,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: ["user"]
+      tags: ["follow"]
       operationId: getMyStream
       summary: Get my own stream
       description: |
