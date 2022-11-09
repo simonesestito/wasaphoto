@@ -1,6 +1,6 @@
 package user
 
-import "git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api"
+import "github.com/simonesestito/wasaphoto/service/api"
 
 type SearchParams struct {
 	UsernameGetParams  `json:",squash"`

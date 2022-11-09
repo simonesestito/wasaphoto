@@ -1,8 +1,8 @@
 package api
 
 import (
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/route"
 	"github.com/julienschmidt/httprouter"
+	"github.com/simonesestito/wasaphoto/service/api/route"
 	"net/http"
 )
 

@@ -1,8 +1,8 @@
 package likes
 
 import (
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/photo"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/user"
+	"github.com/simonesestito/wasaphoto/service/features/photo"
+	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
 type LikeParams struct {

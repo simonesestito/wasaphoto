@@ -1,11 +1,11 @@
 package ioc
 
 import (
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/route"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/auth"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/user"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/timeprovider"
+	"github.com/simonesestito/wasaphoto/service/api"
+	"github.com/simonesestito/wasaphoto/service/api/route"
+	"github.com/simonesestito/wasaphoto/service/features/auth"
+	"github.com/simonesestito/wasaphoto/service/features/user"
+	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/sirupsen/logrus"
 )
 

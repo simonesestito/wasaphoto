@@ -1,7 +1,7 @@
 package follow
 
 import (
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/user"
+	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
 type FollowerParams struct {
