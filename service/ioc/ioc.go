@@ -26,7 +26,7 @@ func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
 func (ioc *Container) CreateRouter() (api.Router, error) {
 	// List endpoints to register
 	controllers := []route.Controller{
-		//ioc.CreateUserController(),
+		ioc.CreateUserController(),
 		ioc.CreateLoginController(),
 	}
 
