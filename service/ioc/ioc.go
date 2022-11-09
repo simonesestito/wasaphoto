@@ -4,6 +4,7 @@ import (
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api"
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/route"
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/auth"
+	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/features/user"
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/timeprovider"
 	"github.com/sirupsen/logrus"
 )
@@ -63,9 +64,9 @@ func (ioc *Container) CreateLoginController() auth.LoginController {
 	}
 }
 
-//func (ioc *Container) CreateUserController() user.Controller {
-//	return user.Controller{}
-//}
+func (ioc *Container) CreateUserController() user.Controller {
+	return user.Controller{}
+}
 
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
 	return auth.Middleware{ioc.CreateAuthService()}
