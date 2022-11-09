@@ -23,7 +23,7 @@ type Router interface {
 	Close() error
 }
 
-// New returns a new Router instance
+// NewRouter returns a new Router instance
 func NewRouter(authMiddleware route.AuthMiddleware, middlewares []route.Middleware, logger logrus.FieldLogger) Router {
 	// Create a new router where we will register HTTP endpoints.
 	// The server will pass requests to this router to be handled.

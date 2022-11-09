@@ -21,7 +21,7 @@ type MalformedRequest struct {
 
 func (err *MalformedRequest) Error() string { return err.Message }
 
-func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, logger *logrus.Logger) (*T, *MalformedRequest) {
+func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
 	paramsMap, err := utils.ParamsToMap(params)
 	if err != nil {
 		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
