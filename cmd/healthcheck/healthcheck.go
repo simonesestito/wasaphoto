@@ -30,6 +30,7 @@ import (
 )
 
 func main() {
+	// TODO: Healthcheck
 	var port = flag.Int("port", 3000, "HTTP port for healthcheck")
 
 	flag.Parse()

@@ -13,6 +13,7 @@ import (
 // WebAPIConfiguration describes the web API configuration. This structure is automatically parsed by
 // loadConfiguration and values from flags, environment variable or configuration file will be loaded.
 type WebAPIConfiguration struct {
+	// TODO: Check with yaml example file
 	Config struct {
 		Path string `conf:"default:/conf/config.yml"`
 	}
