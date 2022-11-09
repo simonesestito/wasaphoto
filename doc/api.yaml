@@ -1,0 +1,839 @@
+openapi: 3.0.3
+info:
+  title: WASAPhoto API Specification
+  description: |
+    This OpenAPI document describes the WASAPhoto project REST API.
+
+    Keep in touch with your friends by sharing photos of special moments,
+    thanks to WASAPhoto! Directly from your PC,
+    you can upload your photos, and they will be visible to everyone
+    who is following you.
+
+    **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
+  version: "0.9.0"
+paths:
+  /sessions/:
+    post:
+      tags: ["auth"]
+      summary: Logs in the user
+      description: |
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+
+        Later, the returned user identifier can be used an authentication token
+        to authenticate subsequent requests.
+
+        In case a new user is created, it'll use the given username as
+        his/her first name, and the surname will be empty.
+
+        You can later get the full user information with the appropriate endpoint.
+      operationId: doLogin
+      requestBody:
+        description: User login details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { $ref: "#/components/schemas/Username" }
+      responses:
+        "200":
+          description: User log-in action successful, user already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResult" }
+        "201":
+          description: |
+            User log-in action successful,
+            user didn't exist and it has just been created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResult" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+      security: []
+
+  /users/:
+    description: Users collection
+    get:
+      tags: ["user"]
+      operationId: searchUsers
+      summary: Search users
+      description: |
+        Search users by their username, or partial username.
+        A text search is performed on usernames.
+
+        A user must be logged in. This is required in order to hide
+        other users who banned the one who is performing the search.
+      parameters:
+        - name: username
+          in: query
+          description: Username or part of the username to search
+          required: true
+          schema: { $ref: "#/components/schemas/Username" }
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+
+  /users/{userId}:
+    description: Actions performed on a single user, identified by the given ID
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: ["user"]
+      operationId: getUserProfile
+      summary: Get user's profile details
+      description: |
+        Get user's profile details,
+        not including the list of his/her photos,
+        which can be requested using the dedicated endpoint.
+
+        Who requests the user info must be authenticated,
+        in order to detect if it's allowed to see other's information
+        (e.g. banned or not).
+      responses:
+        "200":
+          description: Get details about this user's profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404":
+          description: User with given ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+    put:
+      tags: ["user"]
+      operationId: setMyDetails
+      summary: Update user details
+      description: |
+        Update user details like name, surname, username, etc.
+        You can only update your own details.
+      requestBody:
+        description: Fields to update on the specified user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User" }
+      responses:
+        "200":
+          description: User fields have been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/username/{username}:
+    description: Identify a user with his username, when the ID is not known
+    parameters:
+      - name: username
+        in: path
+        required: true
+        schema: { $ref: "#/components/schemas/Username" }
+    get:
+      tags: ["user"]
+      operationId: getUserByUsername
+      summary: Get user by username
+      description: |
+        Get a user by his username, when the ID is not known.
+      
+        On the contrary of /users/?username=..., here we are querying for a specific username,
+        and we expect a single resource as a response, not a paginated array with 0 or 1 item.
+      responses:
+        "302":
+          description: The user has been found
+          headers:
+            Location:
+              schema:
+                description: The resource URI of the requested user
+                type: string
+                format: uri
+                example: http://example.com/api/users/111111
+        "404":
+          description: The user cannot be found
+
+  /users/{userId}/username:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    description: |
+      Special resource which points to
+      the username field of the currently logged in user.
+    put:
+      tags: ["user"]
+      operationId: setMyUserName
+      summary: Update username
+      description: Update user's username. You are not allowed to edit others username.
+      requestBody:
+        description: New username to assign to the current user
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+      responses:
+        "200":
+          description: User username has been updated successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409":
+          description: A user with the requested new username already exists
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{userId}/followers/:
+    description: Actions on someone's followers
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: ["follow"]
+      operationId: listFollowers
+      summary: List someone's followers
+      description: |
+        List, with cursor pagination, all the followers of the specified user.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
+      parameters:
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{userId}/followings/:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: ["follow"]
+      operationId: listFollowings
+      summary: List someone's followings
+      description: |
+        List, with cursor pagination, all the followings of the specified user.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
+      parameters:
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedUsersResult" }
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+  
+  /users/{userId}/followings/{followedId}:
+    description: A resource to identify a follower.
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+      - name: followedId
+        in: path
+        required: true
+        description: |
+          Unique ID of the user to follow.
+          If A wants to follow B, followedId = B's ID
+        schema: { $ref: "#/components/schemas/ResourceId" }
+    delete:
+      tags: ["follow"]
+      operationId: unfollowUser
+      summary: Unfollow a user
+      description: |
+        Remove yourself as a follower
+        of the user identified by the ID in the path.
+      responses:
+        "204":
+          description: |
+            You are not following this user anymore,
+            or you wasn't following him/her in the first place
+        "404":
+          description: A user with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+    put:
+      tags: ["follow"]
+      operationId: followUser
+      summary: Follow a user
+      description: |
+        Add the user you want to follow in the followings collection.
+
+        You may not have the authorization to follow someone,
+        for instance if the user you want to follow already banned you.
+        Also, you cannot add followers to someone else's followings.
+      responses:
+        "201":
+          description: You are now following this user.
+        "204":
+          description: You were already following this user (idempotent).
+        "404":
+          description: A user with the "userId" doesn't exist.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{userId}/bannedPeople/{blockedId}:
+    description: Collection of people blocked by the specified user
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+      - name: blockedId
+        required: true
+        in: path
+        description: The unique ID of the user to block
+        schema: { $ref: "#/components/schemas/ResourceId" }
+    put:
+      tags: ["user"]
+      operationId: banUser
+      summary: Ban a user
+      description: Ban another existing user
+      responses:
+        "201":
+          description: User banned, and it wasn't before
+        "204":
+          description: User banned, but it already was
+        "404":
+          description: User to ban not found
+        "409":
+          description: You cannot ban yourself
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: ["user"]
+      operationId: unbanUser
+      summary: Unban a user
+      description: Unban a previously banned user
+      responses:
+        "204":
+          description: User unbanned
+        "404":
+          description: User to unban not found
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /users/{userId}/photos/:
+    description: Photos collection of a user
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: ["photo"]
+      operationId: listUserPhotos
+      summary: Get someone's photos
+      description: List all photos of a user, using a paginated requests.
+
+        You must be authenticated in order to be sure that you are allowed
+        to see information about this user.
+      parameters:
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
+        "404":
+          description: A user with this ID cannot be found
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /photos/:
+    description: Photos collection
+    post:
+      tags: ["photo"]
+      operationId: uploadPhoto
+      summary: Upload photo
+      description: |
+        Upload a new photo to your personal account.
+        The photo image file must have been previously uploaded,
+        here you can pass the file URL.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Photo" }
+      responses:
+        "201":
+          description: The post was created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo" }
+        "400":
+          description: |
+            The photo didn't exist. Make sure to upload it first.
+            Otherwise, the data sent was not compliant with the documentation.
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+
+  /photos/{photoId}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoId"
+    delete:
+      tags: ["photo"]
+      operationId: deletePhoto
+      summary: Delete a photo
+      description: |
+        Delete an existing published post.
+        A user can only delete his own photos.
+      responses:
+        "204":
+          description: The post existed and it has just been deleted.
+        "404":
+          description: The post doesn't exist.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /photoFiles/:
+    description: Photo files collection
+    post:
+      tags: ["files"]
+      operationId: uploadPhotoFile
+      summary: Upload the file of a photo
+      description: |
+        Upload the file of a photo you are going to use
+        in a post that will be published very soon,
+        presumably that the user is writing right now.
+        The server could decide to delete this file automatically
+        after a variable amount of time, if not used in any post.
+      requestBody:
+        required: true
+        description: The binary image file to upload
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: |
+            The image was successfully uploaded and elaborated.
+            You can use the given URL to use this image in a new post.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photoUrl: { $ref: "#/components/schemas/StaticImageUrl" }
+        "415":
+          description: The file sent cannot be processed as an image
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+
+  /photos/{photoId}/likes/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoId"
+      - $ref: "#/components/parameters/UserId"
+    put:
+      tags: ["likes"]
+      operationId: likePhoto
+      summary: Like a photo
+      description: The specified user will leave a like on a photo
+      responses:
+        "201":
+          description: Your like was added
+        "204":
+          description: Your like was already added
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+    delete:
+      tags: ["likes"]
+      operationId: unlikePhoto
+      summary: Unlike a photo
+      description: Remove a like from a photo
+      responses:
+        "204":
+          description: Your like was removed
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /photos/{photoId}/comments/:
+    parameters:
+      - $ref: "#/components/parameters/PhotoId"
+    get:
+      tags: ["comments"]
+      operationId: getPhotoComments
+      summary: List comments left on a photo
+      description: |
+        List all the comments users left on a photo,
+        in reverse chronological order,
+        using cursor pagination not to overwhelm the client.
+
+        You must be logged in, because the author of the post may have banned you.
+        In that case, you are not authorized to see.
+      parameters:
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200":
+          description: |
+            The current page was successfully returned
+            and it may contain some comments.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationInfo"
+                  - description: Current selected page
+                    type: object
+                    readOnly: true
+                    properties:
+                      pageData:
+                        description: Comments of the current page
+                        type: array
+                        items: { $ref: "#/components/schemas/Comment" }
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+    post:
+      tags: ["comments"]
+      operationId: commentPhoto
+      summary: Comment a photo
+      description: |
+        Leave a comment on a photo, if authorized.
+        For instance, you cannot leave a comment
+        under a photo of a user who banned you.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewComment" }
+      responses:
+        "201":
+          description: Your comment was added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Comment" }
+        "404":
+          description: A post with this ID doesn't exist
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /photos/{photoId}/comments/{commentId}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoId"
+      - $ref: "#/components/parameters/CommentId"
+    delete:
+      tags: ["comments"]
+      operationId: uncommentPhoto
+      summary: Delete a comment
+      description: |
+        Delete a comment from a photo.
+        A comment can only be deleted by its author.
+      responses:
+        "204":
+          description: Your comment was deleted.
+        "404":
+          description: A post with the given ID doesn't exist.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+  /users/{userId}/stream:
+    description: Resource of photos stream for a user
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: ["follow"]
+      operationId: getMyStream
+      summary: Get my own stream
+      description: |
+        Get my own post stream (you are not allowed to see others' stream),
+        using cursor pagination.
+        It will contain posts from the profiles you follow,
+        in reverse chronological order.
+      parameters:
+        - $ref: "#/components/parameters/PageCursor"
+      responses:
+        "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "401": { $ref: "#/components/responses/LoginError" }
+        "403": { $ref: "#/components/responses/AuthorizationError" }
+
+components:
+  parameters:
+    UserId:
+      name: userId
+      required: true
+      in: path
+      description: The unique ID of a user
+      schema: { $ref: "#/components/schemas/ResourceId" }
+    PhotoId:
+      name: photoId
+      required: true
+      in: path
+      description: The unique ID of a post, not the image file directly
+      schema: { $ref: "#/components/schemas/ResourceId" }
+    CommentId:
+      name: commentId
+      description: The unique ID of a comment
+      required: true
+      in: path
+      schema: { $ref: "#/components/schemas/ResourceId" }
+    PageCursor:
+      name: pageCursor
+      description: |
+        In cursor pagination, this refers to 
+        the ID of the latest resource received by the client.
+      required: false
+      in: query
+      schema: { $ref: "#/components/schemas/ResourceId" }
+
+  responses:
+    BadRequest:
+      description: |
+        The request was not compliant with the documentation
+        (eg. missing fields, etc).
+    ServerError:
+      description: |
+        An unexpected error occurred on the server
+        while processing this request.
+    LoginError:
+      description: |
+        Authentication is required to perform this action,
+        and no *valid* authentication was included in this request.
+    AuthorizationError:
+      description: |
+        A valid authentication is included in this request,
+        but you are not authorized to perform this action.
+
+        For instance, you are trying to modify someone else's data,
+        or access to information about someone who banned you.
+
+    PaginatedPhotosResult:
+      description: |
+        The current page was successfully returned
+        and it may contain some photos.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/PaginationInfo"
+              - description: Current selected page
+                type: object
+                readOnly: true
+                properties:
+                  pageData:
+                    description: Photos of the current page
+                    type: array
+                    items: { $ref: "#/components/schemas/Photo" }
+    PaginatedUsersResult:
+      description: |
+        The current page was successfully returned
+        and it may contain some users.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/PaginationInfo"
+              - description: Current selected page
+                type: object
+                readOnly: true
+                properties:
+                  pageData:
+                    description: Users of the current page
+                    type: array
+                    items: { $ref: "#/components/schemas/User" }
+
+  schemas:
+    ResourceId:
+      description: The unique resource ID as a UUID string
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      readOnly: true
+
+    Username:
+      description: User's personal and unique username
+      type: string
+      example: john_doe_42
+      pattern: "^.*?$"
+      minLength: 3
+      maxLength: 16
+
+    LoginResult:
+      type: object
+      properties:
+        userId: { $ref: "#/components/schemas/ResourceId" }
+
+    User:
+      description: |
+        Representation of a user, with all the details useful in his/her profile.
+        It won't directly include his/her photos, because they must be
+        requested separately, using pagination.
+      type: object
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        name:
+          description: User's name
+          type: string
+          example: John
+          minLength: 2
+        surname:
+          description: User's surname
+          type: string
+          example: Doe
+          default: ""
+        username:
+          $ref: "#/components/schemas/Username"
+        followersCount:
+          description: Total count of the followers of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 500
+        followingsCount:
+          description: Total count of the followings of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 80
+        postsCount:
+          description: Total count of the posts of a user
+          type: integer
+          readOnly: true
+          minimum: 0
+          example: 12
+        banned:
+          description: |
+            It indicates if the user performing this request
+            has banned the user represented by this resource.
+          type: boolean
+          readOnly: true
+          example: false
+
+    DateTime:
+      description: Standard datetime representation
+      type: string
+      example: "2017-07-21T17:32:28Z"
+      readOnly: true
+
+    StaticImageUrl:
+      description: |
+        The direct URL to the image file.
+
+        It may also be stored on a different server,
+        which can be dedicated to serve static resources,
+        or maybe a CDN or may also be simply this server.
+
+        The file can be cached and it's guaranteed to never change.
+      type: string
+      format: uri
+      example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
+
+    Photo:
+      description: |
+        A photo post, with aggregate information about likes and comments.
+        Detailed comments can be requested separately using an appropriate paginated endpoint.
+      type: object
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        imageUrl: { $ref: "#/components/schemas/StaticImageUrl" }
+        author: { $ref: "#/components/schemas/User" }
+        publishDate: { $ref: "#/components/schemas/DateTime" }
+        likesCount:
+          description: Total count of the likes this post received
+          type: integer
+          minimum: 0
+          example: 1200
+          readOnly: true
+        commentsCount:
+          description: Total count of the comments this post received
+          type: integer
+          minimum: 0
+          example: 300
+          readOnly: true
+        liked:
+          description: |
+            The current user liked this photo.
+            If the request isn't authenticated, this will always be false.
+          type: boolean
+          readOnly: true
+
+    NewComment:
+      type: object
+      properties:
+        text:
+          type: string
+          example: Great post! Keep up the good work.
+
+    Comment:
+      description: A comment left on a post
+      allOf:
+        - type: object
+          properties:
+            id: { $ref: "#/components/schemas/ResourceId" }
+            publishDate: { $ref: "#/components/schemas/DateTime" }
+            author: { $ref: "#/components/schemas/User" }
+        - $ref: "#/components/schemas/NewComment"
+
+    PaginationInfo:
+      type: object
+      readOnly: true
+      description: |
+        Additional data necessary to handle
+        paginated responses and subsequent requests.
+      properties:
+        hasMoreData:
+          type: boolean
+          description: |
+            It reports to the client if next page may contain more data
+          example: true
+        totalCount:
+          type: integer
+          minimum: 0
+          description: Number of total items in all pages
+          example: 420
+        pageData:
+          type: array
+          items:
+            type: object
+          description: Data of this page, if any
+
+  securitySchemes:
+    UserIdAuth:
+      description: |
+        User authentication with the user ID passed
+        as it would be an authentication token.
+        Of course, that's extremely insecure, but it's done 
+        according to the project specification.
+      type: http
+      scheme: bearer
+
+# Apply security scheme globally, disabling it explicitly when unnecessary.
+security:
+  - UserIdAuth: []
