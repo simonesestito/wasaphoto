@@ -15,7 +15,7 @@ func (controller Controller) ListRoutes() []route.Route {
 	return []route.Route{
 		route.SecureRoute{
 			Method:  "GET",
-			Path:    "/users/{userId}",
+			Path:    "/users/:userId",
 			Handler: controller.getUserById,
 		},
 	}
