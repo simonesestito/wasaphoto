@@ -1,55 +1,68 @@
-# Fantastic coffee (decaffeinated)
+# WASAPhoto
 
-This repository contains the basic structure for [Web and Software Application](http://gamificationlab.uniroma1.it/en/wasa/) homework project.
-It has been described in class.
+**A structured full stack project in Go and Vue.js**
 
-"Fantastic coffee (decaffeinated)" is a simplified version for the WASA course, not suitable for a production environment.
-The full version can be found in the "Fantastic Coffee" repository.
+This repository contains the source code for the university project for the
+[Web and Software Application](http://gamificationlab.uniroma1.it/en/wasa/) course.
 
-## Project structure
+WASAPhoto is a social network where users can post photos, leave likes, comments and
+also ban other users, with all the implications about information hiding.
 
-* `cmd/` contains all executables; Go programs here should only do "executable-stuff", like reading options from the CLI/env, etc.
-	* `cmd/healthcheck` is an example of a daemon for checking the health of servers daemons; useful when the hypervisor is not providing HTTP readiness/liveness probes (e.g., Docker engine)
+It consists of:
+
+* Documented REST API (OpenAPI 3.0) with all the endpoints described.
+  You can find the specification [here](doc/api.yaml)
+* Golang backend which implements the REST API. According to the given project
+  specification, an authentication mechanism is not provided. Instead,
+  the User ID is sent as an Authorization Bearer header, as it was a token in some way.
+* Vue.js frontend app, which of course interfaces with the implemented REST API.
+* All distributed using a Docker image
+
+## Project structure and architecture
+
+* `service/` contains all the private application code (project-specific functionalities).
+	* `service/features` contains all the application code, **packaged by features**, which is a more robust way
+	  of packaging source code compared to the more naive approach of packaging by type (e.g.: controllers, services, ...)
+	  Each feature follows an **architectural pattern**, [discussed below](#architectural-pattern).
+	* `service/controllers` is the package with the common functionalities and types necessary to every other real
+	  controller
+	* `service/utils` has all necessary utility functions, logically divided by type
+	* `service/ioc_container.go` since this app heavily uses **Dependency Injection**,
+	  the code here is responsible for creating instances of all interfaces providing real implementations.
+* `cmd/` contains all executables; Go programs here only do "executable-stuff",
+  like reading options from the CLI/env, etc.
+	* `cmd/healthcheck` is a daemon for checking the health of servers daemons;
+	  useful when the hypervisor is not providing HTTP readiness/liveliness probes (e.g., Docker engine)
 	* `cmd/webapi` contains an example of a web API server daemon
 * `demo/` contains a demo config file
-* `doc/` contains the documentation (usually, for APIs, this means an OpenAPI file)
-* `service/` has all packages for implementing project-specific functionalities
-	* `service/api` contains an example of an API server
-	* `service/globaltime` contains a wrapper package for `time.Time` (useful in unit testing)
-* `vendor/` is managed by Go, and contains a copy of all dependencies
-* `webui/` is an example of a web frontend in Vue.js; it includes:
-	* Bootstrap JavaScript framework
-	* a customized version of "Bootstrap dashboard" template
-	* feather icons as SVG
-	* Go code for release embedding
+* `doc/` contains the OpenAPI specification
+* `vendor/` is [managed by Go](https://go.dev/ref/mod#vendoring), and contains a copy of all dependencies
+* `webui/` is the frontend code, developed in Vue.js; it includes Go code for release embedding
 
-Other project files include:
-* `open-npm.sh` starts a new (temporary) container using `node:lts` image for safe web frontend development (you don't want to use `npm` in your system, do you?)
+## Architectural Pattern
 
-## Go vendoring
+Each feature inside the `service/features` package follows the MVC architectural pattern.
 
-This project uses [Go Vendoring](https://go.dev/ref/mod#vendoring). You must use `go mod vendor` after changing some dependency (`go get` or `go mod tidy`) and add all files under `vendor/` directory in your commit.
+More specifically, the code application is divided into layers:
 
-For more information about vendoring:
+* **Presentation Layer**: it includes the Controllers, responsible for interfacing
+  the platform independent Business Logic with the external world. In case one day the backend will move from REST to
+  something else we still don't know, or we'll need to use XML instead of JSON,
+  the only piece of code that must be changed is the Controllers code, leaving other layers untouched.
+* **Service Layer**: it has all the business logic, without any dependency on the actual implementation.
+  It MUST be written using only standard Go code, with no libraries of any sort.
+* **Data Layer**: it interfaces with the underlying data sources, like a SQL database or a file storage.
+* **DTOs**: Data Transfer Object are used in data transmission between the external world and the application
 
-* https://go.dev/ref/mod#vendoring
-* https://www.ardanlabs.com/blog/2020/04/modules-06-vendoring.html
+A lot of effort is spent to have everything as abstract as possible, trying to implement the **Ports and Adapters
+pattern**,
+This approach helps us to achieve to make the business (domain) layer independent
+of framework, UI, database or any other external components.
 
-## Node/NPM vendoring
-
-This repository contains the `webui/node_modules` directory with all dependencies for Vue.JS. You should commit the content of that directory and both `package.json` and `package-lock.json`.
-
-## How to set up a new project from this template
-
-You need to:
-
-* Change the Go module path to your module path in `go.mod`, `go.sum`, and in `*.go` files around the project
-* Rewrite the API documentation `doc/api.yaml`
-* If no web frontend is expected, remove `webui` and `cmd/webapi/register-webui.go`
-* If no cronjobs or health checks are needed, remove them from `cmd/`
-* Update top/package comment inside `cmd/webapi/main.go` to reflect the actual project usage, goal, and general info
-* Update the code in `run()` function (`cmd/webapi/main.go`) to connect to databases or external resources
-* Write API code inside `service/api`, and create any further package inside `service/` (or subdirectories)
+Also, components MUST NOT depend on the actual implementation, but they have to use the interfaces.
+By doing that, unit testing or using multiple implementations it's guaranteed to be quite easy,
+and the software is much more robust.
+We could even not know the implementation yet when developing another components which depends on it.
 
 ## How to build
 
@@ -63,13 +76,27 @@ If you're using the WebUI and you want to embed it into the final executable:
 
 ```shell
 ./open-npm.sh
-# (inside the NPM container)
-npm run build-embed
-exit
+  # (inside the NPM container)
+  npm run build-embed
+  exit
+
 # (outside the NPM container)
 go build -tags webui ./cmd/webapi/
 ```
 
 ## License
 
-See [LICENSE](LICENSE).
+    Copyright (C) 2022 Simone Sestito
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
