@@ -13,22 +13,21 @@ import (
 // WebAPIConfiguration describes the web API configuration. This structure is automatically parsed by
 // loadConfiguration and values from flags, environment variable or configuration file will be loaded.
 type WebAPIConfiguration struct {
-	// TODO: Check with yaml example file
 	Config struct {
 		Path string `conf:"default:/conf/config.yml"`
 	}
 	Web struct {
-		APIHost         string        `conf:"default:0.0.0.0:3000"`
+		APIHost         string        `conf:"default:127.0.0.1:8080"`
 		ReadTimeout     time.Duration `conf:"default:5s"`
 		WriteTimeout    time.Duration `conf:"default:5s"`
 		ShutdownTimeout time.Duration `conf:"default:5s"`
 	}
 	Log struct {
-		Debug    bool   `conf:"default:false"`
+		Debug    bool   `conf:"default:true"`
 		FileName string `conf:"default:-"`
 	}
 	DB struct {
-		Filename string `conf:"default:/tmp/wasaphoto.db"`
+		Filename string `conf:"default:wasaphoto.db"`
 	}
 }
 
