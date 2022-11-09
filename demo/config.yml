@@ -2,7 +2,7 @@
 # It follows the struct in cmd/webapi/load-configuration.go
 
 log:
-  level: debug
+  debug: true
   filename: "-"
 
 web:
