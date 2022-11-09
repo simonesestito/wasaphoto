@@ -72,7 +72,7 @@ func run() error {
 	// Init logging
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
-	if cfg.Debug {
+	if cfg.Log.Debug {
 		logger.SetLevel(logrus.DebugLevel)
 	} else {
 		logger.SetLevel(logrus.InfoLevel)
@@ -82,16 +82,16 @@ func run() error {
 
 	// Start Database
 	logger.Println("initializing database support")
-	dbconn, err := sql.Open("sqlite3", cfg.DB.Filename)
+	dbConn, err := sql.Open("sqlite3", cfg.DB.Filename)
 	if err != nil {
 		logger.WithError(err).Error("error opening SQLite DB")
 		return fmt.Errorf("opening SQLite: %w", err)
 	}
 	defer func() {
 		logger.Debug("database stopping")
-		_ = dbconn.Close()
+		_ = dbConn.Close()
 	}()
-	db, err := database.New(dbconn)
+	db, err := database.New(dbConn)
 	if err != nil {
 		logger.WithError(err).Error("error creating AppDatabase")
 		return fmt.Errorf("creating AppDatabase: %w", err)
@@ -126,11 +126,8 @@ func run() error {
 		return fmt.Errorf("registering web UI handler: %w", err)
 	}
 
-	// Apply CORS policy
-	router = applyCORSHandler(router)
-
 	// Create the API server
-	apiserver := http.Server{
+	apiServer := http.Server{
 		Addr:              cfg.Web.APIHost,
 		Handler:           router,
 		ReadTimeout:       cfg.Web.ReadTimeout,
@@ -140,8 +137,8 @@ func run() error {
 
 	// Start the service listening for requests in a separate goroutine
 	go func() {
-		logger.Infof("API listening on %s", apiserver.Addr)
-		serverErrors <- apiserver.ListenAndServe()
+		logger.Infof("API listening on %s", apiServer.Addr)
+		serverErrors <- apiServer.ListenAndServe()
 		logger.Infof("stopping API server")
 	}()
 
@@ -165,10 +162,10 @@ func run() error {
 		defer cancel()
 
 		// Asking listener to shut down and load shed.
-		err = apiserver.Shutdown(ctx)
+		err = apiServer.Shutdown(ctx)
 		if err != nil {
 			logger.WithError(err).Warning("error during graceful shutdown of HTTP server")
-			err = apiserver.Close()
+			err = apiServer.Close()
 		}
 
 		// Log the status of this shutdown.
