@@ -1,96 +1,99 @@
-/*
-Package api exposes the main API engine. All HTTP APIs are handled here - so-called "business logic" should be here, or
-in a dedicated package (if that logic is complex enough).
-
-To use this package, you should create a new instance with New() passing a valid Config. The resulting Router will have
-the Router.Handler() function that returns a handler that can be used in a http.Server (or in other middlewares).
-
-Example:
-
-	// Create the API router
-	apirouter, err := api.New(api.Config{
-		Logger:   logger,
-		Database: appdb,
-	})
-	if err != nil {
-		logger.WithError(err).Error("error creating the API server instance")
-		return fmt.Errorf("error creating the API server instance: %w", err)
-	}
-	router := apirouter.Handler()
-
-	// ... other stuff here, like middleware chaining, etc.
-
-	// Create the API server
-	apiserver := http.Server{
-		Addr:              cfg.Web.APIHost,
-		Handler:           router,
-		ReadTimeout:       cfg.Web.ReadTimeout,
-		ReadHeaderTimeout: cfg.Web.ReadTimeout,
-		WriteTimeout:      cfg.Web.WriteTimeout,
-	}
-
-	// Start the service listening for requests in a separate goroutine
-	apiserver.ListenAndServe()
-
-See the `main.go` file inside the `cmd/webapi` for a full usage example.
-*/
 package api
 
 import (
 	"errors"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/database"
+	"fmt"
+	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/route"
+	"github.com/gofrs/uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"reflect"
 )
-
-// Config is used to provide dependencies and configuration to the New function.
-type Config struct {
-	// Logger where log entries are sent
-	Logger logrus.FieldLogger
-
-	// Database is the instance of database.AppDatabase where data are saved
-	Database database.AppDatabase
-}
 
 // Router is the package API interface representing an API handler builder
 type Router interface {
 	// Handler returns an HTTP handler for APIs provided in this package
 	Handler() http.Handler
 
+	// Register a new route
+	Register(route route.Route) error
+
 	// Close terminates any resource used in the package
 	Close() error
 }
 
 // New returns a new Router instance
-func New(cfg Config) (Router, error) {
-	// Check if the configuration is correct
-	if cfg.Logger == nil {
-		return nil, errors.New("logger is required")
-	}
-	if cfg.Database == nil {
-		return nil, errors.New("database is required")
-	}
-
-	// Create a new router where we will register HTTP endpoints. The server will pass requests to this router to be
-	// handled.
+func NewRouter(authMiddleware route.AuthMiddleware, middlewares []route.Middleware, logger logrus.FieldLogger) Router {
+	// Create a new router where we will register HTTP endpoints.
+	// The server will pass requests to this router to be handled.
 	router := httprouter.New()
 	router.RedirectTrailingSlash = false
 	router.RedirectFixedPath = false
 
-	return &_router{
-		router:     router,
-		baseLogger: cfg.Logger,
-		db:         cfg.Database,
-	}, nil
+	return &_router{router, authMiddleware, middlewares, logger}
 }
 
 type _router struct {
-	router *httprouter.Router
+	router         *httprouter.Router
+	authMiddleware route.AuthMiddleware
+	middlewares    []route.Middleware
+	logger         logrus.FieldLogger
+}
 
-	// baseLogger is a logger for non-requests contexts, like goroutines or background tasks not started by a request.
-	// Use context logger if available (e.g., in requests) instead of this logger.
-	baseLogger logrus.FieldLogger
+func (router _router) Handler() http.Handler {
+	return router.router
+}
 
-	db database.AppDatabase
+// Close should close everything opened in the lifecycle of the `_router`; for example, background goroutines.
+func (router _router) Close() error {
+	return nil
+}
+
+// Register a new route
+func (router _router) Register(routeInfo route.Route) error {
+	// Get route handler
+	var handler route.Handler
+	switch routeInfo.(type) {
+	case route.AnonymousRoute:
+		handler = routeInfo.(route.AnonymousRoute).Handler
+	case route.SecureRoute:
+		handler = router.authMiddleware.Intercept(routeInfo.(route.SecureRoute).Handler)
+	default:
+		return errors.New(fmt.Sprintf("Unknown route type: %s", reflect.TypeOf(routeInfo)))
+	}
+
+	// Wrap with other middlewares
+	for _, middleware := range router.middlewares {
+		handler = middleware(handler)
+	}
+
+	// Register path and method
+	router.router.Handle(routeInfo.GetMethod(), routeInfo.GetPath(), router.wrap(handler))
+
+	return nil
+}
+
+func (router _router) wrap(handle route.Handler) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		reqUUID, err := uuid.NewV4()
+		if err != nil {
+			router.logger.WithError(err).Error("can't generate a request UUID")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var ctx = route.RequestContext{
+			ReqUUID: reqUUID,
+		}
+
+		// Create a request-specific logger
+		ctx.Logger = router.logger.WithFields(logrus.Fields{
+			"reqid":     ctx.ReqUUID.String(),
+			"remote-ip": r.RemoteAddr,
+		})
+
+		// Call the next handler in chain (usually, the handler function for the path)
+		handle(w, r, ps, ctx)
+	}
 }

@@ -4,7 +4,7 @@ middleware code in the api-context-wrapper.go (parent package).
 
 Each value here should be assumed valid only per request only, with some exceptions like the logger.
 */
-package reqcontext
+package route
 
 import (
 	"github.com/gofrs/uuid"
@@ -18,4 +18,9 @@ type RequestContext struct {
 
 	// Logger is a custom field logger for the request
 	Logger logrus.FieldLogger
+}
+
+type SecureRequestContext struct {
+	UserId string
+	RequestContext
 }

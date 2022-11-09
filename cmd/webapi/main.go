@@ -28,13 +28,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/database"
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/globaltime"
+	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/ioc"
 	"github.com/ardanlabs/conf"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
-	"math/rand"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -59,7 +57,6 @@ func main() {
 // * waits for any termination event: SIGTERM signal (UNIX), non-recoverable server error, etc.
 // * closes the principal web server
 func run() error {
-	rand.Seed(globaltime.Now().UnixNano())
 	// Load Configuration and defaults
 	cfg, err := loadConfiguration()
 	if err != nil {
@@ -69,32 +66,16 @@ func run() error {
 		return err
 	}
 
-	// Init logging
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	if cfg.Log.Debug {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
-	}
+	logger := initLogging(cfg)
 
 	logger.Infof("application initializing")
+	_, onClose := initDatabase(cfg, logger)
+	defer onClose()
 
-	// Start Database
-	logger.Println("initializing database support")
-	dbConn, err := sql.Open("sqlite3", cfg.DB.Filename)
-	if err != nil {
-		logger.WithError(err).Error("error opening SQLite DB")
-		return fmt.Errorf("opening SQLite: %w", err)
-	}
-	defer func() {
-		logger.Debug("database stopping")
-		_ = dbConn.Close()
-	}()
-	db, err := database.New(dbConn)
-	if err != nil {
-		logger.WithError(err).Error("error creating AppDatabase")
-		return fmt.Errorf("creating AppDatabase: %w", err)
+	// Initialize dependency injection Inversion of Control container
+	iocContainer := ioc.Container{
+		Logger: logger,
+		// TODO: db
 	}
 
 	// Start (main) API server
@@ -109,16 +90,12 @@ func run() error {
 	// buffered channel so the goroutine can exit if we don't collect this error.
 	serverErrors := make(chan error, 1)
 
-	// Create the API router
-	apirouter, err := api.New(api.Config{
-		Logger:   logger,
-		Database: db,
-	})
+	apiRouter, err := iocContainer.CreateRouter()
 	if err != nil {
 		logger.WithError(err).Error("error creating the API server instance")
 		return fmt.Errorf("creating the API server instance: %w", err)
 	}
-	router := apirouter.Handler()
+	router := apiRouter.Handler()
 
 	router, err = registerWebUI(router)
 	if err != nil {
@@ -152,9 +129,9 @@ func run() error {
 		logger.Infof("signal %v received, start shutdown", sig)
 
 		// Asking API server to shut down and load shed.
-		err := apirouter.Close()
+		err := apiRouter.Close()
 		if err != nil {
-			logger.WithError(err).Warning("graceful shutdown of apirouter error")
+			logger.WithError(err).Warning("graceful shutdown of apiRouter error")
 		}
 
 		// Give outstanding requests a deadline for completion.
@@ -178,4 +155,42 @@ func run() error {
 	}
 
 	return nil
+}
+
+func initDatabase(cfg WebAPIConfiguration, logger *logrus.Logger) (*sql.DB, func()) {
+	logger.Println("initializing database support")
+
+	dbConn, err := sql.Open("sqlite3", cfg.DB.Filename)
+	if err != nil {
+		logger.WithError(err).Fatalln("error opening SQLite DB")
+	}
+
+	return dbConn, func() {
+		logger.Debug("database stopping")
+		_ = dbConn.Close()
+	}
+}
+
+func initLogging(cfg WebAPIConfiguration) *logrus.Logger {
+	logger := logrus.New()
+
+	// Set output
+	if cfg.Log.FileName == "-" {
+		logger.SetOutput(os.Stdout)
+	} else {
+		logFile, err := os.Create(cfg.Log.FileName)
+		if err != nil {
+			log.Fatalf("Error creating log file: %s", err.Error())
+		}
+		logger.SetOutput(logFile)
+	}
+
+	// Set level
+	if cfg.Log.Debug {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
+
+	return logger
 }
