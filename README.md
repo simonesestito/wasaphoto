@@ -24,10 +24,10 @@ It consists of:
 	* `service/features` contains all the application code, **packaged by features**, which is a more robust way
 	  of packaging source code compared to the more naive approach of packaging by type (e.g.: controllers, services, ...)
 	  Each feature follows an **architectural pattern**, [discussed below](#architectural-pattern).
-	* `service/controllers` is the package with the common functionalities and types necessary to every other real
-	  controller
+	* `service/api` is the package with the **common** functionalities and types necessary to every other real
+	  controller or REST API endpoint
 	* `service/utils` has all necessary utility functions, logically divided by type
-	* `service/ioc_container.go` since this app heavily uses **Dependency Injection**,
+	* `service/ioc` since this app heavily uses **Dependency Injection**,
 	  the code here is responsible for creating instances of all interfaces providing real implementations.
 * `cmd/` contains all executables; Go programs here only do "executable-stuff",
   like reading options from the CLI/env, etc.
