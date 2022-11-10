@@ -392,22 +392,23 @@ paths:
       summary: Upload photo
       description: |
         Upload a new photo to your personal account.
-        The photo image file must have been previously uploaded,
-        here you can pass the file URL.
       requestBody:
+        description: The binary image file to upload
         content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Photo" }
+          image/*:
+            schema:
+              type: string
+              format: binary
       responses:
         "201":
-          description: The post was created
+          description: |
+            The post was created.
+            The image was successfully uploaded and elaborated.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Photo" }
-        "400":
-          description: |
-            The photo didn't exist. Make sure to upload it first.
-            Otherwise, the data sent was not compliant with the documentation.
+        "415":
+          description: The file sent cannot be processed as an image.
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
@@ -430,43 +431,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-
-  /photoFiles/:
-    description: Photo files collection
-    post:
-      tags: ["files"]
-      operationId: uploadPhotoFile
-      summary: Upload the file of a photo
-      description: |
-        Upload the file of a photo you are going to use
-        in a post that will be published very soon,
-        presumably that the user is writing right now.
-        The server could decide to delete this file automatically
-        after a variable amount of time, if not used in any post.
-      requestBody:
-        required: true
-        description: The binary image file to upload
-        content:
-          image/*:
-            schema:
-              type: string
-              format: binary
-      responses:
-        "201":
-          description: |
-            The image was successfully uploaded and elaborated.
-            You can use the given URL to use this image in a new post.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  photoUrl: { $ref: "#/components/schemas/StaticImageUrl" }
-        "415":
-          description: The file sent cannot be processed as an image
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-        "401": { $ref: "#/components/responses/LoginError" }
 
   /photos/{photoId}/likes/{userId}:
     parameters:
