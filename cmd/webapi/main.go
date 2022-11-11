@@ -25,14 +25,13 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/ardanlabs/conf"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/simonesestito/wasaphoto/service/ioc"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -158,10 +157,10 @@ func run() error {
 	return nil
 }
 
-func initDatabase(cfg WebAPIConfiguration, logger *logrus.Logger) (*sql.DB, func()) {
+func initDatabase(cfg WebAPIConfiguration, logger *logrus.Logger) (*sqlx.DB, func()) {
 	logger.Println("initializing database support")
 
-	dbConn, err := sql.Open("sqlite3", cfg.DB.Filename)
+	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename)
 	if err != nil {
 		logger.WithError(err).Fatalln("error opening SQLite DB")
 	}
@@ -170,28 +169,4 @@ func initDatabase(cfg WebAPIConfiguration, logger *logrus.Logger) (*sql.DB, func
 		logger.Debug("database stopping")
 		_ = dbConn.Close()
 	}
-}
-
-func initLogging(cfg WebAPIConfiguration) *logrus.Logger {
-	logger := logrus.New()
-
-	// Set output
-	if cfg.Log.FileName == "-" {
-		logger.SetOutput(os.Stdout)
-	} else {
-		logFile, err := os.Create(cfg.Log.FileName)
-		if err != nil {
-			log.Fatalf("Error creating log file: %s", err.Error())
-		}
-		logger.SetOutput(logFile)
-	}
-
-	// Set level
-	if cfg.Log.Debug {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
-	}
-
-	return logger
 }

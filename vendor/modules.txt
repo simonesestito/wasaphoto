@@ -16,6 +16,10 @@ github.com/go-playground/validator/v10
 github.com/gofrs/uuid
 # github.com/google/go-cmp v0.5.8
 ## explicit; go 1.13
+# github.com/jmoiron/sqlx v1.3.5
+## explicit; go 1.10
+github.com/jmoiron/sqlx
+github.com/jmoiron/sqlx/reflectx
 # github.com/julienschmidt/httprouter v1.3.0
 ## explicit; go 1.7
 github.com/julienschmidt/httprouter

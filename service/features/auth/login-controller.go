@@ -29,7 +29,7 @@ func (controller LoginController) handlePost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authToken, err := controller.AuthService.Authenticate(*body)
+	authToken, err := controller.AuthService.Authenticate(*body, ctx.Logger)
 	if err != nil {
 		ctx.Logger.WithError(err).Warnf("Unexpected error authenticating user %s", body.Username)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

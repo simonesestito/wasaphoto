@@ -4,4 +4,5 @@ package database
 type AppDatabase interface {
 	Ping() error
 	Version() (int, error)
+	QueryStructRow(destPointer any, query string, args ...any) error
 }

@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"time"
 )
@@ -10,7 +11,7 @@ type NewPhoto struct {
 }
 
 type Photo struct {
-	Id            string    `json:"id"`
+	Id            uuid.UUID `json:"id"`
 	Author        user.User `json:"author"`
 	PublishDate   time.Time `json:"publishDate"`
 	LikesCount    uint      `json:"likesCount"`

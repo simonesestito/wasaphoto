@@ -1,9 +1,9 @@
 package ioc
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/api/route"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -20,7 +20,7 @@ type Container struct {
 	database   database.AppDatabase
 }
 
-func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sql.DB) (Container, error) {
+func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB) (Container, error) {
 	if logger == nil {
 		return Container{}, errors.New("logger is required")
 	}

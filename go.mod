@@ -6,6 +6,7 @@ require (
 	github.com/ardanlabs/conf v1.5.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gofrs/uuid v4.3.1+incompatible
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/mitchellh/mapstructure v1.5.0

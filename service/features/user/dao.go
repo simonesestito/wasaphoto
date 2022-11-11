@@ -6,20 +6,24 @@ import (
 )
 
 type Dao interface {
-	GetUserById(id uuid.UUID) (User, bool)
-	GetUserByUsername(username string) (User, bool)
+	GetUserById(id uuid.UUID) (*ModelUser, error)
+	GetUserByUsername(username string) (*ModelUser, error)
 }
 
 type DbDao struct {
 	DB database.AppDatabase
 }
 
-func (dao DbDao) GetUserById(id uuid.UUID) (User, bool) {
-	// TODO: Do query
-	return User{}, false
+func (dao DbDao) GetUserById(id uuid.UUID) (*ModelUser, error) {
+	user := &ModelUser{}
+	if err := dao.DB.QueryStructRow(user, "SELECT * FROM UserInfo WHERE id = ?", id.Bytes()); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
-func (dao DbDao) GetUserByUsername(username string) (User, bool) {
+func (dao DbDao) GetUserByUsername(username string) (*ModelUser, error) {
 	// TODO: Do query
-	return User{}, false
+	return &ModelUser{}, nil
 }

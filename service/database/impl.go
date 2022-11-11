@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"github.com/jmoiron/sqlx"
 	"github.com/simonesestito/wasaphoto/database"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -11,7 +12,7 @@ import (
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
-func New(db *sql.DB, logger logrus.FieldLogger) (AppDatabase, error) {
+func New(db *sqlx.DB, logger logrus.FieldLogger) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
@@ -82,7 +83,7 @@ func New(db *sql.DB, logger logrus.FieldLogger) (AppDatabase, error) {
 }
 
 type appSqlDatabase struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
 func (db appSqlDatabase) Ping() error {
