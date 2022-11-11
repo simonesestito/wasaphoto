@@ -1,36 +1,49 @@
 --
--- SQL Schema version 1
+-- SQL file to initialize the database.
+-- Database schema version: 0
 --
 
--- Count of the followers of each user
-DROP VIEW IF EXISTS Followers;
-CREATE VIEW Followers AS
-SELECT User.id AS followedId, COALESCE(COUNT(Follow.followerId), 0) AS followersCount
-FROM User
-		 LEFT JOIN Follow ON User.id = Follow.followedId
-GROUP BY User.id;
+CREATE TABLE IF NOT EXISTS User
+(
+	id       BLOB NOT NULL PRIMARY KEY,
+	name     TEXT NOT NULL,
+	surname  TEXT NOT NULL,
+	username TEXT NOT NULL UNIQUE
+);
 
--- Count of the followings of each user
-DROP VIEW IF EXISTS Followings;
-CREATE VIEW Followings AS
-SELECT User.id AS followerId, COALESCE(COUNT(Follow.followedId), 0) AS followingsCount
-FROM User
-		 LEFT JOIN Follow on User.id = Follow.followedId
-GROUP BY User.id;
+CREATE TABLE IF NOT EXISTS Photo
+(
+	id       BLOB NOT NULL PRIMARY KEY,
+	imageUrl TEXT NOT NULL,
+	authorId BLOB NOT NULL REFERENCES User (id)
+);
 
--- Count the posts of each user
-DROP VIEW IF EXISTS UserPhotosCount;
-CREATE VIEW UserPhotosCount AS
-SELECT User.id AS authorId, COALESCE(COUNT(Photo.id), 0) AS photosCount
-FROM User
-		 LEFT JOIN Photo on User.id = Photo.authorId
-GROUP BY User.id;
+CREATE TABLE IF NOT EXISTS Comment
+(
+	id          BLOB NOT NULL PRIMARY KEY,
+	`text`      TEXT NOT NULL,
+	publishDate TEXT NOT NULL,
+	authorId    BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	photoId     BLOB NOT NULL REFERENCES Photo (id) ON DELETE CASCADE
+);
 
--- Aggregate all useful information about a user
-DROP VIEW IF EXISTS UserInfo;
-CREATE VIEW UserInfo AS
-SELECT User.*, followersCount, followingsCount, photosCount
-FROM User
-		 LEFT JOIN Followers ON Followers.followedId = User.id
-		 LEFT JOIN Followings ON Followings.followerId = User.id
-		 LEFT JOIN UserPhotosCount ON UserPhotosCount.authorId = User.id;
+CREATE TABLE IF NOT EXISTS Likes
+(
+	userId  BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	photoId BLOB NOT NULL REFERENCES Photo (id) ON DELETE CASCADE,
+	PRIMARY KEY (userId, photoId)
+);
+
+CREATE TABLE IF NOT EXISTS Follow
+(
+	followerId BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	followedId BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	PRIMARY KEY (followerId, followedId)
+);
+
+CREATE TABLE IF NOT EXISTS Ban
+(
+	bannerId BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	bannedId BLOB NOT NULL REFERENCES User (id) ON DELETE CASCADE,
+	PRIMARY KEY (bannerId, bannedId)
+);

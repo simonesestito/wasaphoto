@@ -69,13 +69,14 @@ func run() error {
 	logger := initLogging(cfg)
 
 	logger.Infof("application initializing")
-	_, onClose := initDatabase(cfg, logger)
+	db, onClose := initDatabase(cfg, logger)
 	defer onClose()
 
 	// Initialize dependency injection Inversion of Control container
-	iocContainer := ioc.Container{
-		Logger: logger,
-		// TODO: db
+	iocContainer, err := ioc.New(nil, logger, db)
+	if err != nil {
+		logger.WithError(err).Error("error creating dependency container")
+		return fmt.Errorf("creating dependency container: %w", err)
 	}
 
 	// Start (main) API server

@@ -1,8 +1,12 @@
 package ioc
 
 import (
+	"database/sql"
+	"errors"
+	"fmt"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/api/route"
+	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/auth"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
@@ -11,13 +15,35 @@ import (
 
 type Container struct {
 	// External dependencies here
-	ForcedTime timeprovider.TimeProvider
-	Logger     *logrus.Logger
+	forcedTime timeprovider.TimeProvider
+	logger     *logrus.Logger
+	database   database.AppDatabase
+}
+
+func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sql.DB) (Container, error) {
+	if logger == nil {
+		return Container{}, errors.New("logger is required")
+	}
+
+	if rawDatabase == nil {
+		return Container{}, errors.New("rawDatabase is required")
+	}
+
+	appDatabase, err := database.New(rawDatabase, logger)
+	if err != nil {
+		return Container{}, errors.New(fmt.Sprintf("error wrapping database: %s", err.Error()))
+	}
+
+	return Container{
+		forcedTime: timeProvider,
+		logger:     logger,
+		database:   appDatabase,
+	}, nil
 }
 
 func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
-	if ioc.ForcedTime != nil {
-		return ioc.ForcedTime
+	if ioc.forcedTime != nil {
+		return ioc.forcedTime
 	}
 
 	return timeprovider.RealTimeProvider{}
@@ -36,11 +62,7 @@ func (ioc *Container) CreateRouter() (api.Router, error) {
 	}
 
 	// Create router
-	router := api.NewRouter(
-		ioc.CreateAuthMiddleware(),
-		middlewares,
-		ioc.Logger,
-	)
+	router := api.NewRouter(ioc.CreateAuthMiddleware(), middlewares, ioc.logger)
 
 	// Register routes
 	for _, controller := range controllers {
@@ -55,7 +77,9 @@ func (ioc *Container) CreateRouter() (api.Router, error) {
 }
 
 func (ioc *Container) CreateAuthService() auth.LoginService {
-	return auth.UserIdLoginService{}
+	return auth.UserIdLoginService{
+		UserDao: ioc.CreateUserDao(),
+	}
 }
 
 func (ioc *Container) CreateLoginController() auth.LoginController {
@@ -69,5 +93,9 @@ func (ioc *Container) CreateUserController() user.Controller {
 }
 
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
-	return auth.Middleware{ioc.CreateAuthService()}
+	return auth.Middleware{LoginService: ioc.CreateAuthService()}
+}
+
+func (ioc *Container) CreateUserDao() user.Dao {
+	return user.DbDao{DB: ioc.database}
 }
