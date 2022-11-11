@@ -1,6 +1,10 @@
 package auth
 
-import "errors"
+import (
+	"errors"
+	"github.com/gofrs/uuid"
+	"github.com/simonesestito/wasaphoto/service/features/user"
+)
 
 type LoginService interface {
 	Authenticate(credentials UserLoginCredentials) (authToken string, err error)
@@ -9,21 +13,27 @@ type LoginService interface {
 
 type UserIdLoginService struct {
 	// Dependencies
+	UserDao user.Dao
 }
 
 func (service UserIdLoginService) Authenticate(credentials UserLoginCredentials) (string, error) {
-	// TODO: use real data source
-	if credentials.Username == "mario" {
-		return "1111-2222-mario", nil
-	} else {
+	foundUser, isPresent := service.UserDao.GetUserByUsername(credentials.Username)
+	if !isPresent {
 		return "", errors.New("invalid credentials")
 	}
+
+	return foundUser.Id, nil
 }
 
 func (service UserIdLoginService) IsAuthenticated(authToken string) (string, error) {
-	// TODO: use real data source
-	if authToken == "1111-2222-mario" {
-		return authToken, nil // Same as UserID
+	userId, err := uuid.FromString(authToken)
+	if err != nil {
+		return "", err
+	}
+
+	_, isPresent := service.UserDao.GetUserById(userId)
+	if isPresent {
+		return userId.String(), nil
 	} else {
 		return "", errors.New("invalid token")
 	}

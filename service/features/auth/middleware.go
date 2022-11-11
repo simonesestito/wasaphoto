@@ -25,6 +25,7 @@ func (middleware Middleware) Intercept(handler route.SecureHandler) route.Handle
 		userId, err := middleware.LoginService.IsAuthenticated(authToken)
 		if err != nil {
 			// Authentication is invalid
+			context.Logger.WithError(err).Debug("Error checking authentication")
 			http.Error(writer, "Unauthorized", 401)
 			return
 		}
