@@ -22,6 +22,7 @@ func (service UserIdLoginService) Authenticate(credentials UserLoginCredentials,
 	if err != nil {
 		logger.WithError(err).Errorf("Unexpected error fetching user with username '%s'", credentials.Username)
 		return "", errors.New("invalid credentials")
+		// FIXME: Sign up new user (name=username, surname="")
 	} else if foundUser == nil {
 		return "", errors.New("invalid credentials")
 	}
