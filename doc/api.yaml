@@ -10,7 +10,7 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "0.9.0"
+  version: "1.0.0"
 paths:
   /sessions/:
     post:
