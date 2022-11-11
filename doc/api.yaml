@@ -424,9 +424,7 @@ paths:
         A user can only delete his own photos.
       responses:
         "204":
-          description: The post existed and it has just been deleted.
-        "404":
-          description: The post doesn't exist.
+          description: The post existed and it has just been deleted, or it didn't exist (idempotent).
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
