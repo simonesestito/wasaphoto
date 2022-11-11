@@ -262,9 +262,7 @@ paths:
         "204":
           description: |
             You are not following this user anymore,
-            or you wasn't following him/her in the first place
-        "404":
-          description: A user with this ID doesn't exist
+            or you wasn't following him/her in the first place (idempotent)
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -285,7 +283,7 @@ paths:
         "204":
           description: You were already following this user (idempotent).
         "404":
-          description: A user with the "userId" doesn't exist.
+          description: The user specified with "followedId" doesn't exist.
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -350,12 +348,12 @@ paths:
       tags: ["user"]
       operationId: unbanUser
       summary: Unban a user
-      description: Unban a previously banned user
+      description: |
+        Unban a previously banned user.
+        You are only allowed to unban users for yourself.
       responses:
         "204":
-          description: User unbanned
-        "404":
-          description: User to unban not found
+          description: User unbanned or not banned in the first place.
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
