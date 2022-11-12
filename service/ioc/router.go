@@ -11,6 +11,7 @@ func (ioc *Container) CreateRouter() (api.Router, error) {
 		ioc.CreateUserController(),
 		ioc.CreateLoginController(),
 		ioc.CreateBanController(),
+		ioc.CreateFollowController(),
 	}
 
 	// List middlewares

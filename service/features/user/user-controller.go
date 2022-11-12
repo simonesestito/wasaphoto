@@ -30,17 +30,11 @@ func (controller Controller) getUserProfile(w http.ResponseWriter, _ *http.Reque
 	}
 
 	foundUser, err := controller.Service.GetUserAs(args.UserId, context.UserId)
-	switch {
-	case err == ErrWrongUUID:
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	case err == ErrUserBanned:
-		http.Error(w, err.Error(), http.StatusForbidden)
-	case err != nil:
-		context.Logger.WithError(err).Error("error getting user as me")
-		http.Error(w, "", http.StatusInternalServerError)
-	case foundUser == nil:
-		http.Error(w, "", http.StatusNotFound)
-	default:
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else if foundUser == nil {
+		http.Error(w, "not found", http.StatusNotFound)
+	} else {
 		api.SendJson(w, foundUser, 200, context.Logger)
 	}
 }

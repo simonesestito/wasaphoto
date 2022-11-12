@@ -3,6 +3,7 @@ package ioc
 import (
 	"github.com/simonesestito/wasaphoto/service/api/route"
 	"github.com/simonesestito/wasaphoto/service/features/auth"
+	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
@@ -22,6 +23,10 @@ func (ioc *Container) CreateBanController() user.BanController {
 	return user.BanController{
 		Service: ioc.CreateBanService(),
 	}
+}
+
+func (ioc *Container) CreateFollowController() follow.Controller {
+	return follow.Controller{Service: ioc.CreateFollowService()}
 }
 
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {

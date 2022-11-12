@@ -39,22 +39,7 @@ func (controller BanController) banUser(w http.ResponseWriter, _ *http.Request, 
 	}
 
 	err := controller.Service.BanUser(args.BannedId, args.UserId)
-
-	switch err {
-	case ErrWrongUUID:
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	case ErrSelfOperation:
-		http.Error(w, err.Error(), http.StatusConflict)
-	case ErrNotFound:
-		http.Error(w, err.Error(), http.StatusNotFound)
-	case ErrDuplicated:
-		w.WriteHeader(http.StatusNoContent)
-	case nil:
-		w.WriteHeader(http.StatusCreated)
-	default:
-		context.Logger.WithError(err).Error("unexpected ban error")
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	api.HandleErrorsResponse(err, w, http.StatusCreated, context.Logger)
 }
 
 func (controller BanController) unbanUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
@@ -70,14 +55,5 @@ func (controller BanController) unbanUser(w http.ResponseWriter, _ *http.Request
 	}
 
 	err := controller.Service.UnbanUser(args.BannedId, args.UserId)
-
-	switch err {
-	case ErrWrongUUID:
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	case nil:
-		w.WriteHeader(http.StatusNoContent)
-	default:
-		context.Logger.WithError(err).Error("unexpected ban error")
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
 }
