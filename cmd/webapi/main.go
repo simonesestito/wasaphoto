@@ -160,7 +160,7 @@ func run() error {
 func initDatabase(cfg WebAPIConfiguration, logger *logrus.Logger) (*sqlx.DB, func()) {
 	logger.Println("initializing database support")
 
-	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename)
+	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename+"?_foreign_keys=on")
 	if err != nil {
 		logger.WithError(err).Fatalln("error opening SQLite DB")
 	}
