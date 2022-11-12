@@ -11,6 +11,7 @@ type Dao interface {
 	InsertUser(user ModelUser) error
 	IsUserBannedBy(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithBan, error)
+	BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 }
 
 type DbDao struct {

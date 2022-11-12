@@ -18,6 +18,12 @@ func (ioc *Container) CreateUserController() user.Controller {
 	}
 }
 
+func (ioc *Container) CreateBanController() user.BanController {
+	return user.BanController{
+		Service: ioc.CreateBanService(),
+	}
+}
+
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
 	return auth.Middleware{LoginService: ioc.CreateAuthService()}
 }

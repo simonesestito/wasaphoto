@@ -16,3 +16,9 @@ func (ioc *Container) CreateUserService() user.Service {
 		Db: ioc.CreateUserDao(),
 	}
 }
+
+func (ioc *Container) CreateBanService() user.BanService {
+	return user.BanServiceImpl{
+		Db: ioc.CreateUserDao(),
+	}
+}
