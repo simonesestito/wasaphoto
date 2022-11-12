@@ -8,6 +8,7 @@ import (
 
 type BanService interface {
 	BanUser(bannedId string, bannerId string) error
+	UnbanUser(bannedId string, bannerId string) error
 }
 
 type BanServiceImpl struct {
@@ -45,6 +46,21 @@ func (service BanServiceImpl) BanUser(bannedId string, bannerId string) error {
 
 	if !newBan {
 		return ErrDuplicated
+	}
+
+	return nil
+}
+
+func (service BanServiceImpl) UnbanUser(bannedId string, bannerId string) error {
+	bannedUuid := uuid.FromStringOrNil(bannedId)
+	bannerUuid := uuid.FromStringOrNil(bannerId)
+	if bannedUuid == uuid.Nil || bannerUuid == uuid.Nil {
+		return ErrWrongUUID
+	}
+
+	_, err := service.Db.UnbanUser(bannedUuid, bannerUuid)
+	if err != nil {
+		return err
 	}
 
 	return nil

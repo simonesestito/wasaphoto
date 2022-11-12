@@ -12,6 +12,7 @@ type Dao interface {
 	IsUserBannedBy(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithBan, error)
 	BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
+	UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error)
 }
 
 type DbDao struct {

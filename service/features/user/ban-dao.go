@@ -22,3 +22,8 @@ func (dao DbDao) BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error) {
 	rows, err := dao.DB.ExecRows("INSERT INTO Ban (bannedId, bannerId) VALUES (?, ?)", bannedId.Bytes(), bannerId.Bytes())
 	return rows > 0, err
 }
+
+func (dao DbDao) UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error) {
+	rows, err := dao.DB.ExecRows("DELETE FROM Ban WHERE bannedId = ? AND bannerId = ?", bannedUuid.Bytes(), bannerUuid.Bytes())
+	return rows > 0, err
+}
