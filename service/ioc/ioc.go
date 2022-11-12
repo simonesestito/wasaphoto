@@ -7,8 +7,6 @@ import (
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/api/route"
 	"github.com/simonesestito/wasaphoto/service/database"
-	"github.com/simonesestito/wasaphoto/service/features/auth"
-	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/sirupsen/logrus"
 )
@@ -74,28 +72,4 @@ func (ioc *Container) CreateRouter() (api.Router, error) {
 	}
 
 	return router, nil
-}
-
-func (ioc *Container) CreateAuthService() auth.LoginService {
-	return auth.UserIdLoginService{
-		UserDao: ioc.CreateUserDao(),
-	}
-}
-
-func (ioc *Container) CreateLoginController() auth.LoginController {
-	return auth.LoginController{
-		AuthService: ioc.CreateAuthService(),
-	}
-}
-
-func (ioc *Container) CreateUserController() user.Controller {
-	return user.Controller{}
-}
-
-func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
-	return auth.Middleware{LoginService: ioc.CreateAuthService()}
-}
-
-func (ioc *Container) CreateUserDao() user.Dao {
-	return user.DbDao{DB: ioc.database}
 }

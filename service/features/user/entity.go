@@ -19,12 +19,12 @@ type ModelUserInfo struct {
 	ModelUser
 	FollowersCount  uint `json:"followersCount"`
 	FollowingsCount uint `json:"followingsCount"`
-	PostsCount      uint `json:"postsCount"`
+	PostsCount      uint `json:"photosCount"`
 }
 
 type ModelUserWithBan struct {
 	ModelUserInfo
-	Banned bool `json:"banned"`
+	Banned int64 `json:"banned"`
 }
 
 func (user ModelUserWithBan) ToDto() User {
@@ -33,7 +33,7 @@ func (user ModelUserWithBan) ToDto() User {
 		FollowersCount:  user.FollowersCount,
 		FollowingsCount: user.FollowingsCount,
 		PostsCount:      user.PostsCount,
-		Banned:          user.Banned,
+		Banned:          user.Banned > 0,
 		NewUser: NewUser{
 			Name:     user.Name,
 			Surname:  user.Surname,
