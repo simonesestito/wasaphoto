@@ -9,7 +9,7 @@ func (dao DbDao) IsUserBannedBy(bannedId uuid.UUID, bannerId uuid.UUID) (bool, e
 		Banned int64 `json:"banned"`
 	}{}
 
-	err := dao.DB.QueryStructRow(&result, "SELECT EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId) AS banned", bannedId.Bytes(), bannerId.Bytes())
+	err := dao.DB.QueryStructRow(&result, "SELECT EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId = ?) AS banned", bannedId.Bytes(), bannerId.Bytes())
 
 	if err != nil {
 		return false, err

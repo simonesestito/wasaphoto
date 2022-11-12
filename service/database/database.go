@@ -16,3 +16,4 @@ type AppDatabase interface {
 
 var ErrNoResult = sql.ErrNoRows
 var ErrDuplicated = errors.New("operation duplicated")
+var ErrForeignKey = errors.New("foreign key failed")

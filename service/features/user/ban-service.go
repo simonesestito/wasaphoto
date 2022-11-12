@@ -37,7 +37,9 @@ func (service BanServiceImpl) BanUser(bannedId string, bannerId string) error {
 	}
 
 	newBan, err := service.Db.BanUser(bannedUuid, bannerUuid)
-	if err != nil {
+	if err == database.ErrForeignKey {
+		return ErrNotFound
+	} else if err != nil {
 		return err
 	}
 

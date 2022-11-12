@@ -18,12 +18,17 @@ func (db appSqlDatabase) Exec(query string, args ...any) error {
 func (db appSqlDatabase) ExecRows(query string, args ...any) (int64, error) {
 	result, err := db.DB.Exec(query, args...)
 
-	if err == sql.ErrNoRows {
-		return 0, nil
-	} else if err != nil && strings.HasPrefix(err.Error(), "UNIQUE") {
-		return 0, ErrDuplicated
-	} else if err != nil {
-		return 0, err
+	if err != nil {
+		switch {
+		case err == sql.ErrNoRows:
+			return 0, nil
+		case strings.HasPrefix(err.Error(), "UNIQUE"):
+			return 0, ErrDuplicated
+		case strings.HasPrefix(err.Error(), "FOREIGN KEY"):
+			return 0, ErrForeignKey
+		default:
+			return 0, err
+		}
 	}
 
 	rows, err := result.RowsAffected()
