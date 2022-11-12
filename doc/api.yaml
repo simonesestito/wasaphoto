@@ -11,6 +11,9 @@ info:
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
   version: "0.9.0"
+servers:
+  - url: http://localhost:8080/
+    description: Localhost development server
 paths:
   /sessions/:
     post:
@@ -147,7 +150,7 @@ paths:
       summary: Get user by username
       description: |
         Get a user by his username, when the ID is not known.
-      
+
         On the contrary of /users/?username=..., here we are querying for a specific username,
         and we expect a single resource as a response, not a paginated array with 0 or 1 item.
       responses:
@@ -239,7 +242,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-  
+
   /users/{userId}/followings/{followedId}:
     description: A resource to identify a follower.
     parameters:
@@ -608,7 +611,7 @@ components:
     PageCursor:
       name: pageCursor
       description: |
-        In cursor pagination, this refers to 
+        In cursor pagination, this refers to
         the ID of the latest resource received by the client.
       required: false
       in: query
@@ -829,7 +832,7 @@ components:
       description: |
         User authentication with the user ID passed
         as it would be an authentication token.
-        Of course, that's extremely insecure, but it's done 
+        Of course, that's extremely insecure, but it's done
         according to the project specification.
       type: http
       scheme: bearer
