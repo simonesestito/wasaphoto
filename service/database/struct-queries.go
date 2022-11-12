@@ -11,10 +11,10 @@ import (
 // Other more low-level errors may be thrown as well.
 func (db appSqlDatabase) QueryStructRow(destPointer any, query string, args ...any) error {
 	rows, err := db.DB.Queryx(query, args...)
-	defer tryClosingRows(rows)
 	if err != nil {
 		return err
 	}
+	defer tryClosingRows(rows)
 
 	if !rows.Next() {
 		return ErrNoResult
