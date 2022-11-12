@@ -7,6 +7,7 @@ import (
 
 type Dao interface {
 	FollowUser(followerUuid uuid.UUID, followingUuid uuid.UUID) (bool, error)
+	UnfollowUser(followerUuid uuid.UUID, followingUuid uuid.UUID) (bool, error)
 }
 
 type DbDao struct {
@@ -15,6 +16,12 @@ type DbDao struct {
 
 func (db DbDao) FollowUser(followerUuid uuid.UUID, followingUuid uuid.UUID) (bool, error) {
 	rows, err := db.Db.ExecRows("INSERT INTO Follow (followerId, followedId) VALUES (?, ?)",
+		followerUuid.Bytes(), followingUuid.Bytes())
+	return rows > 0, err
+}
+
+func (db DbDao) UnfollowUser(followerUuid uuid.UUID, followingUuid uuid.UUID) (bool, error) {
+	rows, err := db.Db.ExecRows("DELETE FROM Follow WHERE followerId = ? AND followedId = ?",
 		followerUuid.Bytes(), followingUuid.Bytes())
 	return rows > 0, err
 }
