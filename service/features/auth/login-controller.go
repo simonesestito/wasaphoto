@@ -29,13 +29,25 @@ func (controller LoginController) handlePost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authToken, err := controller.AuthService.Authenticate(*body, ctx.Logger)
-	if err != nil {
+	authToken, err := controller.AuthService.Authenticate(*body)
+	responseStatus := http.StatusOK
+
+	switch {
+	case err == ErrUnknownUser:
+		// Register new user!
+		responseStatus = http.StatusCreated
+		authToken, err = controller.AuthService.SignUp(*body)
+		if err != nil {
+			ctx.Logger.WithError(err).Errorf("Unexpected error signing up user with username '%s'", body.Username)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	case err != nil:
 		ctx.Logger.WithError(err).Warnf("Unexpected error authenticating user %s", body.Username)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	response := UserLoginResult{UserId: authToken}
-	api.SendJson(w, response, 200, ctx.Logger)
+	api.SendJson(w, response, responseStatus, ctx.Logger)
 }

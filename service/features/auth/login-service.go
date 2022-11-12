@@ -4,12 +4,12 @@ import (
 	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/features/user"
-	"github.com/sirupsen/logrus"
 )
 
 type LoginService interface {
-	Authenticate(credentials UserLoginCredentials, logger logrus.FieldLogger) (authToken string, err error)
-	IsAuthenticated(authToken string, logger logrus.FieldLogger) (userId string, err error)
+	Authenticate(credentials UserLoginCredentials) (authToken string, err error)
+	IsAuthenticated(authToken string) (userId string, err error)
+	SignUp(credentials UserLoginCredentials) (authToken string, err error)
 }
 
 type UserIdLoginService struct {
@@ -17,20 +17,48 @@ type UserIdLoginService struct {
 	UserDao user.Dao
 }
 
-func (service UserIdLoginService) Authenticate(credentials UserLoginCredentials, logger logrus.FieldLogger) (string, error) {
-	foundUser, err := service.UserDao.GetUserByUsername(credentials.Username)
-	if err != nil {
-		logger.WithError(err).Errorf("Unexpected error fetching user with username '%s'", credentials.Username)
-		return "", errors.New("invalid credentials")
-		// FIXME: Sign up new user (name=username, surname="")
-	} else if foundUser == nil {
-		return "", errors.New("invalid credentials")
-	}
+var ErrUnknownUser = errors.New("invalid user credentials")
 
-	return foundUser.Uuid().String(), nil
+// Authenticate tries to authenticate the user specified with the credentials,
+// and returns the user token or an error.
+// In case a user with these credentials cannot be found, it returns ErrUnknownUser
+func (service UserIdLoginService) Authenticate(credentials UserLoginCredentials) (string, error) {
+	foundUser, err := service.UserDao.GetUserByUsername(credentials.Username)
+	switch {
+	case foundUser == nil:
+		return "", ErrUnknownUser
+	case err != nil:
+		return "", err
+	default:
+		return foundUser.Uuid().String(), nil
+	}
 }
 
-func (service UserIdLoginService) IsAuthenticated(authToken string, logger logrus.FieldLogger) (string, error) {
+// SignUp creates a new user based on the given credentials.
+// The name will be the username, and the surname will be empty.
+func (service UserIdLoginService) SignUp(credentials UserLoginCredentials) (string, error) {
+	newUuid, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+
+	newUser := user.ModelUser{
+		Id:       newUuid.Bytes(),
+		Name:     credentials.Username,
+		Surname:  "",
+		Username: credentials.Username,
+	}
+
+	if err := service.UserDao.InsertUser(newUser); err != nil {
+		return "", err
+	}
+
+	return newUuid.String(), nil
+}
+
+// IsAuthenticated checks if the given authToken can be assigned to a User.
+// In case no user is found, it returns ErrUnknownUser
+func (service UserIdLoginService) IsAuthenticated(authToken string) (string, error) {
 	userId, err := uuid.FromString(authToken)
 	if err != nil {
 		return "", err
@@ -38,10 +66,9 @@ func (service UserIdLoginService) IsAuthenticated(authToken string, logger logru
 
 	foundUser, err := service.UserDao.GetUserById(userId)
 	if err != nil {
-		logger.WithError(err).Errorf("Unexpected error fetching user with ID '%s'", userId.String())
-		return "", errors.New("invalid token")
+		return "", err
 	} else if foundUser == nil {
-		return "", errors.New("invalid token")
+		return "", ErrUnknownUser
 	}
 
 	return foundUser.Uuid().String(), nil

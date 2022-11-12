@@ -22,7 +22,7 @@ func (middleware Middleware) Intercept(handler route.SecureHandler) route.Handle
 		}
 
 		authToken := strings.TrimPrefix(authorization, bearerPrefix)
-		userId, err := middleware.LoginService.IsAuthenticated(authToken, context.Logger)
+		userId, err := middleware.LoginService.IsAuthenticated(authToken)
 		if err != nil {
 			// Authentication is invalid
 			context.Logger.WithError(err).Debug("Error checking authentication")

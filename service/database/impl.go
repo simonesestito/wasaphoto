@@ -101,6 +101,7 @@ func (db appSqlDatabase) Version() (int, error) {
 	}
 
 	rows, err := db.DB.Query("SELECT version FROM SchemaVersion")
+	defer tryClosingRows(rows)
 	nextRow := rows.Next()
 	switch {
 	case err == sql.ErrNoRows || !nextRow:
