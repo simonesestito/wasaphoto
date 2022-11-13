@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
+	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
 type Service interface {
@@ -12,7 +13,20 @@ type Service interface {
 }
 
 type ServiceImpl struct {
-	Db Dao
+	Db         Dao
+	BanService user.BanService
+}
+
+func NewServiceImpl(db Dao, banService user.BanService) ServiceImpl {
+	service := ServiceImpl{
+		Db:         db,
+		BanService: banService,
+	}
+
+	// Perform actions when a user is banned
+	banService.AddBanListener(service.UnfollowUser)
+
+	return service
 }
 
 func (service ServiceImpl) FollowUser(followerId string, followingId string) error {
@@ -24,6 +38,14 @@ func (service ServiceImpl) FollowUser(followerId string, followingId string) err
 
 	if followerId == followingId {
 		return api.ErrSelfOperation
+	}
+
+	banned, err := service.BanService.IsUserBanned(followerId, followingId)
+	if err != nil {
+		return err
+	}
+	if banned {
+		return api.ErrUserBanned
 	}
 
 	newInsert, err := service.Db.FollowUser(followerUuid, followingUuid)

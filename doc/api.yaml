@@ -332,7 +332,7 @@ paths:
     put:
       tags: ["user"]
       operationId: banUser
-      summary: Ban a user
+      summary: Ban a user. Banning someone will also make him unfollow you.
       description: Ban another existing user
       responses:
         "201":

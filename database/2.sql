@@ -15,7 +15,7 @@ DROP VIEW IF EXISTS Followings;
 CREATE VIEW Followings AS
 SELECT User.id AS followerId, COALESCE(COUNT(Follow.followedId), 0) AS followingsCount
 FROM User
-		 LEFT JOIN Follow on User.id = Follow.followedId
+		 LEFT JOIN Follow on User.id = Follow.followerId
 GROUP BY User.id;
 
 -- Count the posts of each user

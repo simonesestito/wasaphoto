@@ -18,14 +18,25 @@ func (ioc *Container) CreateUserService() user.Service {
 	}
 }
 
+// CreateBanService creates a Singleton instance of the BanService,
+// because it's required for this service, on the contrary of others.
 func (ioc *Container) CreateBanService() user.BanService {
-	return user.BanServiceImpl{
+	const key = "user.BanService"
+	if previousInstance, ok := ioc.instances[key]; ok {
+		return previousInstance.(user.BanService)
+	}
+
+	// Create a new BanService
+	newInstance := user.BanServiceImpl{
 		Db: ioc.CreateUserDao(),
 	}
+	ioc.instances[key] = &newInstance
+	return &newInstance
 }
 
 func (ioc *Container) CreateFollowService() follow.Service {
-	return follow.ServiceImpl{
-		Db: ioc.CreateFollowDao(),
-	}
+	return follow.NewServiceImpl(
+		ioc.CreateFollowDao(),
+		ioc.CreateBanService(),
+	)
 }

@@ -14,6 +14,11 @@ type Container struct {
 	forcedTime timeprovider.TimeProvider
 	logger     *logrus.Logger
 	database   database.AppDatabase
+
+	// instances collects singleton instances for those
+	// dependencies which need to be a shared instance.
+	// Not meant to be goroutine safe.
+	instances map[string]any
 }
 
 func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB) (Container, error) {
@@ -34,6 +39,7 @@ func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatab
 		forcedTime: timeProvider,
 		logger:     logger,
 		database:   appDatabase,
+		instances:  make(map[string]any),
 	}, nil
 }
 
