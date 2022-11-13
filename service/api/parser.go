@@ -47,7 +47,7 @@ func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, log
 	}
 
 	// Validate parsed struct
-	if err := validateParsedStruct(paramsStruct, logger); err != nil {
+	if err := ValidateParsedStruct(paramsStruct, logger); err != nil {
 		return paramsStruct, err
 	}
 
@@ -75,14 +75,14 @@ func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger lo
 	}
 
 	// Validate parsed struct
-	if err := validateParsedStruct(bodyStruct, logger); err != nil {
+	if err := ValidateParsedStruct(bodyStruct, logger); err != nil {
 		return bodyStruct, err
 	}
 
 	return bodyStruct, nil
 }
 
-func validateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *MalformedRequest {
+func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *MalformedRequest {
 	if err := validator.New().Struct(parsedStruct); err != nil {
 		validationError, ok := err.(validator.ValidationErrors)
 		if !ok {

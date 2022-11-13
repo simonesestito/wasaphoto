@@ -181,7 +181,7 @@ paths:
         description: New username to assign to the current user
         required: true
         content:
-          application/json:
+          text/plain:
             schema: { $ref: "#/components/schemas/Username" }
       responses:
         "200":
