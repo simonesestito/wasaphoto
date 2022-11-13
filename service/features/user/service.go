@@ -3,10 +3,12 @@ package user
 import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
+	"github.com/simonesestito/wasaphoto/service/database"
 )
 
 type Service interface {
 	GetUserAs(searchedId string, searchAsId string) (*User, error)
+	UpdateUserDetails(id string, newUser NewUser) (User, error)
 }
 
 type ServiceImpl struct {
@@ -38,4 +40,29 @@ func (service ServiceImpl) GetUserAs(searchedId string, searchAsId string) (*Use
 
 	result := user.ToDto()
 	return &result, nil
+}
+
+func (service ServiceImpl) UpdateUserDetails(id string, newUser NewUser) (User, error) {
+	userUuid := uuid.FromStringOrNil(id)
+	if userUuid == uuid.Nil {
+		return User{}, api.ErrWrongUUID
+	}
+
+	err := service.Db.EditUser(userUuid, ModelUser{
+		Name:     newUser.Name,
+		Surname:  newUser.Surname,
+		Username: newUser.Username,
+	})
+
+	if err == database.ErrDuplicated {
+		return User{}, api.ErrAlreadyTaken
+	} else if err != nil {
+		return User{}, err
+	}
+
+	updatedUser, err := service.Db.GetUserByIdAs(userUuid, userUuid)
+	if err != nil {
+		return User{}, err
+	}
+	return updatedUser.ToDto(), nil
 }

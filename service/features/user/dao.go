@@ -13,6 +13,7 @@ type Dao interface {
 	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithCustom, error)
 	BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 	UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error)
+	EditUser(userUuid uuid.UUID, user ModelUser) error
 }
 
 type DbDao struct {
@@ -66,4 +67,9 @@ func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWi
 	default:
 		return user, nil
 	}
+}
+
+func (dao DbDao) EditUser(userUuid uuid.UUID, user ModelUser) error {
+	query := "UPDATE User SET name = ?, surname = ?, username = ? WHERE id = ?"
+	return dao.DB.Exec(query, user.Name, user.Surname, user.Username, userUuid.Bytes())
 }

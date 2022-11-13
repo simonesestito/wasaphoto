@@ -17,6 +17,8 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 		http.Error(w, err.Error(), http.StatusNotFound)
 	case ErrDuplicated:
 		w.WriteHeader(http.StatusNoContent)
+	case ErrAlreadyTaken:
+		http.Error(w, err.Error(), http.StatusConflict)
 	case ErrUserBanned:
 		http.Error(w, err.Error(), http.StatusForbidden)
 	case nil:
@@ -37,6 +39,9 @@ var ErrNotFound = errors.New("subject resource not found")
 
 // ErrDuplicated is used if an item was already added in a set
 var ErrDuplicated = database.ErrDuplicated
+
+// ErrAlreadyTaken is used if a user tries to get something it's someone else's and must be unique
+var ErrAlreadyTaken = errors.New("the unique data you are trying to get it's already taken")
 
 // ErrWrongUUID is used to indicate the given ID cannot be interpreted as a UUID
 var ErrWrongUUID = errors.New("wrong UUID supplied")
