@@ -723,6 +723,13 @@ components:
           type: boolean
           readOnly: true
           example: false
+        following:
+          description: |
+            It indicates whether or not the user performing this request
+            is currently following the user represented by this resource.
+          type: boolean
+          readOnly: true
+          example: true
 
     DateTime:
       description: Standard datetime representation
