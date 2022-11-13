@@ -22,18 +22,22 @@ type ModelUserInfo struct {
 	PostsCount      uint `json:"photosCount"`
 }
 
-type ModelUserWithBan struct {
+// ModelUserWithCustom is ModelUserInfo with all fields which
+// depend on the actual user performing the query.
+type ModelUserWithCustom struct {
 	ModelUserInfo
-	Banned int64 `json:"banned"`
+	Banned    int64 `json:"banned"`
+	Following int64 `json:"following"`
 }
 
-func (user ModelUserWithBan) ToDto() User {
+func (user ModelUserWithCustom) ToDto() User {
 	return User{
 		Id:              user.Uuid().String(),
 		FollowersCount:  user.FollowersCount,
 		FollowingsCount: user.FollowingsCount,
 		PostsCount:      user.PostsCount,
 		Banned:          user.Banned > 0,
+		Following:       user.Following > 0,
 		NewUser: NewUser{
 			Name:     user.Name,
 			Surname:  user.Surname,

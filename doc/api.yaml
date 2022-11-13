@@ -321,7 +321,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
 
   /users/{userId}/bannedPeople/{blockedId}:
-    description: Resource to indicate who blocked who.Collection of people blocked by the specified user
+    description: Resource to indicate who blocked who.
     parameters:
       - $ref: "#/components/parameters/UserId"
       - name: blockedId

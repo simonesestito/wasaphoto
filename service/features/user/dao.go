@@ -10,7 +10,7 @@ type Dao interface {
 	GetUserByUsername(username string) (*ModelUser, error)
 	InsertUser(user ModelUser) error
 	IsUserBannedBy(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
-	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithBan, error)
+	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithCustom, error)
 	BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 	UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error)
 }
@@ -46,16 +46,18 @@ func (dao DbDao) GetUserByUsername(username string) (*ModelUser, error) {
 }
 
 func (dao DbDao) InsertUser(user ModelUser) error {
-	return dao.DB.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)",
-		user.Id, user.Name, user.Surname, user.Username)
+	return dao.DB.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
 }
 
 // GetUserByIdAs also adds personal fields such as "banned" which are
 // relative to the actual user looking for this data
-func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithBan, error) {
-	user := &ModelUserWithBan{}
-	query := "SELECT UserInfo.*, EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId = ?) AS banned FROM UserInfo WHERE id = ?"
-	err := dao.DB.QueryStructRow(user, query, id.Bytes(), searchAsId.Bytes(), id.Bytes())
+func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithCustom, error) {
+	user := &ModelUserWithCustom{}
+	query := "SELECT UserInfo.*, " +
+		"EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId = ?) AS banned, " +
+		"EXISTS(SELECT * FROM Follow WHERE followedId = ? AND followerId = ?) AS following " +
+		"FROM UserInfo WHERE id = ?"
+	err := dao.DB.QueryStructRow(user, query, id.Bytes(), searchAsId.Bytes(), id.Bytes(), searchAsId.Bytes(), id.Bytes())
 	switch {
 	case err == database.ErrNoResult:
 		return nil, nil

@@ -28,6 +28,7 @@ type User struct {
 	FollowingsCount uint   `json:"followingsCount"`
 	PostsCount      uint   `json:"postsCount"`
 	Banned          bool   `json:"banned"`
+	Following       bool   `json:"following"`
 	NewUser
 }
 

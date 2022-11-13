@@ -29,6 +29,7 @@ func (db appSqlDatabase) QueryStructRow(destPointer any, query string, args ...a
 	// Decode to given struct
 	decoderConfig := &mapstructure.DecoderConfig{
 		ErrorUnused: true,
+		ErrorUnset:  true,
 		ZeroFields:  true,
 		TagName:     "json",
 		Result:      destPointer,
