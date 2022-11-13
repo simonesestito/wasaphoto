@@ -22,7 +22,7 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 	case nil:
 		w.WriteHeader(defaultSuccessStatus)
 	default:
-		logger.WithError(err).Error("unexpected ban error")
+		logger.WithError(err).Error("unexpected error processing request")
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
