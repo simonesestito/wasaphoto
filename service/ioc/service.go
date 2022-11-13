@@ -3,6 +3,7 @@ package ioc
 import (
 	"github.com/simonesestito/wasaphoto/service/features/auth"
 	"github.com/simonesestito/wasaphoto/service/features/follow"
+	"github.com/simonesestito/wasaphoto/service/features/photo"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
@@ -39,4 +40,11 @@ func (ioc *Container) CreateFollowService() follow.Service {
 		ioc.CreateFollowDao(),
 		ioc.CreateBanService(),
 	)
+}
+
+func (ioc *Container) CreatePhotoService() photo.Service {
+	return photo.ServiceImpl{
+		Db:      ioc.CreatePhotoDao(),
+		Storage: ioc.CreateStorage(),
+	}
 }

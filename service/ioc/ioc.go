@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/simonesestito/wasaphoto/service/database"
+	"github.com/simonesestito/wasaphoto/service/storage"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/sirupsen/logrus"
 )
@@ -49,4 +50,16 @@ func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
 	}
 
 	return timeprovider.RealTimeProvider{}
+}
+
+func (ioc *Container) CreateStorage() storage.Storage {
+	const key = "storage.Storage"
+	if previousInstance, ok := ioc.instances[key]; ok {
+		return previousInstance.(storage.Storage)
+	}
+
+	// Create a new storage.Storage
+	newInstance := storage.FilesystemStorage{}
+	ioc.instances[key] = &newInstance
+	return &newInstance
 }

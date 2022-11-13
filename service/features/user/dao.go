@@ -18,12 +18,12 @@ type Dao interface {
 }
 
 type DbDao struct {
-	DB database.AppDatabase
+	Db database.AppDatabase
 }
 
 func (dao DbDao) GetUserById(id uuid.UUID) (*ModelUser, error) {
 	user := &ModelUser{}
-	err := dao.DB.QueryStructRow(user, "SELECT * FROM User WHERE id = ?", id.Bytes())
+	err := dao.Db.QueryStructRow(user, "SELECT * FROM User WHERE id = ?", id.Bytes())
 	switch {
 	case err == database.ErrNoResult:
 		return nil, nil
@@ -36,7 +36,7 @@ func (dao DbDao) GetUserById(id uuid.UUID) (*ModelUser, error) {
 
 func (dao DbDao) GetUserByUsername(username string) (*ModelUser, error) {
 	user := &ModelUser{}
-	err := dao.DB.QueryStructRow(user, "SELECT * FROM User WHERE username = ?", username)
+	err := dao.Db.QueryStructRow(user, "SELECT * FROM User WHERE username = ?", username)
 	switch {
 	case err == database.ErrNoResult:
 		return nil, nil
@@ -48,7 +48,7 @@ func (dao DbDao) GetUserByUsername(username string) (*ModelUser, error) {
 }
 
 func (dao DbDao) InsertUser(user ModelUser) error {
-	return dao.DB.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
+	return dao.Db.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
 }
 
 // GetUserByIdAs also adds personal fields such as "banned" which are
@@ -59,7 +59,7 @@ func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWi
 		"EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId = ?) AS banned, " +
 		"EXISTS(SELECT * FROM Follow WHERE followedId = ? AND followerId = ?) AS following " +
 		"FROM UserInfo WHERE id = ?"
-	err := dao.DB.QueryStructRow(user, query, id.Bytes(), searchAsId.Bytes(), id.Bytes(), searchAsId.Bytes(), id.Bytes())
+	err := dao.Db.QueryStructRow(user, query, id.Bytes(), searchAsId.Bytes(), id.Bytes(), searchAsId.Bytes(), id.Bytes())
 	switch {
 	case err == database.ErrNoResult:
 		return nil, nil
@@ -72,10 +72,10 @@ func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWi
 
 func (dao DbDao) EditUser(userUuid uuid.UUID, user ModelUser) error {
 	query := "UPDATE User SET name = ?, surname = ?, username = ? WHERE id = ?"
-	return dao.DB.Exec(query, user.Name, user.Surname, user.Username, userUuid.Bytes())
+	return dao.Db.Exec(query, user.Name, user.Surname, user.Username, userUuid.Bytes())
 }
 
 func (dao DbDao) EditUsername(userUuid uuid.UUID, username string) error {
 	query := "UPDATE User SET username = ? WHERE id = ?"
-	return dao.DB.Exec(query, username, userUuid.Bytes())
+	return dao.Db.Exec(query, username, userUuid.Bytes())
 }
