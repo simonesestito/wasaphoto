@@ -15,5 +15,5 @@ func (ioc *Container) CreateFollowDao() follow.Dao {
 }
 
 func (ioc *Container) CreatePhotoDao() photo.Dao {
-	return photo.DbDao{Db: ioc.database}
+	return photo.DbDao{Db: ioc.database, Time: ioc.CreateTimeProvider()}
 }

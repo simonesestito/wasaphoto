@@ -17,7 +17,7 @@ func (ioc *Container) CreateRouter() (api.Router, error) {
 
 	// List middlewares
 	middlewares := []route.Middleware{
-		api.LimitBodySize(1024 * 1024),
+		api.LimitBodySize(20 * 1024 * 1024),
 	}
 
 	// Create router

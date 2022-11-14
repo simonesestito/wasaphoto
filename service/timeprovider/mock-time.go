@@ -9,3 +9,7 @@ type MockTimeProvider struct {
 func (provider MockTimeProvider) Now() time.Time {
 	return provider.MockTime
 }
+
+func (provider MockTimeProvider) UTCString() string {
+	return provider.Now().UTC().Format(utcFormat)
+}

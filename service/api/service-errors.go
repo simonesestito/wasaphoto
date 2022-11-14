@@ -21,6 +21,8 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 		http.Error(w, err.Error(), http.StatusConflict)
 	case ErrUserBanned:
 		http.Error(w, err.Error(), http.StatusForbidden)
+	case ErrMedia:
+		http.Error(w, err.Error(), http.StatusUnsupportedMediaType)
 	case nil:
 		w.WriteHeader(defaultSuccessStatus)
 	default:
@@ -50,3 +52,6 @@ var ErrWrongUUID = errors.New("wrong UUID supplied")
 // to read the requested information because he is banned
 // by the owner of that data.
 var ErrUserBanned = errors.New("forbidden because of user ban")
+
+// ErrMedia indicates a wrong media type
+var ErrMedia = errors.New("wrong media content supplied")

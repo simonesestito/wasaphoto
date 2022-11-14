@@ -12,3 +12,4 @@ docker-compose.log
 /doc/json
 /doc/markdown
 *.sqlite
+static/user_content/
