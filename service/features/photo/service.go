@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"bytes"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/storage"
@@ -9,6 +10,7 @@ import (
 
 type Service interface {
 	CreatePost(userId string, imageData []byte) (Photo, error)
+	DeletePostAs(imageId string, userId string) error
 }
 
 type ServiceImpl struct {
@@ -36,7 +38,7 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	}
 
 	// Save processed photo
-	filePath := "static/user_content/photos/" + strings.ReplaceAll(photoUuid.String(), "-", "") + ".webp"
+	filePath := service.pathForPhotoFile(photoUuid)
 	err = service.Storage.SaveFile(filePath, imageData)
 	if err != nil {
 		return Photo{}, err
@@ -54,6 +56,40 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 		return Photo{}, err
 	}
 
-	// TODO: Use nested struct from DB
 	return photo.ToDto(), nil
+}
+
+func (ServiceImpl) pathForPhotoFile(photoUuid uuid.UUID) string {
+	return "static/user_content/photos/" + strings.ReplaceAll(photoUuid.String(), "-", "") + ".webp"
+}
+
+func (service ServiceImpl) DeletePostAs(imageId string, userId string) error {
+	imageUuid := uuid.FromStringOrNil(imageId)
+	userUuid := uuid.FromStringOrNil(userId)
+	if imageUuid.IsNil() || userUuid.IsNil() {
+		return api.ErrWrongUUID
+	}
+
+	// Get photo
+	imageToDelete, err := service.Db.GetPhotoByIdAs(imageUuid, userUuid)
+	if err != nil {
+		return err
+	} else if imageToDelete == nil {
+		return api.ErrNotFound
+	}
+
+	// Check authorization
+	if !bytes.Equal(imageToDelete.AuthorId, userUuid.Bytes()) {
+		return api.ErrOthersData
+	}
+
+	// Delete photo from database
+	err = service.Db.DeletePhoto(imageUuid)
+	if err != nil {
+		return err
+	}
+
+	// Delete photo file from storage
+	filePath := service.pathForPhotoFile(imageUuid)
+	return service.Storage.DeleteFile(filePath)
 }

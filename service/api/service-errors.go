@@ -23,6 +23,8 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 		http.Error(w, err.Error(), http.StatusForbidden)
 	case ErrMedia:
 		http.Error(w, err.Error(), http.StatusUnsupportedMediaType)
+	case ErrOthersData:
+		http.Error(w, err.Error(), http.StatusForbidden)
 	case nil:
 		w.WriteHeader(defaultSuccessStatus)
 	default:
@@ -55,3 +57,7 @@ var ErrUserBanned = errors.New("forbidden because of user ban")
 
 // ErrMedia indicates a wrong media type
 var ErrMedia = errors.New("wrong media content supplied")
+
+// ErrOthersData indicates the current operation
+// can only operate on data owned by the user performing it
+var ErrOthersData = errors.New("you are only allowed to operate on data of yours")

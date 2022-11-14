@@ -4,4 +4,5 @@ package storage
 // (filesystem, S3 bucket, CDN, in-memory, ...)
 type Storage interface {
 	SaveFile(name string, data []byte) error
+	DeleteFile(path string) error
 }

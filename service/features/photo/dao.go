@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"database/sql"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
@@ -9,6 +10,7 @@ import (
 type Dao interface {
 	GetPhotoByIdAs(photoId uuid.UUID, userId uuid.UUID) (*EntityPhotoAuthorInfo, error)
 	NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl string) error
+	DeletePhoto(imageUuid uuid.UUID) error
 }
 
 type DbDao struct {
@@ -27,10 +29,23 @@ FROM PhotoAuthorInfo P
 WHERE P.id = ?
 `
 	err := db.Db.QueryStructRow(&photo, query, userId.Bytes(), userId.Bytes(), userId.Bytes(), photoId.Bytes())
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
 	return &photo, err
 }
 
 func (db DbDao) NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl string) error {
 	currentTime := db.Time.UTCString()
 	return db.Db.Exec("INSERT INTO Photo (id, imageUrl, authorId, publishDate) VALUES (?, ?, ?, ?)", photoId.Bytes(), imageUrl, userId.Bytes(), currentTime)
+}
+
+func (db DbDao) DeletePhoto(imageUuid uuid.UUID) error {
+	err := db.Db.Exec("DELETE FROM Photo WHERE id = ?", imageUuid.Bytes())
+	if err == sql.ErrNoRows {
+		return nil
+	} else {
+		return err
+	}
 }

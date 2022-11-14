@@ -21,3 +21,7 @@ func (FilesystemStorage) SaveFile(name string, data []byte) error {
 
 	return os.WriteFile(name, data, 0o644&os.ModePerm)
 }
+
+func (FilesystemStorage) DeleteFile(path string) error {
+	return os.Remove(path)
+}

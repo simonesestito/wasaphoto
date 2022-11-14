@@ -19,6 +19,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/photos",
 			Handler: controller.uploadPhoto,
 		},
+		route.SecureRoute{
+			Method:  http.MethodDelete,
+			Path:    "/photos/:photoId",
+			Handler: controller.deletePhoto,
+		},
 	}
 }
 
@@ -43,4 +48,19 @@ func (controller Controller) uploadPhoto(w http.ResponseWriter, r *http.Request,
 	} else {
 		api.SendJson(w, photo, http.StatusCreated, context.Logger)
 	}
+}
+
+func (controller Controller) deletePhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseRequestVariables(params, &IdParam{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	err := controller.Service.DeletePostAs(args.PhotoId, context.UserId)
+	if err == api.ErrNotFound {
+		// Ignore, since it's intended to be idempotent
+		err = nil
+	}
+	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
 }
