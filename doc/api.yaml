@@ -10,7 +10,7 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1.0.1"
+  version: "1.0.2"
 paths:
   /sessions/:
     post:
@@ -178,7 +178,7 @@ paths:
         description: New username to assign to the current user
         required: true
         content:
-          application/json:
+          text/plain:
             schema: { $ref: "#/components/schemas/Username" }
       responses:
         "200":
@@ -318,7 +318,7 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
 
   /users/{userId}/bannedPeople/{blockedId}:
-    description: Resource to indicate who blocked who.Collection of people blocked by the specified user
+    description: Resource to indicate who blocked who.
     parameters:
       - $ref: "#/components/parameters/UserId"
       - name: blockedId
@@ -329,7 +329,7 @@ paths:
     put:
       tags: ["user"]
       operationId: banUser
-      summary: Ban a user
+      summary: Ban a user. Banning someone will also make him unfollow you.
       description: Ban another existing user
       responses:
         "201":
