@@ -31,6 +31,11 @@ func (controller Controller) uploadPhoto(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	if len(photoData) == 0 {
+		http.Error(w, "missing photo body", http.StatusBadRequest)
+		return
+	}
+
 	photo, err := controller.Service.CreatePost(context.UserId, photoData)
 
 	if err != nil {

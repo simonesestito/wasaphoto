@@ -9,5 +9,5 @@ func (RealTimeProvider) Now() time.Time {
 }
 
 func (time RealTimeProvider) UTCString() string {
-	return time.Now().UTC().Format(utcFormat)
+	return time.Now().UTC().Format(UTCFormat)
 }

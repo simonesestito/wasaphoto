@@ -3,10 +3,8 @@ package photo
 import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
-	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/storage"
 	"strings"
-	"time"
 )
 
 type Service interface {
@@ -51,19 +49,11 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	}
 
 	// Get just created photo
-	photo, err := service.Db.GetPhotoById(photoUuid)
+	photo, err := service.Db.GetPhotoByIdAs(photoUuid, userUuid)
 	if err != nil {
 		return Photo{}, err
 	}
 
 	// TODO: Use nested struct from DB
-	return Photo{
-		Id:            photoUuid.String(),
-		Author:        user.User{},
-		PublishDate:   time.Now(),
-		LikesCount:    0,
-		CommentsCount: 0,
-		Liked:         false,
-		ImageUrl:      photo.ImageUrl,
-	}, nil
+	return photo.ToDto(), nil
 }

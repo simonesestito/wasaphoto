@@ -7,7 +7,7 @@ import (
 )
 
 type Dao interface {
-	GetPhotoById(photoId uuid.UUID) (*EntityPhoto, error)
+	GetPhotoByIdAs(photoId uuid.UUID, userId uuid.UUID) (*EntityPhotoAuthorInfo, error)
 	NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl string) error
 }
 
@@ -16,9 +16,17 @@ type DbDao struct {
 	Db   database.AppDatabase
 }
 
-func (db DbDao) GetPhotoById(photoId uuid.UUID) (*EntityPhoto, error) {
-	photo := EntityPhoto{}
-	err := db.Db.QueryStructRow(&photo, "SELECT * FROM Photo WHERE id = ?", photoId.Bytes())
+func (db DbDao) GetPhotoByIdAs(photoId uuid.UUID, userId uuid.UUID) (*EntityPhotoAuthorInfo, error) {
+	photo := EntityPhotoAuthorInfo{}
+	query := `
+SELECT P.*,
+EXISTS(SELECT * FROM Ban B WHERE B.bannedId = P.authorId AND B.bannerId = ?) AS banned,
+EXISTS(SELECT * FROM Follow F WHERE F.followedId = P.authorId AND F.followerId = ?) AS following,
+EXISTS(SELECT * FROM Likes L WHERE L.photoId = P.authorId AND L.userId = ?) AS liked
+FROM PhotoAuthorInfo P
+WHERE P.id = ?
+`
+	err := db.Db.QueryStructRow(&photo, query, userId.Bytes(), userId.Bytes(), userId.Bytes(), photoId.Bytes())
 	return &photo, err
 }
 
