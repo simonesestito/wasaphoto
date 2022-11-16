@@ -28,6 +28,12 @@ func (router *_router) Handler() http.Handler {
 	return router.router
 }
 
+// RegisterStatic handles requests for static files
+func (router *_router) RegisterStatic(localPath string, httpPath string) {
+	router.logger.Debugln("Registering static path", localPath, "to HTTP path", httpPath)
+	router.router.ServeFiles(httpPath+"/*filepath", http.Dir(localPath))
+}
+
 // Register a new route
 func (router *_router) Register(routeInfo route.Route) error {
 	// Get route handler

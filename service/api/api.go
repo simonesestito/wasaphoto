@@ -18,6 +18,9 @@ type Router interface {
 	// RegisterAll controllers in the app, all at once, being library agnostic, as always
 	RegisterAll(controllers []route.Controller) error
 
+	// RegisterStatic handles requests for static files
+	RegisterStatic(localPath string, httpPath string)
+
 	// Close terminates any resource used in the package
 	Close() error
 }

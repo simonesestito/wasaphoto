@@ -99,6 +99,9 @@ func run() error {
 		return fmt.Errorf("creating the API server instance: %w", err)
 	}
 
+	// Static user content files (such as uploaded photos)
+	apiRouter.RegisterStatic("static/user_content", "/static/user_content")
+
 	router := apiRouter.Handler()
 
 	router, err = registerWebUI(router)
