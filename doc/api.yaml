@@ -76,6 +76,15 @@ paths:
           description: Username or part of the username to search
           required: true
           schema: { $ref: "#/components/schemas/Username" }
+        - name: exactMatch
+          in: query
+          description: |
+            It performs a search using the exact username match,
+            not just the partial username search.
+          required: false
+          schema:
+            type: boolean
+            default: false
         - $ref: "#/components/parameters/PageCursor"
       responses:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
@@ -136,35 +145,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-
-  /users/username/{username}:
-    description: Identify a user with his username, when the ID is not known
-    parameters:
-      - name: username
-        in: path
-        required: true
-        schema: { $ref: "#/components/schemas/Username" }
-    get:
-      tags: ["user"]
-      operationId: getUserByUsername
-      summary: Get user by username
-      description: |
-        Get a user by his username, when the ID is not known.
-
-        On the contrary of /users/?username=..., here we are querying for a specific username,
-        and we expect a single resource as a response, not a paginated array with 0 or 1 item.
-      responses:
-        "302":
-          description: The user has been found
-          headers:
-            Location:
-              schema:
-                description: The resource URI of the requested user
-                type: string
-                format: uri
-                example: https://example.com/api/users/111111
-        "404":
-          description: The user cannot be found
 
   /users/{userId}/username:
     parameters:
