@@ -10,6 +10,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//
+// This file (and this package in general)
+// implements the Inversion Of Control principle
+// using a Dependency Container,
+// in order to create other app components still
+// using Dependency Injection.
+//
+// More info in service/README.md file
+//
+
 type Container struct {
 	// External dependencies here
 	forcedTime timeprovider.TimeProvider
