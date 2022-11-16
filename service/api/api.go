@@ -69,13 +69,13 @@ func (router _router) Register(routeInfo route.Route) error {
 	}
 
 	// Register path and method
-	router.router.Handle(routeInfo.GetMethod(), routeInfo.GetPath(), router.wrap(handler))
 	router.logger.Debugf(
 		"Registering route of type '%s' [%s] %s",
 		reflect.TypeOf(routeInfo),
 		routeInfo.GetMethod(),
 		routeInfo.GetPath(),
 	)
+	router.router.Handle(routeInfo.GetMethod(), routeInfo.GetPath(), router.wrap(handler))
 
 	return nil
 }

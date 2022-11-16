@@ -5,6 +5,7 @@ import "github.com/simonesestito/wasaphoto/service/api"
 type SearchParams struct {
 	UsernameGetParams  `json:",squash"`
 	api.PaginationInfo `json:",squash"`
+	ExactMatch         bool `json:"exactMatch"`
 }
 
 type UsernameGetParams struct {
