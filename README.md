@@ -86,7 +86,10 @@ go build -tags webui ./cmd/webapi/
 
 ## License
 
-    Copyright (C) 2022 Simone Sestito
+Based on [Enrico Bassetti](https://github.com/simonesestito/wasaphoto/commits?author=Enrico204)'s
+project "[Fantastic Coffee Decaffeinated](https://github.com/sapienzaapps/fantastic-coffee-decaffeinated/)"
+
+    Copyright (C) 2022 Simone Sestito, Enrico Bassetti
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
