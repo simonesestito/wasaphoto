@@ -5,6 +5,12 @@ import (
 	"strings"
 )
 
+// This file (and struct-queries.go too) defines the high-level functions
+// to perform SQL queries with ease.
+//
+// The actual queries are performed inside the DAO (Data Access Object) files.
+// More info in the service/README.md file
+
 // Exec executes a database query with the given arguments.
 // In case the query returns an error different from sql.ErrNoResult,
 // it'll be returned.

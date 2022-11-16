@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/jmoiron/sqlx"
-	"github.com/simonesestito/wasaphoto/database"
 	"github.com/sirupsen/logrus"
 	"io"
 	"sort"
@@ -25,7 +24,7 @@ func New(db *sqlx.DB, logger logrus.FieldLogger) (AppDatabase, error) {
 	}
 	logger.Debugf("Current database schema version: %d", currentVersion)
 
-	newMigrations, err := database.ListMigrationsAfter(currentVersion, logger)
+	newMigrations, err := ListMigrationsAfter(currentVersion, logger)
 	if err != nil {
 		return nil, err
 	}

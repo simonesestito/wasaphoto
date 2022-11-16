@@ -53,8 +53,8 @@ func ListMigrationsAfter(currentVersion int, logger logrus.FieldLogger) ([]Migra
 					File:    file,
 				})
 			}
-		} else {
-			logger.Debugf("Ignored file '%s' in database migrations directory", entry.Name())
+		} else if !strings.HasSuffix(entry.Name(), ".go") {
+			logger.Warnf("Ignored file '%s' in database migrations directory", entry.Name())
 		}
 	}
 
