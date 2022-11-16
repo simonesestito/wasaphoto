@@ -30,6 +30,7 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/ioc"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -90,11 +91,14 @@ func run() error {
 	// buffered channel so the goroutine can exit if we don't collect this error.
 	serverErrors := make(chan error, 1)
 
-	apiRouter, err := iocContainer.CreateRouter()
+	// Create router
+	apiRouter := api.NewRouter(iocContainer.CreateAuthMiddleware(), iocContainer.CreateMiddlewares(), logger)
+	err = apiRouter.RegisterAll(iocContainer.CreateControllers())
 	if err != nil {
 		logger.WithError(err).Error("error creating the API server instance")
 		return fmt.Errorf("creating the API server instance: %w", err)
 	}
+
 	router := apiRouter.Handler()
 
 	router, err = registerWebUI(router)

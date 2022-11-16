@@ -5,32 +5,18 @@ import (
 	"github.com/simonesestito/wasaphoto/service/api/route"
 )
 
-func (ioc *Container) CreateRouter() (api.Router, error) {
-	// List endpoints to register
-	controllers := []route.Controller{
+func (ioc *Container) CreateControllers() []route.Controller {
+	return []route.Controller{
 		ioc.CreateUserController(),
 		ioc.CreateLoginController(),
 		ioc.CreateBanController(),
 		ioc.CreateFollowController(),
 		ioc.CreatePhotoController(),
 	}
+}
 
-	// List middlewares
-	middlewares := []route.Middleware{
+func (ioc *Container) CreateMiddlewares() []route.Middleware {
+	return []route.Middleware{
 		api.LimitBodySize(20 * 1024 * 1024),
 	}
-
-	// Create router
-	router := api.NewRouter(ioc.CreateAuthMiddleware(), middlewares, ioc.logger)
-
-	// Register routes
-	for _, controller := range controllers {
-		for _, routeInfo := range controller.ListRoutes() {
-			if err := router.Register(routeInfo); err != nil {
-				return router, err
-			}
-		}
-	}
-
-	return router, nil
 }
