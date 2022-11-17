@@ -4,6 +4,7 @@ import (
 	"embed"
 	"github.com/sirupsen/logrus"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,70 @@ type Migration struct {
 	Version int
 	Name    string
 	File    io.Reader
+}
+
+func (db appSqlDatabase) runMigrations(logger logrus.FieldLogger) error {
+	currentVersion, err := db.Version()
+	if err != nil {
+		return err
+	}
+	logger.Debugf("Current database schema version: %d", currentVersion)
+
+	newMigrations, err := ListMigrationsAfter(currentVersion, logger)
+	if err != nil {
+		return err
+	}
+
+	if len(newMigrations) == 0 {
+		logger.Debug("No db schema migrations are needed.")
+	}
+
+	// Apply migrations in ascending order
+	sort.Slice(newMigrations, func(i, j int) bool {
+		return newMigrations[i].Version < newMigrations[j].Version
+	})
+
+	for _, file := range newMigrations {
+		logger.Infof("Migrating to schema %s", file.Name)
+
+		// Read SQL file
+		sqlScript, err := io.ReadAll(file.File)
+		if err != nil {
+			logger.WithError(err).Errorf("Error reading migration file %s", file.Name)
+			return err
+		}
+
+		// Execute it in a transaction
+		tx, err := db.BeginTx()
+
+		if err != nil {
+			logger.WithError(err).Errorln("Error creating a transaction")
+			return err
+		}
+
+		_, err = tx.Exec(string(sqlScript))
+		if err != nil {
+			logger.WithError(err).Errorf("Error running migration file %s", file.Name)
+			_ = tx.Rollback()
+			return err
+		}
+
+		err = db.setVersion(file.Version, tx)
+		if err != nil {
+			logger.WithError(err).Errorf("Error setting schema version %d", file.Version)
+			return err
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			logger.WithError(err).Errorf("Error committing schema version %d", file.Version)
+			return err
+		}
+
+		logger.Debugf("Successfully upgraded to schema %s", file.Name)
+	}
+
+	return nil
 }
 
 // ListMigrationsAfter is needed to get all the database schema migrations
