@@ -18,6 +18,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/photos/:photoId/likes/:userId",
 			Handler: controller.likePhoto,
 		},
+		route.SecureRoute{
+			Method:  http.MethodDelete,
+			Path:    "/photos/:photoId/likes/:userId",
+			Handler: controller.unlikePhoto,
+		},
 	}
 }
 
