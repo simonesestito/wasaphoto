@@ -29,22 +29,21 @@ func (controller LoginController) handlePost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authToken, err := controller.AuthService.Authenticate(*body)
-	responseStatus := http.StatusOK
+	authToken, isNew, err := controller.AuthService.AuthenticateOrSignup(*body)
 
-	switch {
-	case err == ErrUnknownUser:
-		// Register new user!
+	var responseStatus int
+	var logAction string
+	if isNew {
 		responseStatus = http.StatusCreated
-		authToken, err = controller.AuthService.SignUp(*body)
-		if err != nil {
-			ctx.Logger.WithError(err).Errorf("Unexpected error signing up user with username '%s'", body.Username)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	case err != nil:
-		ctx.Logger.WithError(err).Warnf("Unexpected error authenticating user %s", body.Username)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logAction = "signing up"
+	} else {
+		responseStatus = http.StatusOK
+		logAction = "authenticating"
+	}
+
+	if err != nil {
+		ctx.Logger.WithError(err).Warnf("Unexpected error %s user with username '%s'", logAction, body.Username)
+		api.HandleErrorsResponse(err, w, responseStatus, ctx.Logger)
 		return
 	}
 

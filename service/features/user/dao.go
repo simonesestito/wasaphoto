@@ -1,14 +1,14 @@
 package user
 
 import (
+	"database/sql"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 )
 
 type Dao interface {
 	GetUserById(id uuid.UUID) (*ModelUser, error)
-	GetUserByUsername(username string) (*ModelUser, error)
-	InsertUser(user ModelUser) error
+	InsertOrGetUserId(user ModelUser) (id uuid.UUID, isNew bool, err error)
 	IsUserBannedBy(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
 	GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWithCustom, error)
 	BanUser(bannedId uuid.UUID, bannerId uuid.UUID) (bool, error)
@@ -34,21 +34,45 @@ func (dao DbDao) GetUserById(id uuid.UUID) (*ModelUser, error) {
 	}
 }
 
-func (dao DbDao) GetUserByUsername(username string) (*ModelUser, error) {
-	user := &ModelUser{}
-	err := dao.Db.QueryStructRow(user, "SELECT * FROM User WHERE username = ?", username)
-	switch {
-	case err == database.ErrNoResult:
-		return nil, nil
-	case err != nil:
-		return nil, err
-	default:
-		return user, nil
+// InsertOrGetUserId tries to insert the new given user,
+// or returns the ID of the existing one in case of conflicts (e.g.: on username).
+//
+// Since concurrency issues may happen, a transaction is used.
+// Boolean return value indicates whether the user is new
+func (dao DbDao) InsertOrGetUserId(user ModelUser) (uuid.UUID, bool, error) {
+	tx, err := dao.Db.BeginTx()
+	if err != nil {
+		return uuid.Nil, false, err
 	}
-}
+	defer tx.Rollback()
 
-func (dao DbDao) InsertUser(user ModelUser) error {
-	return dao.Db.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
+	// Get user if exists
+	existingUserId := make([]byte, 16)
+	result, err := tx.Query("SELECT id FROM User WHERE username = ?", user.Username)
+	defer result.Close()
+
+	if err != sql.ErrNoRows && err != nil {
+		// Unexpected error
+		return uuid.Nil, false, err
+	}
+
+	if err == sql.ErrNoRows || !result.Next() {
+		// Username not found, create it!
+		_, err = tx.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
+		if err != nil {
+			return uuid.Nil, true, err
+		}
+
+		return user.Uuid(), true, tx.Commit()
+	} else {
+		// User found!
+		if err := result.Scan(&existingUserId); err != nil {
+			return uuid.Nil, false, err
+		}
+
+		userUuid, err := uuid.FromBytes(existingUserId)
+		return userUuid, false, err
+	}
 }
 
 // GetUserByIdAs also adds personal fields such as "banned" which are

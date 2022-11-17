@@ -7,9 +7,8 @@ import (
 )
 
 type LoginService interface {
-	Authenticate(credentials UserLoginCredentials) (authToken string, err error)
+	AuthenticateOrSignup(credentials UserLoginCredentials) (authToken string, isNew bool, err error)
 	IsAuthenticated(authToken string) (userId string, err error)
-	SignUp(credentials UserLoginCredentials) (authToken string, err error)
 }
 
 type UserIdLoginService struct {
@@ -19,29 +18,16 @@ type UserIdLoginService struct {
 
 var ErrUnknownUser = errors.New("invalid user credentials")
 
-// Authenticate tries to authenticate the user specified with the credentials,
+// AuthenticateOrSignup tries to authenticate the user specified with the credentials,
 // and returns the user token or an error.
-// In case a user with these credentials cannot be found, it returns ErrUnknownUser
-func (service UserIdLoginService) Authenticate(credentials UserLoginCredentials) (string, error) {
-	foundUser, err := service.UserDao.GetUserByUsername(credentials.Username)
-	switch {
-	case foundUser == nil:
-		return "", ErrUnknownUser
-	case err != nil:
-		return "", err
-	default:
-		return foundUser.Uuid().String(), nil
-	}
-}
-
-// SignUp creates a new user based on the given credentials.
-// The name will be the username, and the surname will be empty.
-func (service UserIdLoginService) SignUp(credentials UserLoginCredentials) (string, error) {
+// In case a user with these credentials cannot be found, it creates a new user with that username.
+func (service UserIdLoginService) AuthenticateOrSignup(credentials UserLoginCredentials) (string, bool, error) {
 	newUuid, err := uuid.NewV4()
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
+	// Try registering a new user with this ID
 	newUser := user.ModelUser{
 		Id:       newUuid.Bytes(),
 		Name:     credentials.Username,
@@ -49,11 +35,12 @@ func (service UserIdLoginService) SignUp(credentials UserLoginCredentials) (stri
 		Username: credentials.Username,
 	}
 
-	if err := service.UserDao.InsertUser(newUser); err != nil {
-		return "", err
+	foundUserId, isNew, err := service.UserDao.InsertOrGetUserId(newUser)
+	if err != nil {
+		return "", isNew, err
 	}
 
-	return newUuid.String(), nil
+	return foundUserId.String(), isNew, nil
 }
 
 // IsAuthenticated checks if the given authToken can be assigned to a User.
