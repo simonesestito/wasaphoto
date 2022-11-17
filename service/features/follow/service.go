@@ -24,7 +24,7 @@ func NewServiceImpl(db Dao, banService user.BanService) ServiceImpl {
 	}
 
 	// Perform actions when a user is banned
-	banService.AddBanListener(service.UnfollowUser)
+	banService.AddBanListener("unfollowUser", service.UnfollowUser)
 
 	return service
 }

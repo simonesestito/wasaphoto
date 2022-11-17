@@ -4,6 +4,7 @@ import (
 	"github.com/simonesestito/wasaphoto/service/api/route"
 	"github.com/simonesestito/wasaphoto/service/features/auth"
 	"github.com/simonesestito/wasaphoto/service/features/follow"
+	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
@@ -32,6 +33,12 @@ func (ioc *Container) CreateFollowController() follow.Controller {
 
 func (ioc *Container) CreatePhotoController() photo.Controller {
 	return photo.Controller{Service: ioc.CreatePhotoService()}
+}
+
+func (ioc *Container) CreateLikesController() likes.Controller {
+	return likes.Controller{
+		Service: ioc.CreateLikesService(),
+	}
 }
 
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {

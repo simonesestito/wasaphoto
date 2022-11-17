@@ -11,6 +11,7 @@ type Dao interface {
 	GetPhotoByIdAs(photoId uuid.UUID, userId uuid.UUID) (*EntityPhotoAuthorInfo, error)
 	NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl string) error
 	DeletePhoto(imageUuid uuid.UUID) error
+	GetPhotoById(imageUuid uuid.UUID) (*EntityPhotoInfo, error)
 }
 
 type DbDao struct {
@@ -48,4 +49,14 @@ func (db DbDao) DeletePhoto(imageUuid uuid.UUID) error {
 	} else {
 		return err
 	}
+}
+
+func (db DbDao) GetPhotoById(imageUuid uuid.UUID) (*EntityPhotoInfo, error) {
+	photo := EntityPhotoInfo{}
+	query := "SELECT * FROM PhotoInfo WHERE id = ?"
+	err := db.Db.QueryStructRow(&photo, query, imageUuid.Bytes())
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return &photo, err
 }

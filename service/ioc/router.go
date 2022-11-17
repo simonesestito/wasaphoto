@@ -12,6 +12,7 @@ func (ioc *Container) CreateControllers() []route.Controller {
 		ioc.CreateBanController(),
 		ioc.CreateFollowController(),
 		ioc.CreatePhotoController(),
+		ioc.CreateLikesController(),
 	}
 }
 
