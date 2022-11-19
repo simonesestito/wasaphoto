@@ -303,12 +303,7 @@ paths:
           description: List of users banned
           content:
             application/json:
-              schema:
-                description: Array of users
-                type: array
-                minItems: 0
-                items: { $ref: "#/components/schemas/User" }
-                example: []
+              schema: { $ref: "#/components/schemas/UsersList" }
         "404":
           description: Specified user not found
         "401": { $ref: "#/components/responses/LoginError" }
@@ -490,20 +485,7 @@ paths:
             and it may contain some comments.
           content:
             application/json:
-              schema:
-                description: Current page of comments 
-                allOf:
-                  - $ref: "#/components/schemas/PaginationInfo"
-                  - description: Current selected page
-                    type: object
-                    readOnly: true
-                    properties:
-                      pageData:
-                        description: Comments of the current page
-                        type: array
-                        minItems: 0
-                        maxItems: 20
-                        items: { $ref: "#/components/schemas/Comment" }
+              schema: { $ref: "#/components/responses/PaginatedCommentsResult" }
         "404":
           description: A post with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -636,40 +618,22 @@ components:
         and it may contain some photos.
       content:
         application/json:
-          schema:
-            description: Current page of photos
-            allOf:
-              - $ref: "#/components/schemas/PaginationInfo"
-              - description: Current selected page
-                type: object
-                readOnly: true
-                properties:
-                  pageData:
-                    description: Photos of the current page
-                    type: array
-                    minItems: 0
-                    maxItems: 20
-                    items: { $ref: "#/components/schemas/Photo" }
+          schema: { $ref: "#/components/schemas/PaginatedPhotos" }
     PaginatedUsersResult:
       description: |
         The current page was successfully returned
         and it may contain some users.
       content:
         application/json:
-          schema:
-            description: Current page of users
-            allOf:
-              - $ref: "#/components/schemas/PaginationInfo"
-              - description: Current selected page
-                type: object
-                readOnly: true
-                properties:
-                  pageData:
-                    description: Users of the current page
-                    type: array
-                    minItems: 0
-                    maxItems: 20
-                    items: { $ref: "#/components/schemas/User" }
+          schema: { $ref: "#/components/schemas/PaginatedUsers" }
+
+    PaginatedCommentsResult:
+      description: |
+          The current page was successfully returned
+          and it may contain some users.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/PaginatedComments" }
 
   schemas:
     ResourceId:
@@ -848,6 +812,58 @@ components:
           items:
             type: object
           description: Data of this page, if any
+
+    PaginatedComments:
+      description: Current page of comments
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Comments of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/Comment" }
+
+    PaginatedPhotos:
+      description: Current page of photos
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Photos of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/Photo" }
+
+    PaginatedUsers:
+      description: Current page of users
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Users of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/User" }
+
+    UsersList:
+      description: Array of users
+      type: array
+      minItems: 0
+      items: { $ref: "#/components/schemas/User" }
+      example: []
 
   securitySchemes:
     UserIdAuth:
