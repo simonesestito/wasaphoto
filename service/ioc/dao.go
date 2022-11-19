@@ -1,6 +1,7 @@
 package ioc
 
 import (
+	"github.com/simonesestito/wasaphoto/service/features/comments"
 	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
@@ -21,4 +22,8 @@ func (ioc *Container) CreatePhotoDao() photo.Dao {
 
 func (ioc *Container) CreateLikesDao() likes.Dao {
 	return likes.DbDao{Db: ioc.database}
+}
+
+func (ioc *Container) CreateCommentsDao() comments.Dao {
+	return comments.DbDao{Db: ioc.database}
 }

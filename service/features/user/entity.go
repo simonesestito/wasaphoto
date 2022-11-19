@@ -10,10 +10,6 @@ type ModelUser struct {
 	Username string `json:"username"`
 }
 
-func (user ModelUser) Uuid() uuid.UUID {
-	return uuid.FromBytesOrNil(user.Id)
-}
-
 // ModelUserInfo represents the actual database entity UserInfo (Data Layer in our architecture)
 type ModelUserInfo struct {
 	ModelUser
@@ -32,7 +28,7 @@ type ModelUserWithCustom struct {
 
 func (user ModelUserWithCustom) ToDto() User {
 	return User{
-		Id:              user.Uuid().String(),
+		Id:              uuid.FromBytesOrNil(user.Id).String(),
 		FollowersCount:  user.FollowersCount,
 		FollowingsCount: user.FollowingsCount,
 		PostsCount:      user.PostsCount,

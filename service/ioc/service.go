@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"github.com/simonesestito/wasaphoto/service/features/auth"
+	"github.com/simonesestito/wasaphoto/service/features/comments"
 	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
@@ -55,5 +56,14 @@ func (ioc *Container) CreateLikesService() likes.Service {
 		Db:           ioc.CreateLikesDao(),
 		BanService:   ioc.CreateBanService(),
 		PhotoService: ioc.CreatePhotoService(),
+	}
+}
+
+func (ioc *Container) CreateCommentsService() comments.Service {
+	return comments.ServiceImpl{
+		Db:           ioc.CreateCommentsDao(),
+		BanService:   ioc.CreateBanService(),
+		PhotoService: ioc.CreatePhotoService(),
+		TimeProvider: ioc.CreateTimeProvider(),
 	}
 }

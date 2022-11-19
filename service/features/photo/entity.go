@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"time"
@@ -31,8 +32,10 @@ type EntityPhotoAuthorInfo struct {
 
 func (photo EntityPhotoAuthorInfo) ToDto() Photo {
 	publishDate, _ := time.Parse(timeprovider.UTCFormat, photo.PublishDate)
+	photo.ModelUserWithCustom.Id = photo.AuthorId
+
 	return Photo{
-		Id:            photo.Uuid().String(),
+		Id:            uuid.FromBytesOrNil(photo.EntityPhoto.Id).String(),
 		Author:        photo.ModelUserWithCustom.ToDto(),
 		PublishDate:   publishDate,
 		LikesCount:    photo.LikesCount,

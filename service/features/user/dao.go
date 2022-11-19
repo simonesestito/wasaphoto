@@ -63,7 +63,7 @@ func (dao DbDao) InsertOrGetUserId(user ModelUser) (uuid.UUID, bool, error) {
 			return uuid.Nil, true, err
 		}
 
-		return user.Uuid(), true, tx.Commit()
+		return uuid.FromBytesOrNil(user.Id), true, tx.Commit()
 	} else {
 		// User found!
 		if err := result.Scan(&existingUserId); err != nil {

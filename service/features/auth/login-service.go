@@ -58,5 +58,5 @@ func (service UserIdLoginService) IsAuthenticated(authToken string) (string, err
 		return "", ErrUnknownUser
 	}
 
-	return foundUser.Uuid().String(), nil
+	return uuid.FromBytesOrNil(foundUser.Id).String(), nil
 }

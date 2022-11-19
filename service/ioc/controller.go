@@ -3,11 +3,16 @@ package ioc
 import (
 	"github.com/simonesestito/wasaphoto/service/api/route"
 	"github.com/simonesestito/wasaphoto/service/features/auth"
+	"github.com/simonesestito/wasaphoto/service/features/comments"
 	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
+
+func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
+	return auth.Middleware{LoginService: ioc.CreateAuthService()}
+}
 
 func (ioc *Container) CreateLoginController() auth.LoginController {
 	return auth.LoginController{
@@ -41,6 +46,6 @@ func (ioc *Container) CreateLikesController() likes.Controller {
 	}
 }
 
-func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
-	return auth.Middleware{LoginService: ioc.CreateAuthService()}
+func (ioc *Container) CreateCommentsController() comments.Controller {
+	return comments.Controller{Service: ioc.CreateCommentsService()}
 }

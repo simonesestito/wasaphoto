@@ -135,6 +135,20 @@ func explainJsonError(err error, logger logrus.FieldLogger) string {
 	}
 }
 
+func ParseVariablesAndBody[V any, B any](r *http.Request, params httprouter.Params, varsStruct *V, bodyStruct *B, logger logrus.FieldLogger) (*V, *B, *MalformedRequest) {
+	args, err := ParseRequestVariables(params, varsStruct, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	body, err := ParseAndValidateBody(r, bodyStruct, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return args, body, nil
+}
+
 func SendJson(writer http.ResponseWriter, body any, successStatus int, logger logrus.FieldLogger) {
 	response, err := json.Marshal(body)
 	if err != nil {
