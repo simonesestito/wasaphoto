@@ -16,7 +16,7 @@ func (controller LoginController) ListRoutes() []route.Route {
 	return []route.Route{
 		route.AnonymousRoute{
 			Method:  http.MethodPost,
-			Path:    "/sessions/",
+			Path:    "/session",
 			Handler: controller.handlePost,
 		},
 	}
