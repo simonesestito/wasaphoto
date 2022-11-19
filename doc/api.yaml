@@ -274,7 +274,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: listBannedUsers
       summary: List banned users
       description: |
