@@ -398,6 +398,8 @@ paths:
               # Schema indicated according to the official docs:
               # https://swagger.io/docs/specification/data-models/data-types/#file
               type: string
+              minLength: 1
+              maxLength: 20971520 # 20MB
               format: binary
       responses:
         "201":
@@ -674,6 +676,8 @@ components:
       description: The unique resource ID as a UUID string
       type: string
       example: "123e4567-e89b-12d3-a456-426614174000"
+      minLength: 36
+      maxLength: 36
       readOnly: true
 
     Username:
@@ -705,9 +709,12 @@ components:
           type: string
           example: John
           minLength: 2
+          maxLength: 255
         surname:
           description: User's surname
           type: string
+          minLength: 0
+          maxLength: 255
           example: Doe
           default: ""
         username:
@@ -750,6 +757,8 @@ components:
       type: string
       format: date-time
       example: "2017-07-21T17:32:28Z"
+      minLength: 20
+      maxLength: 20
       readOnly: true
 
     StaticImageUrl:
@@ -762,6 +771,8 @@ components:
 
         The file can be cached and it's guaranteed to never change.
       type: string
+      minLength: 10
+      maxLength: 255
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
@@ -799,6 +810,8 @@ components:
       properties:
         text:
           type: string
+          minLength: 1
+          maxLength: 255
           example: Great post! Keep up the good work.
 
     Comment:
