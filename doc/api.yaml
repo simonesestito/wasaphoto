@@ -11,6 +11,21 @@ info:
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
   version: "1.0.3"
+
+tags:
+  - name: auth
+    description: Authentication related operations
+  - name: user
+    description: User and ban related operations
+  - name: follow
+    description: Followings and followers related operations
+  - name: photo
+    description: Photo and file upload related operations
+  - name: likes
+    description: Likes related operations
+  - name: comments 
+    description: Comments related operations
+
 paths:
   /session:
     post:
