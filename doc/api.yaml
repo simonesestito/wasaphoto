@@ -714,6 +714,7 @@ components:
     DateTime:
       description: Standard datetime representation
       type: string
+      format: date-time
       example: "2017-07-21T17:32:28Z"
       readOnly: true
 
@@ -727,7 +728,6 @@ components:
 
         The file can be cached and it's guaranteed to never change.
       type: string
-      format: uri
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
