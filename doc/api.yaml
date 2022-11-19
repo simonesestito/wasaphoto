@@ -10,9 +10,24 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1.0.3"
+  version: "1.0.4"
+
+tags:
+  - name: auth
+    description: Authentication related operations
+  - name: user
+    description: User and ban related operations
+  - name: follow
+    description: Followings and followers related operations
+  - name: photo
+    description: Photo and file upload related operations
+  - name: likes
+    description: Likes related operations
+  - name: comments 
+    description: Comments related operations
+
 paths:
-  /sessions/:
+  /session:
     post:
       tags: ["auth"]
       summary: Logs in the user
@@ -35,6 +50,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Current user to login
               type: object
               properties:
                 username: { $ref: "#/components/schemas/Username" }
@@ -80,6 +96,7 @@ paths:
             not just the partial username search.
           required: false
           schema:
+            description: Enable the exactMatch option
             type: boolean
             default: false
         - $ref: "#/components/parameters/PageCursor"
@@ -274,7 +291,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserId"
     get:
-      tags: [ "user" ]
+      tags: ["user"]
       operationId: listBannedUsers
       summary: List banned users
       description: |
@@ -286,10 +303,7 @@ paths:
           description: List of users banned
           content:
             application/json:
-              schema:
-                type: array
-                items: { $ref: "#/components/schemas/User" }
-                example: []
+              schema: { $ref: "#/components/schemas/UsersList" }
         "404":
           description: Specified user not found
         "401": { $ref: "#/components/responses/LoginError" }
@@ -309,8 +323,8 @@ paths:
     put:
       tags: ["user"]
       operationId: banUser
-      summary: Ban a user. Banning someone will also make him unfollow you.
-      description: Ban another existing user
+      summary: Ban a user
+      description: Ban another existing user. Banning someone will also make him unfollow you.
       responses:
         "201":
           description: User banned, and it wasn't before
@@ -375,7 +389,12 @@ paths:
         content:
           image/*:
             schema:
+              description: Photo file to upload, directly as a binary file.
+              # Schema indicated according to the official docs:
+              # https://swagger.io/docs/specification/data-models/data-types/#file
               type: string
+              minLength: 1
+              maxLength: 20971520 # 20MB
               format: binary
       responses:
         "201":
@@ -466,17 +485,7 @@ paths:
             and it may contain some comments.
           content:
             application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/PaginationInfo"
-                  - description: Current selected page
-                    type: object
-                    readOnly: true
-                    properties:
-                      pageData:
-                        description: Comments of the current page
-                        type: array
-                        items: { $ref: "#/components/schemas/Comment" }
+              schema: { $ref: "#/components/responses/PaginatedCommentsResult" }
         "404":
           description: A post with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -609,40 +618,30 @@ components:
         and it may contain some photos.
       content:
         application/json:
-          schema:
-            allOf:
-              - $ref: "#/components/schemas/PaginationInfo"
-              - description: Current selected page
-                type: object
-                readOnly: true
-                properties:
-                  pageData:
-                    description: Photos of the current page
-                    type: array
-                    items: { $ref: "#/components/schemas/Photo" }
+          schema: { $ref: "#/components/schemas/PaginatedPhotos" }
     PaginatedUsersResult:
       description: |
         The current page was successfully returned
         and it may contain some users.
       content:
         application/json:
-          schema:
-            allOf:
-              - $ref: "#/components/schemas/PaginationInfo"
-              - description: Current selected page
-                type: object
-                readOnly: true
-                properties:
-                  pageData:
-                    description: Users of the current page
-                    type: array
-                    items: { $ref: "#/components/schemas/User" }
+          schema: { $ref: "#/components/schemas/PaginatedUsers" }
+
+    PaginatedCommentsResult:
+      description: |
+          The current page was successfully returned
+          and it may contain some users.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/PaginatedComments" }
 
   schemas:
     ResourceId:
       description: The unique resource ID as a UUID string
       type: string
       example: "123e4567-e89b-12d3-a456-426614174000"
+      minLength: 36
+      maxLength: 36
       readOnly: true
 
     Username:
@@ -655,6 +654,9 @@ components:
 
     LoginResult:
       type: object
+      description: |
+        Login result with auth details
+        (the user ID to pass in Authorization as Bearer token).
       properties:
         userId: { $ref: "#/components/schemas/ResourceId" }
 
@@ -671,9 +673,12 @@ components:
           type: string
           example: John
           minLength: 2
+          maxLength: 255
         surname:
           description: User's surname
           type: string
+          minLength: 0
+          maxLength: 255
           example: Doe
           default: ""
         username:
@@ -714,7 +719,10 @@ components:
     DateTime:
       description: Standard datetime representation
       type: string
+      format: date-time
       example: "2017-07-21T17:32:28Z"
+      minLength: 20
+      maxLength: 20
       readOnly: true
 
     StaticImageUrl:
@@ -727,7 +735,8 @@ components:
 
         The file can be cached and it's guaranteed to never change.
       type: string
-      format: uri
+      minLength: 10
+      maxLength: 255
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
@@ -760,10 +769,14 @@ components:
           readOnly: true
 
     NewComment:
+      description: A new comment to publish
       type: object
       properties:
         text:
+          description: Comment text
           type: string
+          minLength: 1
+          maxLength: 255
           example: Great post! Keep up the good work.
 
     Comment:
@@ -795,9 +808,63 @@ components:
           example: 420
         pageData:
           type: array
+          minItems: 0
+          maxItems: 20
           items:
             type: object
           description: Data of this page, if any
+
+    PaginatedComments:
+      description: Current page of comments
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Comments of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/Comment" }
+
+    PaginatedPhotos:
+      description: Current page of photos
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Photos of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/Photo" }
+
+    PaginatedUsers:
+      description: Current page of users
+      allOf:
+        - $ref: "#/components/schemas/PaginationInfo"
+        - description: Current selected page
+          type: object
+          readOnly: true
+          properties:
+            pageData:
+              description: Users of the current page
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: { $ref: "#/components/schemas/User" }
+
+    UsersList:
+      description: Array of users
+      type: array
+      minItems: 0
+      items: { $ref: "#/components/schemas/User" }
+      example: []
 
   securitySchemes:
     UserIdAuth:
