@@ -306,6 +306,7 @@ paths:
               schema:
                 description: Array of users
                 type: array
+                minItems: 0
                 items: { $ref: "#/components/schemas/User" }
                 example: []
         "404":
@@ -498,6 +499,8 @@ paths:
                       pageData:
                         description: Comments of the current page
                         type: array
+                        minItems: 0
+                        maxItems: 20
                         items: { $ref: "#/components/schemas/Comment" }
         "404":
           description: A post with this ID doesn't exist
@@ -642,6 +645,8 @@ components:
                   pageData:
                     description: Photos of the current page
                     type: array
+                    minItems: 0
+                    maxItems: 20
                     items: { $ref: "#/components/schemas/Photo" }
     PaginatedUsersResult:
       description: |
@@ -660,6 +665,8 @@ components:
                   pageData:
                     description: Users of the current page
                     type: array
+                    minItems: 0
+                    maxItems: 20
                     items: { $ref: "#/components/schemas/User" }
 
   schemas:
@@ -823,6 +830,8 @@ components:
           example: 420
         pageData:
           type: array
+          minItems: 0
+          maxItems: 20
           items:
             type: object
           description: Data of this page, if any
