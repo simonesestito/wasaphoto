@@ -324,8 +324,8 @@ paths:
     put:
       tags: ["user"]
       operationId: banUser
-      summary: Ban a user. Banning someone will also make him unfollow you.
-      description: Ban another existing user
+      summary: Ban a user
+      description: Ban another existing user. Banning someone will also make him unfollow you.
       responses:
         "201":
           description: User banned, and it wasn't before
