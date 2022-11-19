@@ -40,16 +40,3 @@ SELECT PhotoInfo.*,
 	   U.photosCount
 FROM PhotoInfo
 		 LEFT JOIN UserInfo U on PhotoInfo.authorId = U.id;
-
-
-DROP VIEW IF EXISTS CommentWithAuthor;
-CREATE VIEW CommentWithAuthor AS
-SELECT Comment.*,
-	   UserInfo.name,
-	   UserInfo.surname,
-	   UserInfo.username,
-	   UserInfo.followersCount,
-	   UserInfo.followingsCount,
-	   UserInfo.photosCount
-FROM Comment
-		 LEFT JOIN UserInfo ON UserInfo.id = Comment.authorId;

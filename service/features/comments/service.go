@@ -1,6 +1,7 @@
 package comments
 
 import (
+	"bytes"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -11,6 +12,7 @@ import (
 
 type Service interface {
 	CommentPhoto(photoId string, userId string, comment NewComment) (Comment, error)
+	DeleteCommentOnPhotoIfAuthor(commentId string, photoId string, userId string) error
 }
 
 type ServiceImpl struct {
@@ -67,4 +69,34 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 	}
 
 	return newComment.ToDto(), nil
+}
+
+func (service ServiceImpl) DeleteCommentOnPhotoIfAuthor(commentId string, photoId string, userId string) error {
+	photoUuid := uuid.FromStringOrNil(photoId)
+	commentUuid := uuid.FromStringOrNil(commentId)
+	userUuid := uuid.FromStringOrNil(userId)
+	if photoUuid.IsNil() || commentUuid.IsNil() || userUuid.IsNil() {
+		return api.ErrWrongUUID
+	}
+
+	// Get comment to delete with all necessary info
+	commentInfoIds, err := service.Db.GetCommentInfoIds(commentUuid)
+	if err != nil {
+		return err
+	} else if commentInfoIds == nil {
+		return nil // Comment doesn't exist
+	}
+
+	// Check provided info against real ones from the database source of truth
+	if !bytes.Equal(photoUuid.Bytes(), commentInfoIds.PhotoId) {
+		// Wrong Photo ID provided
+		return api.ErrNotFound
+	} else if !bytes.Equal(userUuid.Bytes(), commentInfoIds.CommentAuthorId) {
+		// Wrong user is trying to delete this comment
+		return api.ErrOthersData
+	}
+
+	// Delete comment
+	_, err = service.Db.DeleteByIdPhotoAndAuthor(commentUuid, photoUuid, userUuid)
+	return err
 }

@@ -7,12 +7,8 @@ import (
 )
 
 type IdParams struct {
-	CommentId string `json:"commentId" validate:"required"`
-}
-
-type LikeParams struct {
 	photo.IdParam `json:",squash"`
-	IdParams      `json:",squash"`
+	CommentId     string `json:"commentId" validate:"required"`
 }
 
 type NewComment struct {

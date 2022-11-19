@@ -9,6 +9,8 @@ import (
 type Dao interface {
 	CreateComment(newComment EntityComment) error
 	GetCommentByIdAs(commentId uuid.UUID, userId uuid.UUID) (*EntityCommentWithCustom, error)
+	DeleteByIdPhotoAndAuthor(commentUuid uuid.UUID, photoUuid uuid.UUID, userUuid uuid.UUID) (bool, error)
+	GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAndPhoto, error)
 }
 
 type DbDao struct {
@@ -36,6 +38,28 @@ FROM CommentWithAuthor
 WHERE CommentWithAuthor.id = ?`
 
 	err := db.Db.QueryStructRow(entity, query, userId.Bytes(), userId.Bytes(), commentId.Bytes())
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	} else {
+		return entity, nil
+	}
+}
+
+func (db DbDao) DeleteByIdPhotoAndAuthor(commentUuid uuid.UUID, photoUuid uuid.UUID, userUuid uuid.UUID) (bool, error) {
+	rows, err := db.Db.ExecRows(
+		"DELETE FROM Comment WHERE id = ? AND photoId = ? AND authorId = ?",
+		commentUuid.Bytes(),
+		photoUuid.Bytes(),
+		userUuid.Bytes(),
+	)
+	return rows > 0, err
+}
+
+func (db DbDao) GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAndPhoto, error) {
+	entity := &CommentIdWithAuthorAndPhoto{}
+	err := db.Db.QueryStructRow(entity, "SELECT * FROM CommentIdWithAuthorAndPhoto WHERE commentId = ?", commentUuid.Bytes())
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {

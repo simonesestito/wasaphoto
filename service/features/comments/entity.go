@@ -19,6 +19,13 @@ type EntityCommentWithAuthor struct {
 	EntityComment
 }
 
+type CommentIdWithAuthorAndPhoto struct {
+	CommentId       []byte `json:"commentId"`
+	CommentAuthorId []byte `json:"commentAuthorId"`
+	PhotoId         []byte `json:"photoId"`
+	PhotoAuthorId   []byte `json:"photoAuthorId"`
+}
+
 type EntityCommentWithCustom struct {
 	user.ModelUserWithCustom
 	EntityCommentWithAuthor
@@ -26,8 +33,6 @@ type EntityCommentWithCustom struct {
 
 func (entity EntityCommentWithCustom) ToDto() Comment {
 	publishDate, _ := utils.UTCStringToDate(entity.PublishDate)
-	entity.ModelUserWithCustom.Id = entity.AuthorId
-
 	return Comment{
 		Id:          uuid.FromBytesOrNil(entity.EntityComment.Id).String(),
 		PublishDate: publishDate,

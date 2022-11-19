@@ -19,6 +19,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/photos/:photoId/comments/",
 			Handler: controller.commentPhoto,
 		},
+		route.SecureRoute{
+			Method:  http.MethodDelete,
+			Path:    "/photos/:photoId/comments/:commentId",
+			Handler: controller.uncommentPhoto,
+		},
 	}
 }
 
@@ -36,4 +41,15 @@ func (controller Controller) commentPhoto(w http.ResponseWriter, r *http.Request
 	}
 
 	api.SendJson(w, createdComment, http.StatusCreated, context.Logger)
+}
+
+func (controller Controller) uncommentPhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseRequestVariables(params, &IdParams{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	err := controller.Service.DeleteCommentOnPhotoIfAuthor(args.CommentId, args.PhotoId, context.UserId)
+	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
 }
