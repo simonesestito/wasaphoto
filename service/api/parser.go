@@ -55,6 +55,9 @@ func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, log
 }
 
 func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+	// Close request body at the end of parsing
+	defer request.Body.Close()
+
 	// Check content type
 	if request.Header.Get("Content-Type") != "application/json" {
 		return nil, &MalformedRequest{http.StatusUnsupportedMediaType, "Content-Type is not JSON"}

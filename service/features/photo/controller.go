@@ -30,6 +30,7 @@ func (controller Controller) ListRoutes() []route.Route {
 func (controller Controller) uploadPhoto(w http.ResponseWriter, r *http.Request, _ httprouter.Params, context route.SecureRequestContext) {
 	// Read photo file from body
 	photoData, err := io.ReadAll(r.Body)
+	_ = r.Body.Close()
 	if err != nil {
 		context.Logger.WithError(err).Errorln("error receiving photo")
 		http.Error(w, "unexpected error receiving photo", http.StatusInternalServerError)
