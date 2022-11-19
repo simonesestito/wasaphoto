@@ -12,7 +12,7 @@ info:
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
   version: "1.0.3"
 paths:
-  /sessions/:
+  /session:
     post:
       tags: ["auth"]
       summary: Logs in the user
