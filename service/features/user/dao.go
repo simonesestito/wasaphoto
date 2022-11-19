@@ -15,6 +15,7 @@ type Dao interface {
 	UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error)
 	EditUser(userUuid uuid.UUID, user ModelUser) error
 	EditUsername(userUuid uuid.UUID, username string) error
+	GetBannedUsersAs(userUuid uuid.UUID, searchAsId uuid.UUID) ([]ModelUserWithCustom, error)
 }
 
 type DbDao struct {

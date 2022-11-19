@@ -23,6 +23,11 @@ func (controller BanController) ListRoutes() []route.Route {
 			Path:    "/users/:userId/bannedPeople/:bannedId",
 			Handler: controller.unbanUser,
 		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/users/:userId/bannedPeople/",
+			Handler: controller.listBannedUsers,
+		},
 	}
 }
 
@@ -56,4 +61,24 @@ func (controller BanController) unbanUser(w http.ResponseWriter, _ *http.Request
 
 	err := controller.Service.UnbanUser(args.BannedId, args.UserId)
 	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
+}
+
+func (controller BanController) listBannedUsers(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseRequestVariables(params, &IdParams{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	if args.UserId != context.UserId {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	users, err := controller.Service.GetBannedUsers(context.UserId)
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, users, http.StatusOK, context.Logger)
+	}
 }

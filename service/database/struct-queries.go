@@ -2,7 +2,9 @@ package database
 
 import (
 	"errors"
+	"github.com/jmoiron/sqlx"
 	"github.com/mitchellh/mapstructure"
+	"reflect"
 )
 
 // QueryStructRow executes the given query, expecting a single row to be returned,
@@ -20,8 +22,60 @@ func (db appSqlDatabase) QueryStructRow(destPointer any, query string, args ...a
 		return ErrNoResult
 	}
 
+	return parseRow(rows, destPointer)
+}
+
+type StructRows struct {
+	dest any
+	rows *sqlx.Rows
+}
+
+// Next will parse and return the next row as a struct, not a pointer.
+func (r *StructRows) Next() (any, error) {
+	if !r.rows.Next() {
+		return nil, ErrNoResult
+	}
+
+	// Parse next row
+	nextRow := reflect.New(reflect.TypeOf(r.dest)).Elem().Interface()
+	err := parseRow(r.rows, &nextRow)
+	if err != nil {
+		return nil, err
+	}
+
+	return nextRow, nil
+}
+
+func (r *StructRows) Close() error {
+	return r.rows.Close()
+}
+
+// QueryStructRows provides a mechanism to query multiple rows as a struct
+//
+// Example usage:
+//
+// rows, err := dao.Db.QueryStructRows(AStruct{}, query, args...)
+// if err != nil { return err; }
+// defer rows.Close()
+//
+//	for entity, err := rows.Next(); err == nil; entity, err = rows.Next() {
+//		slice = append(slice, entity.(AStruct))
+//	}
+func (db appSqlDatabase) QueryStructRows(entityStruct any, query string, args ...any) (StructRows, error) {
+	rows, err := db.DB.Queryx(query, args...)
+	if err != nil {
+		return StructRows{}, err
+	}
+
+	return StructRows{
+		dest: entityStruct,
+		rows: rows,
+	}, nil
+}
+
+func parseRow(rows *sqlx.Rows, destPointer any) error {
 	rowData := make(map[string]any)
-	err = rows.MapScan(rowData)
+	err := rows.MapScan(rowData)
 	if err != nil {
 		return err
 	}
@@ -41,9 +95,5 @@ func (db appSqlDatabase) QueryStructRow(destPointer any, query string, args ...a
 		return errors.New("error creating a decoder")
 	}
 
-	if err := decoder.Decode(rowData); err != nil {
-		return err
-	}
-
-	return nil
+	return decoder.Decode(rowData)
 }

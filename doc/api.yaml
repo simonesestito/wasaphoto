@@ -300,6 +300,7 @@ paths:
       summary: List banned users
       description: |
         List all the users the specified user has currently banned.
+        The specified user can only be yourself, otherwise you won't be authorized.
         Since it's improbable to have banned an enormous number of users,
         this request doesn't use any pagination mechanism.
       responses:
@@ -308,8 +309,6 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UsersList" }
-        "404":
-          description: Specified user not found
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }

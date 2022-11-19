@@ -40,7 +40,7 @@ WHERE CommentWithAuthor.id = ?`
 	err := db.Db.QueryStructRow(entity, query, userId.Bytes(), userId.Bytes(), commentId.Bytes())
 
 	// Fix shadowed properties
-	entity.ModelUser.Id = entity.EntityComment.AuthorId
+	entity.ModelUserWithCustom.ModelUser.Id = entity.EntityComment.AuthorId
 
 	if err == sql.ErrNoRows {
 		return nil, nil
