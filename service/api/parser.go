@@ -32,6 +32,7 @@ func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, log
 		ErrorUnused: true,
 		ZeroFields:  true,
 		TagName:     "json",
+		Squash:      true,
 		Result:      paramsStruct,
 	}
 

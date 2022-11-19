@@ -5,6 +5,6 @@ import (
 )
 
 type FollowerParams struct {
-	user.IdParams `json:",squash"`
-	FollowedId    string `json:"followedId" validate:"required"`
+	user.IdParams
+	FollowedId string `json:"followedId" validate:"required"`
 }

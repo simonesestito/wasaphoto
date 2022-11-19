@@ -6,6 +6,6 @@ import (
 )
 
 type LikeParams struct {
-	photo.IdParam `json:",squash"`
-	user.IdParams `json:",squash"`
+	photo.IdParam
+	user.IdParams
 }

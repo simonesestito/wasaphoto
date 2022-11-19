@@ -3,9 +3,9 @@ package user
 import "github.com/simonesestito/wasaphoto/service/api"
 
 type SearchParams struct {
-	UsernameGetParams  `json:",squash"`
-	api.PaginationInfo `json:",squash"`
-	ExactMatch         bool `json:"exactMatch"`
+	UsernameGetParams
+	api.PaginationInfo
+	ExactMatch bool `json:"exactMatch"`
 }
 
 type UsernameGetParams struct {
@@ -13,7 +13,7 @@ type UsernameGetParams struct {
 }
 
 type BanParams struct {
-	IdParams `json:",squash"`
+	IdParams
 	BannedId string `json:"bannedId" validate:"required"`
 }
 

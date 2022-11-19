@@ -7,8 +7,8 @@ import (
 )
 
 type IdParams struct {
-	photo.IdParam `json:",squash"`
-	CommentId     string `json:"commentId" validate:"required"`
+	photo.IdParam
+	CommentId string `json:"commentId" validate:"required"`
 }
 
 type NewComment struct {
@@ -19,5 +19,5 @@ type Comment struct {
 	Id          string    `json:"id"`
 	PublishDate time.Time `json:"publishDate"`
 	Author      user.User `json:"author"`
-	NewComment  `json:",squash"`
+	NewComment
 }
