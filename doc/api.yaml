@@ -50,6 +50,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Current user to login
               type: object
               properties:
                 username: { $ref: "#/components/schemas/Username" }
@@ -95,6 +96,7 @@ paths:
             not just the partial username search.
           required: false
           schema:
+            description: Enable the exactMatch option
             type: boolean
             default: false
         - $ref: "#/components/parameters/PageCursor"
@@ -302,6 +304,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Array of users
                 type: array
                 items: { $ref: "#/components/schemas/User" }
                 example: []
@@ -390,6 +393,9 @@ paths:
         content:
           image/*:
             schema:
+              description: Photo file to upload, directly as a binary file.
+              # Schema indicated according to the official docs:
+              # https://swagger.io/docs/specification/data-models/data-types/#file
               type: string
               format: binary
       responses:
@@ -482,6 +488,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Current page of comments 
                 allOf:
                   - $ref: "#/components/schemas/PaginationInfo"
                   - description: Current selected page
@@ -625,6 +632,7 @@ components:
       content:
         application/json:
           schema:
+            description: Current page of photos
             allOf:
               - $ref: "#/components/schemas/PaginationInfo"
               - description: Current selected page
@@ -642,6 +650,7 @@ components:
       content:
         application/json:
           schema:
+            description: Current page of users
             allOf:
               - $ref: "#/components/schemas/PaginationInfo"
               - description: Current selected page
@@ -670,6 +679,9 @@ components:
 
     LoginResult:
       type: object
+      description: |
+        Login result with auth details
+        (the user ID to pass in Authorization as Bearer token).
       properties:
         userId: { $ref: "#/components/schemas/ResourceId" }
 
@@ -775,6 +787,7 @@ components:
           readOnly: true
 
     NewComment:
+      description: A new comment to publish
       type: object
       properties:
         text:
