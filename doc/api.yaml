@@ -773,6 +773,7 @@ components:
       type: object
       properties:
         text:
+          description: Comment text
           type: string
           minLength: 1
           maxLength: 255
