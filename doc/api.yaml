@@ -480,13 +480,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
-        "200":
-          description: |
-            The current page was successfully returned
-            and it may contain some comments.
-          content:
-            application/json:
-              schema: { $ref: "#/components/responses/PaginatedCommentsResult" }
+        "200": { $ref: "#/components/responses/PaginatedCommentsResult" }
         "404":
           description: A post with this ID doesn't exist
         "400": { $ref: "#/components/responses/BadRequest" }
