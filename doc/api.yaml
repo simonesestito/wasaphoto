@@ -49,11 +49,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              description: Current user to login
-              type: object
-              properties:
-                username: { $ref: "#/components/schemas/Username" }
+            schema: { $ref: "#/components/schemas/LoginRequest" }
       responses:
         "200":
           description: User log-in action successful, user already exists
@@ -646,6 +642,12 @@ components:
       pattern: "^.*?$"
       minLength: 3
       maxLength: 16
+
+    LoginRequest:
+      description: Current user to login
+      type: object
+      properties:
+        username: { $ref: "#/components/schemas/Username" }
 
     LoginResult:
       type: object
