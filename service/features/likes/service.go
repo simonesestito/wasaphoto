@@ -28,6 +28,9 @@ func (service ServiceImpl) LikePhoto(photoId string, userId string) error {
 
 	// Get info about the photo to like
 	photoAuthorId, err := service.PhotoService.GetPostAuthorById(photoId)
+	if err != nil {
+		return err
+	}
 
 	// Check if photo author banned me
 	iamBanned, err := service.BanService.IsUserBanned(userId, photoAuthorId)
