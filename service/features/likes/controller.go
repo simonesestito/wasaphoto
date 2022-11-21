@@ -39,7 +39,11 @@ func (controller Controller) likePhoto(w http.ResponseWriter, _ *http.Request, p
 	}
 
 	err := controller.Service.LikePhoto(args.PhotoId, context.UserId)
-	api.HandleErrorsResponse(err, w, http.StatusCreated, context.Logger)
+	result := PhotoLike{
+		PhotoId: args.PhotoId,
+		UserId:  args.UserId,
+	}
+	api.HandlePutResult(result, err, w, context.Logger)
 }
 
 func (controller Controller) unlikePhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {

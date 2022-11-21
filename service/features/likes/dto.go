@@ -9,3 +9,8 @@ type LikeParams struct {
 	photo.IdParam
 	user.IdParams
 }
+
+type PhotoLike struct {
+	PhotoId string `json:"photoId"`
+	UserId  string `json:"userId"`
+}
