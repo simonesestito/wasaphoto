@@ -44,7 +44,11 @@ func (controller BanController) banUser(w http.ResponseWriter, _ *http.Request, 
 	}
 
 	err := controller.Service.BanUser(args.BannedId, args.UserId)
-	api.HandleErrorsResponse(err, w, http.StatusCreated, context.Logger)
+	result := BanResult{
+		BannedId: args.BannedId,
+		BannerId: context.UserId,
+	}
+	api.HandlePutResult(result, err, w, context.Logger)
 }
 
 func (controller BanController) unbanUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {

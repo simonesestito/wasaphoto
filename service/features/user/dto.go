@@ -36,3 +36,8 @@ type User struct {
 type IdParams struct {
 	UserId string `json:"userId" validate:"required"`
 }
+
+type BanResult struct {
+	BannedId string `json:"bannedId"`
+	BannerId string `json:"bannerId"`
+}
