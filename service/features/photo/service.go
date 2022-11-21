@@ -38,10 +38,21 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	}
 
 	// Save processed photo
-	savedFilePath, err := service.Storage.SaveFile(service.pathForPhotoFile(photoUuid), imageData)
+	photoPath := service.pathForPhotoFile(photoUuid)
+	savedFilePath, err := service.Storage.SaveFile(photoPath, imageData)
 	if err != nil {
 		return Photo{}, err
 	}
+
+	// Handle errors in inserting the image in the DB, preparing a rollback
+	isCommitted := false
+	defer func() {
+		if !isCommitted {
+			// Rollback!
+			_ = service.Storage.DeleteFile(photoPath)
+			_ = service.Db.DeletePhoto(photoUuid)
+		}
+	}()
 
 	// Create new photo struct
 	err = service.Db.NewPhotoPerUser(photoUuid, userUuid, savedFilePath)
@@ -54,6 +65,9 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	if err != nil {
 		return Photo{}, err
 	}
+
+	// Commit!
+	isCommitted = true
 
 	// Get current server URL
 	return photo.ToDto(), nil
