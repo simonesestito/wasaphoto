@@ -5,7 +5,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/storage"
-	"strings"
 )
 
 type Service interface {
@@ -39,14 +38,13 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	}
 
 	// Save processed photo
-	filePath := service.pathForPhotoFile(photoUuid)
-	err = service.Storage.SaveFile(filePath, imageData)
+	savedFilePath, err := service.Storage.SaveFile(service.pathForPhotoFile(photoUuid), imageData)
 	if err != nil {
 		return Photo{}, err
 	}
 
 	// Create new photo struct
-	err = service.Db.NewPhotoPerUser(photoUuid, userUuid, "/"+filePath)
+	err = service.Db.NewPhotoPerUser(photoUuid, userUuid, savedFilePath)
 	if err != nil {
 		return Photo{}, err
 	}
@@ -57,11 +55,12 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 		return Photo{}, err
 	}
 
+	// Get current server URL
 	return photo.ToDto(), nil
 }
 
 func (ServiceImpl) pathForPhotoFile(photoUuid uuid.UUID) string {
-	return "static/user_content/photos/" + strings.ReplaceAll(photoUuid.String(), "-", "") + ".webp"
+	return "photos/" + photoUuid.String() + ".webp"
 }
 
 func (service ServiceImpl) DeletePostAs(imageId string, userId string) error {
@@ -91,8 +90,7 @@ func (service ServiceImpl) DeletePostAs(imageId string, userId string) error {
 	}
 
 	// Delete photo file from storage
-	filePath := service.pathForPhotoFile(imageUuid)
-	return service.Storage.DeleteFile(filePath)
+	return service.Storage.DeleteFile(service.pathForPhotoFile(imageUuid))
 }
 
 func (service ServiceImpl) GetPostAuthorById(imageId string) (string, error) {

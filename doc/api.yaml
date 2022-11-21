@@ -737,6 +737,9 @@ components:
         or maybe a CDN or may also be simply this server.
 
         The file can be cached and it's guaranteed to never change.
+
+        In case it starts with a /, it must be interpreted as the path
+        inside of this same server, as a standard static file.
       type: string
       minLength: 10
       maxLength: 255
