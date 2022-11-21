@@ -10,7 +10,7 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1.0.5"
+  version: "1.0.6"
 
 tags:
   - name: auth
