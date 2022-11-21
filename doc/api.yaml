@@ -719,12 +719,13 @@ components:
       minLength: 36
       maxLength: 36
       readOnly: true
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 
     Username:
       description: User's personal and unique username
       type: string
       example: john_doe_42
-      pattern: "^.*?$"
+      pattern: "^.*$"
       minLength: 3
       maxLength: 16
 
@@ -754,6 +755,7 @@ components:
           description: User's name
           type: string
           example: John
+          pattern: "^.*$"
           minLength: 2
           maxLength: 256
         surname:
@@ -762,6 +764,7 @@ components:
           minLength: 0
           maxLength: 256
           example: Doe
+          pattern: "^.*?$"
           default: ""
         username:
           $ref: "#/components/schemas/Username"
@@ -860,6 +863,7 @@ components:
           minLength: 1
           maxLength: 256
           example: Great post! Keep up the good work.
+          pattern: "^.*$"
 
     Comment:
       description: A comment left on a post
