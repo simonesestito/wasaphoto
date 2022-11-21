@@ -288,8 +288,14 @@ paths:
       responses:
         "201":
           description: You are now following this user.
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserFollow" }
+        "200":
           description: You were already following this user (idempotent).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserFollow" }
         "404":
           description: The user specified with "followedId" doesn't exist.
           content:
@@ -346,8 +352,14 @@ paths:
       responses:
         "201":
           description: User banned, and it wasn't before
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserBan" }
+        "200":
           description: User banned, but it already was
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserBan" }
         "404":
           description: User to ban not found
           content:
@@ -469,8 +481,14 @@ paths:
       responses:
         "201":
           description: Your like was added
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoLike" }
+        "200":
           description: Your like was already added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoLike" }
         "404":
           description: A post with this ID doesn't exist
           content:
@@ -691,7 +709,7 @@ components:
       description: Result representing an error description
       type: string
       minLength: 0
-      maxLength: 256
+      maxLength: 100
       readOnly: true
 
     ResourceId:
@@ -929,6 +947,30 @@ components:
       minItems: 0
       items: { $ref: "#/components/schemas/User" }
       example: []
+
+    UserFollow:
+      description: Representation of the following of a user
+      type: object
+      readOnly: true
+      properties:
+        followingId: { $ref: "#/components/schemas/ResourceId" }
+        followerId: { $ref: "#/components/schemas/ResourceId" }
+
+    UserBan:
+      description: Representation of the ban of a user
+      type: object
+      readOnly: true
+      properties:
+        bannedId: { $ref: "#/components/schemas/ResourceId" }
+        bannerId: { $ref: "#/components/schemas/ResourceId" }
+
+    PhotoLike:
+      description: Representation of the like on a photo
+      type: object
+      readOnly: true
+      properties:
+        photoId: { $ref: "#/components/schemas/ResourceId" }
+        userId: { $ref: "#/components/schemas/ResourceId" }
 
   securitySchemes:
     UserIdAuth:
