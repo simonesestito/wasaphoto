@@ -33,6 +33,20 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 	}
 }
 
+// HandlePutResult handles the error ErrDuplicated in an idempotent PUT operation.
+func HandlePutResult(result any, err error, w http.ResponseWriter, logger logrus.FieldLogger) {
+	switch err {
+	case nil:
+		// Success, new item has been created!
+		SendJson(w, result, http.StatusCreated, logger)
+	case ErrDuplicated:
+		// Ignore duplicated errors, since it's idempotent.
+		SendJson(w, result, http.StatusOK, logger)
+	default:
+		HandleErrorsResponse(err, w, http.StatusOK, logger)
+	}
+}
+
 // ErrSelfOperation is used to indicate a user is performing
 // an operation both as subject and object,
 // and that is not possible in this circumstance.
