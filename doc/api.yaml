@@ -10,7 +10,7 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1.0.4"
+  version: "1.0.6"
 
 servers:
   - url: http://localhost:8080/
@@ -27,7 +27,7 @@ tags:
     description: Photo and file upload related operations
   - name: likes
     description: Likes related operations
-  - name: comments
+  - name: comments 
     description: Comments related operations
 
 paths:
@@ -53,11 +53,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              description: Current user to login
-              type: object
-              properties:
-                username: { $ref: "#/components/schemas/Username" }
+            schema: { $ref: "#/components/schemas/LoginRequest" }
       responses:
         "200":
           description: User log-in action successful, user already exists
@@ -134,6 +130,9 @@ paths:
               schema: { $ref: "#/components/schemas/User" }
         "404":
           description: User with given ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -159,6 +158,9 @@ paths:
               schema: { $ref: "#/components/schemas/User" }
         "409":
           description: A user with the requested new username already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -189,6 +191,9 @@ paths:
               schema: { $ref: "#/components/schemas/User" }
         "409":
           description: A user with the requested new username already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -213,6 +218,9 @@ paths:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "404":
           description: A user with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -236,6 +244,9 @@ paths:
         "200": { $ref: "#/components/responses/PaginatedUsersResult" }
         "404":
           description: A user with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -281,10 +292,19 @@ paths:
       responses:
         "201":
           description: You are now following this user.
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserFollow" }
+        "200":
           description: You were already following this user (idempotent).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserFollow" }
         "404":
           description: The user specified with "followedId" doesn't exist.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -309,6 +329,11 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UsersList" }
+        "404":
+          description: Specified user not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -331,12 +356,24 @@ paths:
       responses:
         "201":
           description: User banned, and it wasn't before
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserBan" }
+        "200":
           description: User banned, but it already was
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserBan" }
         "404":
           description: User to ban not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "409":
           description: You cannot ban yourself
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
         "400": { $ref: "#/components/responses/BadRequest" }
@@ -374,6 +411,9 @@ paths:
         "200": { $ref: "#/components/responses/PaginatedPhotosResult" }
         "404":
           description: A user with this ID cannot be found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -409,6 +449,9 @@ paths:
               schema: { $ref: "#/components/schemas/Photo" }
         "415":
           description: The file sent cannot be processed as an image.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
 
@@ -442,10 +485,19 @@ paths:
       responses:
         "201":
           description: Your like was added
-        "204":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoLike" }
+        "200":
           description: Your like was already added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoLike" }
         "404":
           description: A post with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -460,6 +512,9 @@ paths:
           description: Your like was removed
         "404":
           description: A post with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -482,15 +537,12 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PageCursor"
       responses:
-        "200":
-          description: |
-            The current page was successfully returned
-            and it may contain some comments.
-          content:
-            application/json:
-              schema: { $ref: "#/components/responses/PaginatedCommentsResult" }
+        "200": { $ref: "#/components/responses/PaginatedCommentsResult" }
         "404":
           description: A post with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -517,6 +569,9 @@ paths:
               schema: { $ref: "#/components/schemas/Comment" }
         "404":
           description: A post with this ID doesn't exist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -538,6 +593,9 @@ paths:
           description: Your comment was deleted.
         "404":
           description: A post with the given ID doesn't exist.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
@@ -599,14 +657,23 @@ components:
       description: |
         The request was not compliant with the documentation
         (eg. missing fields, etc).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
     ServerError:
       description: |
         An unexpected error occurred on the server
         while processing this request.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
     LoginError:
       description: |
         Authentication is required to perform this action,
         and no *valid* authentication was included in this request.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
     AuthorizationError:
       description: |
         A valid authentication is included in this request,
@@ -614,6 +681,9 @@ components:
 
         For instance, you are trying to modify someone else's data,
         or access to information about someone who banned you.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
 
     PaginatedPhotosResult:
       description: |
@@ -632,13 +702,20 @@ components:
 
     PaginatedCommentsResult:
       description: |
-        The current page was successfully returned
-        and it may contain some users.
+          The current page was successfully returned
+          and it may contain some users.
       content:
         application/json:
           schema: { $ref: "#/components/schemas/PaginatedComments" }
 
   schemas:
+    Error:
+      description: Result representing an error description
+      type: string
+      minLength: 0
+      maxLength: 100
+      readOnly: true
+
     ResourceId:
       description: The unique resource ID as a UUID string
       type: string
@@ -646,14 +723,21 @@ components:
       minLength: 36
       maxLength: 36
       readOnly: true
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 
     Username:
       description: User's personal and unique username
       type: string
       example: john_doe_42
-      pattern: "^.*?$"
+      pattern: "^.*$"
       minLength: 3
       maxLength: 16
+
+    LoginRequest:
+      description: Current user to login
+      type: object
+      properties:
+        username: { $ref: "#/components/schemas/Username" }
 
     LoginResult:
       type: object
@@ -675,14 +759,16 @@ components:
           description: User's name
           type: string
           example: John
+          pattern: "^.*$"
           minLength: 2
-          maxLength: 255
+          maxLength: 256
         surname:
           description: User's surname
           type: string
           minLength: 0
-          maxLength: 255
+          maxLength: 256
           example: Doe
+          pattern: "^.*?$"
           default: ""
         username:
           $ref: "#/components/schemas/Username"
@@ -737,12 +823,9 @@ components:
         or maybe a CDN or may also be simply this server.
 
         The file can be cached and it's guaranteed to never change.
-
-        In case it starts with a /, it must be interpreted as the path
-        inside of this same server, as a standard static file.
       type: string
       minLength: 10
-      maxLength: 255
+      maxLength: 256
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
@@ -782,8 +865,9 @@ components:
           description: Comment text
           type: string
           minLength: 1
-          maxLength: 255
+          maxLength: 256
           example: Great post! Keep up the good work.
+          pattern: "^.*$"
 
     Comment:
       description: A comment left on a post
@@ -871,6 +955,30 @@ components:
       minItems: 0
       items: { $ref: "#/components/schemas/User" }
       example: []
+
+    UserFollow:
+      description: Representation of the following of a user
+      type: object
+      readOnly: true
+      properties:
+        followingId: { $ref: "#/components/schemas/ResourceId" }
+        followerId: { $ref: "#/components/schemas/ResourceId" }
+
+    UserBan:
+      description: Representation of the ban of a user
+      type: object
+      readOnly: true
+      properties:
+        bannedId: { $ref: "#/components/schemas/ResourceId" }
+        bannerId: { $ref: "#/components/schemas/ResourceId" }
+
+    PhotoLike:
+      description: Representation of the like on a photo
+      type: object
+      readOnly: true
+      properties:
+        photoId: { $ref: "#/components/schemas/ResourceId" }
+        userId: { $ref: "#/components/schemas/ResourceId" }
 
   securitySchemes:
     UserIdAuth:
