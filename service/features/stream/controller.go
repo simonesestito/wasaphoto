@@ -22,8 +22,8 @@ func (controller Controller) ListRoutes() []route.Route {
 	}
 }
 
-func (controller Controller) getMyStream(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &photo.UserPhotosCursor{}, context.Logger)
+func (controller Controller) getMyStream(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &photo.UserPhotosCursor{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

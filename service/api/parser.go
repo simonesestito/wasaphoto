@@ -26,7 +26,29 @@ func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, log
 	if err != nil {
 		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
 	}
+	return parseVariablesFromMap(paramsMap, paramsStruct, logger)
+}
 
+func ParseAllRequestVariables[T any](r *http.Request, params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+	paramsMap, err := utils.ParamsToMap(params)
+	if err != nil {
+		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+	}
+
+	queryVariables, err := utils.MapGetFirstValue(r.URL.Query())
+	if err != nil {
+		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+	}
+
+	allParams, err := utils.JoinMaps(paramsMap, queryVariables)
+	if err != nil {
+		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+	}
+
+	return parseVariablesFromMap(allParams, paramsStruct, logger)
+}
+
+func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
 	// Convert allParamsMap to a struct
 	decoderConfig := &mapstructure.DecoderConfig{
 		ErrorUnused: true,
