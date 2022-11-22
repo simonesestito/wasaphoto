@@ -8,11 +8,13 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/photo"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
+	"github.com/simonesestito/wasaphoto/service/utils/cursor"
 )
 
 type Service interface {
 	CommentPhoto(photoId string, userId string, comment NewComment) (Comment, error)
 	DeleteCommentOnPhotoIfAuthor(commentId string, photoId string, userId string) error
+	GetCommentsPageAs(photoId string, userId string, pageCursor string) ([]Comment, *string, error)
 }
 
 type ServiceImpl struct {
@@ -31,7 +33,7 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 
 	// Get info about the photo to like
 	photoAuthorId, err := service.PhotoService.GetPostAuthorById(photoId)
-	if err == database.ErrNoResult {
+	if photoAuthorId == "" {
 		return Comment{}, api.ErrNotFound
 	}
 
@@ -99,4 +101,36 @@ func (service ServiceImpl) DeleteCommentOnPhotoIfAuthor(commentId string, photoI
 	// Delete comment
 	_, err = service.Db.DeleteByIdPhotoAndAuthor(commentUuid, photoUuid, userUuid)
 	return err
+}
+
+func (service ServiceImpl) GetCommentsPageAs(photoId string, userId string, pageCursor string) ([]Comment, *string, error) {
+	photoUuid := uuid.FromStringOrNil(photoId)
+	userUuid := uuid.FromStringOrNil(userId)
+	if photoUuid.IsNil() || userUuid.IsNil() {
+		return nil, nil, api.ErrWrongUUID
+	}
+
+	commentId, commentDate, err := cursor.ParseDateIdCursor(pageCursor)
+	if err != nil {
+		return nil, nil, api.ErrWrongCursor
+	}
+
+	// Check if photo exists and if the author banned me
+	foundPhoto, err := service.PhotoService.GetPhotoByIdAs(photoId, userId)
+	if err == api.ErrUserBanned {
+		return nil, nil, api.ErrUserBanned
+	} else if err != nil {
+		return nil, nil, err
+	} else if foundPhoto == nil {
+		return nil, nil, api.ErrNotFound
+	}
+
+	// Get comments
+	dbComments, err := service.Db.GetCommentsAfter(photoUuid, userUuid, commentId, timeprovider.DateToUTCString(commentDate))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	comments, nextCursor := DbCommentsListToPage(dbComments)
+	return comments, nextCursor, nil
 }

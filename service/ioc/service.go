@@ -50,6 +50,7 @@ func (ioc *Container) CreatePhotoService() photo.Service {
 		Db:          ioc.CreatePhotoDao(),
 		Storage:     ioc.CreateStorage(),
 		UserService: ioc.CreateUserService(),
+		BanService:  ioc.CreateBanService(),
 	}
 }
 

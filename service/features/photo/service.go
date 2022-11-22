@@ -15,6 +15,7 @@ type Service interface {
 	DeletePostAs(imageId string, userId string) error
 	GetPostAuthorById(imageId string) (string, error)
 	GetUsersPhotosPage(id string, searchAs string, cursor string) ([]Photo, *string, error)
+	GetPhotoByIdAs(photoId string, searchAs string) (*Photo, error)
 }
 
 type ServiceImpl struct {
@@ -22,6 +23,7 @@ type ServiceImpl struct {
 	Storage        storage.Storage
 	ImageProcessor ImageProcessor
 	UserService    user.Service
+	BanService     user.BanService
 }
 
 func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, error) {
@@ -162,4 +164,33 @@ func (service ServiceImpl) GetUsersPhotosPage(id string, searchAs string, pageCu
 
 	photos, nextCursor := DbPhotosListToPage(dbPhotos)
 	return photos, nextCursor, nil
+}
+
+func (service ServiceImpl) GetPhotoByIdAs(photoId string, searchAs string) (*Photo, error) {
+	photoUuid := uuid.FromStringOrNil(photoId)
+	searchAsUuid := uuid.FromStringOrNil(searchAs)
+	if photoUuid.IsNil() || searchAsUuid.IsNil() {
+		return nil, api.ErrWrongUUID
+	}
+
+	// Get the required photo
+	dbPhoto, err := service.Db.GetPhotoByIdAs(photoUuid, searchAsUuid)
+	if err != nil {
+		return nil, err
+	} else if dbPhoto == nil {
+		return nil, nil
+	}
+
+	photo := dbPhoto.ToDto()
+
+	// Check author ban
+	isBanned, err := service.BanService.IsUserBanned(searchAs, photo.Author.Id)
+	if err != nil {
+		return nil, err
+	} else if isBanned {
+		return nil, api.ErrUserBanned
+	}
+
+	// Success! Return photo
+	return &photo, nil
 }

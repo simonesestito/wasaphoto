@@ -24,6 +24,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/photos/:photoId/comments/:commentId",
 			Handler: controller.uncommentPhoto,
 		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/photos/:photoId/comments/",
+			Handler: controller.getPhotoComments,
+		},
 	}
 }
 
@@ -52,4 +57,22 @@ func (controller Controller) uncommentPhoto(w http.ResponseWriter, _ *http.Reque
 
 	err := controller.Service.DeleteCommentOnPhotoIfAuthor(args.CommentId, args.PhotoId, context.UserId)
 	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
+}
+
+func (controller Controller) getPhotoComments(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &PhotoCommentsCursor{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	comments, pageCursor, err := controller.Service.GetCommentsPageAs(args.PhotoId, context.UserId, args.PageCursorOrEmpty)
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, api.PageResult[Comment]{
+			NextPageCursor: pageCursor,
+			PageData:       comments,
+		}, http.StatusOK, context.Logger)
+	}
 }

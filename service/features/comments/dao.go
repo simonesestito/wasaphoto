@@ -11,6 +11,7 @@ type Dao interface {
 	GetCommentByIdAs(commentId uuid.UUID, userId uuid.UUID) (*EntityCommentWithCustom, error)
 	DeleteByIdPhotoAndAuthor(commentUuid uuid.UUID, photoUuid uuid.UUID, userUuid uuid.UUID) (bool, error)
 	GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAndPhoto, error)
+	GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterComment uuid.UUID, beforeDate string) ([]EntityCommentWithCustom, error)
 }
 
 type DbDao struct {
@@ -71,4 +72,39 @@ func (db DbDao) GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAn
 	} else {
 		return entity, nil
 	}
+}
+
+func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterComment uuid.UUID, beforeDate string) ([]EntityCommentWithCustom, error) {
+	query := `
+		SELECT CommentWithAuthor.*,
+			   EXISTS(SELECT * FROM Ban WHERE bannedId = CommentWithAuthor.authorId AND bannerId = ?) AS banned,
+			   EXISTS(SELECT * FROM Follow WHERE followedId = CommentWithAuthor.authorId AND followerId = ?) AS following
+		FROM CommentWithAuthor
+		WHERE CommentWithAuthor.photoId = ?
+		 	  -- Cursor pagination
+			  AND (publishDate, id) < (?, ?)
+		ORDER BY publishDate DESC, id DESC
+		LIMIT ?`
+
+	rows, err := db.Db.QueryStructRows(
+		EntityCommentWithCustom{},
+		query,
+		userUuid.Bytes(),
+		userUuid.Bytes(),
+		photoUuid.Bytes(),
+		beforeDate,
+		afterComment.Bytes(),
+		database.MaxPageItems,
+	)
+
+	var photos []EntityCommentWithCustom
+	var entity any
+	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
+		photos = append(photos, entity.(EntityCommentWithCustom))
+	}
+	if err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return photos, nil
 }
