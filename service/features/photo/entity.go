@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
+	"github.com/simonesestito/wasaphoto/service/utils/cursor"
 	"time"
 )
 
@@ -43,4 +44,22 @@ func (photo EntityPhotoAuthorInfo) ToDto() Photo {
 		Liked:         photo.Liked > 0,
 		ImageUrl:      photo.ImageUrl,
 	}
+}
+
+func DbPhotosListToPage(dbPhotos []EntityPhotoAuthorInfo) (photos []Photo, pageCursor *string) {
+	photos = make([]Photo, len(dbPhotos))
+	for i, dbPhoto := range dbPhotos {
+		photos[i] = dbPhoto.ToDto()
+	}
+
+	// Calculate next cursor
+	if len(dbPhotos) > 0 {
+		lastPhoto := dbPhotos[len(dbPhotos)-1]
+		nextCursor := cursor.CreateDateIdCursor(lastPhoto.EntityPhoto.Id, lastPhoto.PublishDate)
+		pageCursor = &nextCursor
+	} else {
+		pageCursor = nil
+	}
+
+	return
 }

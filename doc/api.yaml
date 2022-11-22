@@ -650,7 +650,7 @@ components:
         the ID of the latest resource received by the client.
       required: false
       in: query
-      schema: { $ref: "#/components/schemas/ResourceId" }
+      schema: { $ref: "#/components/schemas/PageCursor" }
 
   responses:
     BadRequest:
@@ -886,11 +886,7 @@ components:
         Additional data necessary to handle
         paginated responses and subsequent requests.
       properties:
-        nextPageCursor:
-          type: string
-          description: String to be sent as pageCursor in the subsequent request
-          minLength: 1
-          maxLength: 80
+        nextPageCursor: { $ref: "#/components/schemas/PageCursor" }
         pageData:
           type: array
           minItems: 0
@@ -898,6 +894,13 @@ components:
           items:
             type: object
           description: Data of this page, if any
+
+    PageCursor:
+      type: string
+      description: String to be sent as pageCursor in the subsequent request
+      minLength: 1
+      maxLength: 80
+      example: "MjFkMTM5ZmUtNWRjNi00OThkLWEyMTAtNmUyNDM1N2MwNmFhOzIwMjItMTEtMjFUMTE6NTM6MDha"
 
     PaginatedComments:
       description: Current page of comments

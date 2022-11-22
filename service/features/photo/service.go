@@ -4,19 +4,24 @@ import (
 	"bytes"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
+	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/storage"
+	"github.com/simonesestito/wasaphoto/service/timeprovider"
+	"github.com/simonesestito/wasaphoto/service/utils/cursor"
 )
 
 type Service interface {
 	CreatePost(userId string, imageData []byte) (Photo, error)
 	DeletePostAs(imageId string, userId string) error
 	GetPostAuthorById(imageId string) (string, error)
+	GetUsersPhotosPage(id string, searchAs string, cursor string) ([]Photo, *string, error)
 }
 
 type ServiceImpl struct {
 	Db             Dao
 	Storage        storage.Storage
 	ImageProcessor ImageProcessor
+	UserService    user.Service
 }
 
 func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, error) {
@@ -124,4 +129,37 @@ func (service ServiceImpl) GetPostAuthorById(imageId string) (string, error) {
 	// Return author ID
 	authorUuid := uuid.FromBytesOrNil(imageEntity.AuthorId)
 	return authorUuid.String(), nil
+}
+
+func (service ServiceImpl) GetUsersPhotosPage(id string, searchAs string, pageCursor string) ([]Photo, *string, error) {
+	authorUuid := uuid.FromStringOrNil(id)
+	searchAsUuid := uuid.FromStringOrNil(searchAs)
+	if authorUuid.IsNil() || searchAsUuid.IsNil() {
+		return nil, nil, api.ErrWrongUUID
+	}
+
+	nextPhotoId, nextDate, err := cursor.ParseDateIdCursor(pageCursor)
+	if err != nil {
+		return nil, nil, api.ErrWrongCursor
+	}
+
+	// Check if the searched user exists and ban status
+	searchedUser, err := service.UserService.GetUserAs(id, searchAs)
+	switch {
+	case err == api.ErrUserBanned:
+		return nil, nil, api.ErrUserBanned
+	case err != nil:
+		return nil, nil, err
+	case searchedUser == nil:
+		return nil, nil, api.ErrNotFound
+	}
+
+	// Get photos
+	dbPhotos, err := service.Db.ListUsersPhotoAfter(authorUuid, searchAsUuid, nextPhotoId, timeprovider.DateToUTCString(nextDate))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	photos, nextCursor := DbPhotosListToPage(dbPhotos)
+	return photos, nextCursor, nil
 }

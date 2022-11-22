@@ -24,6 +24,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/photos/:photoId",
 			Handler: controller.deletePhoto,
 		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/users/:userId/photos/",
+			Handler: controller.listUserPhotos,
+		},
 	}
 }
 
@@ -64,4 +69,22 @@ func (controller Controller) deletePhoto(w http.ResponseWriter, _ *http.Request,
 		err = nil
 	}
 	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
+}
+
+func (controller Controller) listUserPhotos(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &UserPhotosCursor{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	photos, cursor, err := controller.Service.GetUsersPhotosPage(args.UserId, context.UserId, args.PageCursorOrEmpty)
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, api.PageResult[Photo]{
+			NextPageCursor: cursor,
+			PageData:       photos,
+		}, http.StatusOK, context.Logger)
+	}
 }

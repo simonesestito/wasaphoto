@@ -29,17 +29,6 @@ func (service ServiceImpl) GetStreamPage(userId string, pageCursor string) ([]ph
 		return nil, nil, err
 	}
 
-	photos := make([]photo.Photo, len(dbPhotos))
-	for i, dbPhoto := range dbPhotos {
-		photos[i] = dbPhoto.ToDto()
-	}
-
-	// Calculate next cursor
-	if len(dbPhotos) > 0 {
-		lastPhoto := dbPhotos[len(dbPhotos)-1]
-		nextCursor := cursor.CreateDateIdCursor(lastPhoto.EntityPhoto.Id, lastPhoto.PublishDate)
-		return photos, &nextCursor, nil
-	} else {
-		return photos, nil, nil
-	}
+	photos, nextCursor := photo.DbPhotosListToPage(dbPhotos)
+	return photos, nextCursor, nil
 }

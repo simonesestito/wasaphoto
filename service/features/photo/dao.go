@@ -12,6 +12,7 @@ type Dao interface {
 	NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl string) error
 	DeletePhoto(imageUuid uuid.UUID) error
 	GetPhotoById(imageUuid uuid.UUID) (*EntityPhotoInfo, error)
+	ListUsersPhotoAfter(authorUuid uuid.UUID, searchAsUuid uuid.UUID, afterPhotoId uuid.UUID, beforeDate string) ([]EntityPhotoAuthorInfo, error)
 }
 
 type DbDao struct {
@@ -63,4 +64,41 @@ func (db DbDao) GetPhotoById(imageUuid uuid.UUID) (*EntityPhotoInfo, error) {
 		return nil, nil
 	}
 	return &photo, err
+}
+
+func (db DbDao) ListUsersPhotoAfter(authorUuid uuid.UUID, searchAsUuid uuid.UUID, afterPhotoId uuid.UUID, beforeDate string) ([]EntityPhotoAuthorInfo, error) {
+	query := `
+		SELECT PhotoAuthorInfo.*,
+		       EXISTS(SELECT * FROM Likes WHERE Likes.photoId = PhotoAuthorInfo.id AND Likes.userId = ?) AS liked,
+		       EXISTS(SELECT * FROM Ban WHERE bannedId = PhotoAuthorInfo.authorId AND bannerId = ?) AS banned,
+		       EXISTS(SELECT * FROM Follow WHERE followedId = PhotoAuthorInfo.authorId AND followerId = ?) AS following
+		FROM PhotoAuthorInfo
+		WHERE PhotoAuthorInfo.authorId = ?
+		 	  -- Cursor pagination
+			  AND (publishDate, id) < (?, ?)
+		ORDER BY publishDate DESC, id DESC
+		LIMIT ?`
+
+	rows, err := db.Db.QueryStructRows(
+		EntityPhotoAuthorInfo{},
+		query,
+		searchAsUuid.Bytes(),
+		searchAsUuid.Bytes(),
+		searchAsUuid.Bytes(),
+		authorUuid.Bytes(),
+		beforeDate,
+		afterPhotoId.Bytes(),
+		database.MaxPageItems,
+	)
+
+	var photos []EntityPhotoAuthorInfo
+	var entity any
+	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
+		photos = append(photos, entity.(EntityPhotoAuthorInfo))
+	}
+	if err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return photos, nil
 }

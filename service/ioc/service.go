@@ -47,8 +47,9 @@ func (ioc *Container) CreateFollowService() follow.Service {
 
 func (ioc *Container) CreatePhotoService() photo.Service {
 	return photo.ServiceImpl{
-		Db:      ioc.CreatePhotoDao(),
-		Storage: ioc.CreateStorage(),
+		Db:          ioc.CreatePhotoDao(),
+		Storage:     ioc.CreateStorage(),
+		UserService: ioc.CreateUserService(),
 	}
 }
 
