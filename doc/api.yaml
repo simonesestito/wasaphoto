@@ -310,35 +310,6 @@ paths:
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
 
-  /users/{userId}/bannedPeople/:
-    description: Collection of people blocked by the specified user
-    parameters:
-      - $ref: "#/components/parameters/UserId"
-    get:
-      tags: ["user"]
-      operationId: listBannedUsers
-      summary: List banned users
-      description: |
-        List all the users the specified user has currently banned.
-        The specified user can only be yourself, otherwise you won't be authorized.
-        Since it's improbable to have banned an enormous number of users,
-        this request doesn't use any pagination mechanism.
-      responses:
-        "200":
-          description: List of users banned
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/UsersList" }
-        "404":
-          description: Specified user not found
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Error" }
-        "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
-
   /users/{userId}/bannedPeople/{blockedId}:
     description: Resource to indicate who blocked who.
     parameters:
@@ -946,13 +917,6 @@ components:
               minItems: 0
               maxItems: 20
               items: { $ref: "#/components/schemas/User" }
-
-    UsersList:
-      description: Array of users
-      type: array
-      minItems: 0
-      items: { $ref: "#/components/schemas/User" }
-      example: []
 
     UserFollow:
       description: Representation of the following of a user
