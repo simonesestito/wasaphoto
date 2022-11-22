@@ -27,7 +27,7 @@ tags:
     description: Photo and file upload related operations
   - name: likes
     description: Likes related operations
-  - name: comments 
+  - name: comments
     description: Comments related operations
 
 paths:
@@ -867,7 +867,7 @@ components:
           minLength: 1
           maxLength: 256
           example: Great post! Keep up the good work.
-          pattern: "^.*$"
+          pattern: ".+"
 
     Comment:
       description: A comment left on a post
