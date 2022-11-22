@@ -33,6 +33,7 @@ type StructRows struct {
 // Next will parse and return the next row as a struct, not a pointer.
 func (r *StructRows) Next() (any, error) {
 	if !r.rows.Next() {
+		r.Close()
 		return nil, ErrNoResult
 	}
 
@@ -56,7 +57,6 @@ func (r *StructRows) Close() error {
 //
 // rows, err := dao.Db.QueryStructRows(AStruct{}, query, args...)
 // if err != nil { return err; }
-// defer rows.Close()
 //
 //	for entity, err := rows.Next(); err == nil; entity, err = rows.Next() {
 //		slice = append(slice, entity.(AStruct))
