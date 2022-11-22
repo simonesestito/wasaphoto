@@ -10,7 +10,6 @@ type PaginationInfo struct {
 }
 
 type PageResult[T any] struct {
-	HasMoreData bool `json:"hasMoreData"`
-	TotalCount  uint `json:"totalCount"`
-	PageData    []T  `json:"pageData"`
+	NextPageCursor string `json:"nextPageCursor"`
+	PageData       []T    `json:"pageData"`
 }

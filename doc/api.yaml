@@ -886,16 +886,7 @@ components:
         Additional data necessary to handle
         paginated responses and subsequent requests.
       properties:
-        hasMoreData:
-          type: boolean
-          description: |
-            It reports to the client if next page may contain more data
-          example: true
-        totalCount:
-          type: integer
-          minimum: 0
-          description: Number of total items in all pages
-          example: 420
+        nextPageCursor: { $ref: "#/components/schemas/ResourceId" }
         pageData:
           type: array
           minItems: 0
