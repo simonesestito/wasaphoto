@@ -11,6 +11,8 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 	switch err {
 	case ErrWrongUUID:
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	case ErrWrongCursor:
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	case ErrSelfOperation:
 		http.Error(w, err.Error(), http.StatusConflict)
 	case ErrNotFound:
@@ -63,6 +65,9 @@ var ErrAlreadyTaken = errors.New("the unique data you are trying to get it's alr
 
 // ErrWrongUUID is used to indicate the given ID cannot be interpreted as a UUID
 var ErrWrongUUID = errors.New("wrong UUID supplied")
+
+// ErrWrongCursor is used to indicate the given pageCursor cannot be interpreted
+var ErrWrongCursor = errors.New("wrong page cursor format")
 
 // ErrUserBanned is used in case the current user has no permission
 // to read the requested information because he is banned

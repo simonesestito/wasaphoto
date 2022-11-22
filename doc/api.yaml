@@ -886,7 +886,11 @@ components:
         Additional data necessary to handle
         paginated responses and subsequent requests.
       properties:
-        nextPageCursor: { $ref: "#/components/schemas/ResourceId" }
+        nextPageCursor:
+          type: string
+          description: String to be sent as pageCursor in the subsequent request
+          minLength: 1
+          maxLength: 80
         pageData:
           type: array
           minItems: 0

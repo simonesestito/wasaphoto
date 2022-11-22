@@ -11,5 +11,5 @@ func (provider MockTimeProvider) Now() time.Time {
 }
 
 func (provider MockTimeProvider) UTCString() string {
-	return provider.Now().UTC().Format(UTCFormat)
+	return DateToUTCString(provider.Now())
 }

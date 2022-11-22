@@ -6,6 +6,7 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
+	"github.com/simonesestito/wasaphoto/service/features/stream"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
@@ -66,4 +67,8 @@ func (ioc *Container) CreateCommentsService() comments.Service {
 		PhotoService: ioc.CreatePhotoService(),
 		TimeProvider: ioc.CreateTimeProvider(),
 	}
+}
+
+func (ioc *Container) CreateStreamService() stream.Service {
+	return stream.ServiceImpl{Db: ioc.CreateStreamDao()}
 }

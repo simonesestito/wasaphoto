@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"time"
 )
@@ -17,4 +18,9 @@ type Photo struct {
 
 type IdParam struct {
 	PhotoId string `json:"photoId" validate:"required"`
+}
+
+type UserPhotosCursor struct {
+	api.PaginationInfo
+	user.IdParams
 }

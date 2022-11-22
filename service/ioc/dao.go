@@ -5,6 +5,7 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/follow"
 	"github.com/simonesestito/wasaphoto/service/features/likes"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
+	"github.com/simonesestito/wasaphoto/service/features/stream"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
@@ -26,4 +27,8 @@ func (ioc *Container) CreateLikesDao() likes.Dao {
 
 func (ioc *Container) CreateCommentsDao() comments.Dao {
 	return comments.DbDao{Db: ioc.database}
+}
+
+func (ioc *Container) CreateStreamDao() stream.Dao {
+	return stream.DbDao{Db: ioc.database}
 }

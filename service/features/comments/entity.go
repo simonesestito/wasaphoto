@@ -3,7 +3,7 @@ package comments
 import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/features/user"
-	"github.com/simonesestito/wasaphoto/service/utils"
+	"github.com/simonesestito/wasaphoto/service/timeprovider"
 )
 
 type EntityComment struct {
@@ -32,7 +32,7 @@ type EntityCommentWithCustom struct {
 }
 
 func (entity EntityCommentWithCustom) ToDto() Comment {
-	publishDate, _ := utils.UTCStringToDate(entity.PublishDate)
+	publishDate, _ := timeprovider.UTCStringToDate(entity.PublishDate)
 	return Comment{
 		Id:          uuid.FromBytesOrNil(entity.EntityComment.Id).String(),
 		PublishDate: publishDate,

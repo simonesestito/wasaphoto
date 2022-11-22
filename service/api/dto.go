@@ -6,10 +6,10 @@ package api
 type ResourceId string
 
 type PaginationInfo struct {
-	PageCursor string `json:"pageCursor"`
+	PageCursorOrEmpty string `json:"pageCursor"`
 }
 
 type PageResult[T any] struct {
-	NextPageCursor string `json:"nextPageCursor"`
-	PageData       []T    `json:"pageData"`
+	NextPageCursor *string `json:"nextPageCursor"`
+	PageData       []T     `json:"pageData"`
 }

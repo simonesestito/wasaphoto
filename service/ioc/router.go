@@ -14,6 +14,7 @@ func (ioc *Container) CreateControllers() []route.Controller {
 		ioc.CreatePhotoController(),
 		ioc.CreateLikesController(),
 		ioc.CreateCommentsController(),
+		ioc.CreateStreamController(),
 	}
 }
 
