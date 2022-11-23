@@ -1,7 +1,7 @@
 package auth
 
 type UserLoginCredentials struct {
-	Username string `json:"username" validate:"required,min=3,max=16"`
+	Username string `json:"username" validate:"required,username"`
 }
 
 type UserLoginResult struct {

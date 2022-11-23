@@ -13,11 +13,11 @@ type Photo struct {
 	LikesCount    uint      `json:"likesCount"`
 	CommentsCount uint      `json:"commentsCount"`
 	Liked         bool      `json:"liked"`
-	ImageUrl      string    `json:"imageUrl" validate:"required,datauri"`
+	ImageUrl      string    `json:"imageUrl"`
 }
 
 type IdParam struct {
-	PhotoId string `json:"photoId" validate:"required"`
+	PhotoId string `json:"photoId" validate:"required,uuid"`
 }
 
 type UserPhotosCursor struct {

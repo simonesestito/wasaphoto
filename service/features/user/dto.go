@@ -9,18 +9,18 @@ type SearchParams struct {
 }
 
 type UsernameGetParams struct {
-	Username string `json:"username" validate:"required,min=3"`
+	Username string `json:"username" validate:"required,username"`
 }
 
 type BanParams struct {
 	IdParams
-	BannedId string `json:"bannedId" validate:"required"`
+	BannedId string `json:"bannedId" validate:"required,uuid"`
 }
 
 type NewUser struct {
-	Name     string `json:"name" validate:"required,min=2"`
-	Surname  string `json:"surname"`
-	Username string `json:"username" validate:"required,min=3,max=16"`
+	Name     string `json:"name" validate:"required,min=2,max=256,singleline"`
+	Surname  string `json:"surname" validate:"max=256,singleline"`
+	Username string `json:"username" validate:"required,username"`
 }
 
 type User struct {
@@ -34,7 +34,7 @@ type User struct {
 }
 
 type IdParams struct {
-	UserId string `json:"userId" validate:"required"`
+	UserId string `json:"userId" validate:"required,uuid"`
 }
 
 type BanResult struct {

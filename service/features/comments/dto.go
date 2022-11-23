@@ -9,11 +9,11 @@ import (
 
 type IdParams struct {
 	photo.IdParam
-	CommentId string `json:"commentId" validate:"required"`
+	CommentId string `json:"commentId" validate:"required,uuid"`
 }
 
 type NewComment struct {
-	Text string `json:"text" validate:"required,min=5,max=500"`
+	Text string `json:"text" validate:"required,min=1,max=256"`
 }
 
 type Comment struct {

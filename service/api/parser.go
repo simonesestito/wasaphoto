@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -109,7 +110,28 @@ func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger lo
 }
 
 func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *MalformedRequest {
-	if err := validator.New().Struct(parsedStruct); err != nil {
+	validate := validator.New()
+
+	if err := validate.RegisterValidation("username", func(field validator.FieldLevel) bool {
+		username := field.Field().String()
+
+		if len(username) > 16 || len(username) < 3 {
+			return false
+		}
+
+		match, err := regexp.MatchString("^[a-z_0-9]+$", username)
+		return match && err == nil
+	}); err != nil {
+		return &MalformedRequest{StatusCode: http.StatusInternalServerError, Message: err.Error()}
+	}
+
+	if err := validate.RegisterValidation("singleline", func(field validator.FieldLevel) bool {
+		return !strings.Contains(field.Field().String(), "\n")
+	}); err != nil {
+		return &MalformedRequest{StatusCode: http.StatusInternalServerError, Message: err.Error()}
+	}
+
+	if err := validate.Struct(parsedStruct); err != nil {
 		validationError, ok := err.(validator.ValidationErrors)
 		if !ok {
 			msg := "Unexpected error validating body input"

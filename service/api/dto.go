@@ -2,11 +2,8 @@ package api
 
 // Basic Data Transfer Objects common to more components of the API
 
-// ResourceId uniquely identifies a resource in its collection
-type ResourceId string
-
 type PaginationInfo struct {
-	PageCursorOrEmpty string `json:"pageCursor"`
+	PageCursorOrEmpty string `json:"pageCursor" validate:"max=80,base64url"`
 }
 
 type PageResult[T any] struct {

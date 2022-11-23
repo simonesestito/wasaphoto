@@ -700,7 +700,7 @@ components:
       description: User's personal and unique username
       type: string
       example: john_doe_42
-      pattern: "^.*$"
+      pattern: "^[a-z_0-9]+$"
       minLength: 3
       maxLength: 16
 
@@ -797,6 +797,7 @@ components:
       type: string
       minLength: 10
       maxLength: 256
+      readOnly: true
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
