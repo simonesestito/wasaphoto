@@ -10,7 +10,11 @@ info:
     who is following you.
 
     **Project details at [Project.pdf](http://gamificationlab.uniroma1.it/notes/Project.pdf)**
-  version: "1.0.6"
+  version: "1.0.7"
+
+servers:
+  - url: http://localhost:8080/
+    description: Localhost development server
 
 tags:
   - name: auth
@@ -23,7 +27,7 @@ tags:
     description: Photo and file upload related operations
   - name: likes
     description: Likes related operations
-  - name: comments 
+  - name: comments
     description: Comments related operations
 
 paths:
@@ -305,35 +309,6 @@ paths:
         "500": { $ref: "#/components/responses/ServerError" }
         "401": { $ref: "#/components/responses/LoginError" }
         "403": { $ref: "#/components/responses/AuthorizationError" }
-
-  /users/{userId}/bannedPeople/:
-    description: Collection of people blocked by the specified user
-    parameters:
-      - $ref: "#/components/parameters/UserId"
-    get:
-      tags: ["user"]
-      operationId: listBannedUsers
-      summary: List banned users
-      description: |
-        List all the users the specified user has currently banned.
-        The specified user can only be yourself, otherwise you won't be authorized.
-        Since it's improbable to have banned an enormous number of users,
-        this request doesn't use any pagination mechanism.
-      responses:
-        "200":
-          description: List of users banned
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/UsersList" }
-        "404":
-          description: Specified user not found
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Error" }
-        "401": { $ref: "#/components/responses/LoginError" }
-        "403": { $ref: "#/components/responses/AuthorizationError" }
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "500": { $ref: "#/components/responses/ServerError" }
 
   /users/{userId}/bannedPeople/{blockedId}:
     description: Resource to indicate who blocked who.
@@ -646,7 +621,7 @@ components:
         the ID of the latest resource received by the client.
       required: false
       in: query
-      schema: { $ref: "#/components/schemas/ResourceId" }
+      schema: { $ref: "#/components/schemas/PageCursor" }
 
   responses:
     BadRequest:
@@ -725,7 +700,7 @@ components:
       description: User's personal and unique username
       type: string
       example: john_doe_42
-      pattern: "^.*$"
+      pattern: "^[a-z_0-9]+$"
       minLength: 3
       maxLength: 16
 
@@ -822,6 +797,7 @@ components:
       type: string
       minLength: 10
       maxLength: 256
+      readOnly: true
       example: https://static.example.com/img_1111_d404401c8c6495b206fc35c95e55a6d5.webp
 
     Photo:
@@ -863,7 +839,7 @@ components:
           minLength: 1
           maxLength: 256
           example: Great post! Keep up the good work.
-          pattern: "^.*$"
+          pattern: ".+"
 
     Comment:
       description: A comment left on a post
@@ -882,16 +858,7 @@ components:
         Additional data necessary to handle
         paginated responses and subsequent requests.
       properties:
-        hasMoreData:
-          type: boolean
-          description: |
-            It reports to the client if next page may contain more data
-          example: true
-        totalCount:
-          type: integer
-          minimum: 0
-          description: Number of total items in all pages
-          example: 420
+        nextPageCursor: { $ref: "#/components/schemas/PageCursor" }
         pageData:
           type: array
           minItems: 0
@@ -899,6 +866,13 @@ components:
           items:
             type: object
           description: Data of this page, if any
+
+    PageCursor:
+      type: string
+      description: String to be sent as pageCursor in the subsequent request
+      minLength: 1
+      maxLength: 80
+      example: "MjFkMTM5ZmUtNWRjNi00OThkLWEyMTAtNmUyNDM1N2MwNmFhOzIwMjItMTEtMjFUMTE6NTM6MDha"
 
     PaginatedComments:
       description: Current page of comments
@@ -944,13 +918,6 @@ components:
               minItems: 0
               maxItems: 20
               items: { $ref: "#/components/schemas/User" }
-
-    UsersList:
-      description: Array of users
-      type: array
-      minItems: 0
-      items: { $ref: "#/components/schemas/User" }
-      example: []
 
     UserFollow:
       description: Representation of the following of a user
