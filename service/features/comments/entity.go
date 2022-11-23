@@ -2,6 +2,7 @@ package comments
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/simonesestito/wasaphoto/service/utils/cursor"
@@ -35,6 +36,7 @@ type EntityCommentWithCustom struct {
 
 func (entity EntityCommentWithCustom) ToDto() Comment {
 	publishDate, _ := timeprovider.UTCStringToDate(entity.PublishDate)
+	entity.ModelUserWithCustom.ModelUser.Id = entity.EntityComment.AuthorId
 	return Comment{
 		Id:          uuid.FromBytesOrNil(entity.EntityComment.Id).String(),
 		PublishDate: publishDate,
@@ -52,7 +54,7 @@ func DbCommentsListToPage(dbComments []EntityCommentWithCustom) (comments []Comm
 	}
 
 	// Calculate next cursor
-	if len(dbComments) > 0 {
+	if len(dbComments) == database.MaxPageItems {
 		lastComment := dbComments[len(dbComments)-1]
 		nextCursor := cursor.CreateDateIdCursor(lastComment.EntityComment.Id, lastComment.PublishDate)
 		pageCursor = &nextCursor

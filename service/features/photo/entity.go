@@ -2,6 +2,7 @@ package photo
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/user"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/simonesestito/wasaphoto/service/utils/cursor"
@@ -53,7 +54,7 @@ func DbPhotosListToPage(dbPhotos []EntityPhotoAuthorInfo) (photos []Photo, pageC
 	}
 
 	// Calculate next cursor
-	if len(dbPhotos) > 0 {
+	if len(dbPhotos) == database.MaxPageItems {
 		lastPhoto := dbPhotos[len(dbPhotos)-1]
 		nextCursor := cursor.CreateDateIdCursor(lastPhoto.EntityPhoto.Id, lastPhoto.PublishDate)
 		pageCursor = &nextCursor
