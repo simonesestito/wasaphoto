@@ -83,6 +83,8 @@ func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterC
 		WHERE CommentWithAuthor.photoId = ?
 		 	  -- Cursor pagination
 			  AND (publishDate, id) < (?, ?)
+			  -- Hide comments from users who banned me
+			  AND NOT EXISTS(SELECT * FROM Ban WHERE bannedId = ? AND bannerId = CommentWithAuthor.authorId)
 		ORDER BY publishDate DESC, id DESC
 		LIMIT ?`
 
@@ -94,6 +96,7 @@ func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterC
 		photoUuid.Bytes(),
 		beforeDate,
 		afterComment.Bytes(),
+		userUuid.Bytes(),
 		database.MaxPageItems,
 	)
 
