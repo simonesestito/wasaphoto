@@ -1,6 +1,10 @@
 package user
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+	"github.com/simonesestito/wasaphoto/service/database"
+	"github.com/simonesestito/wasaphoto/service/utils/cursor"
+)
 
 // ModelUser is the entity for the User database table
 type ModelUser struct {
@@ -40,4 +44,22 @@ func (user ModelUserWithCustom) ToDto() User {
 			Username: user.Username,
 		},
 	}
+}
+
+func DbUsersListToPage(dbUsers []ModelUserWithCustom) (users []User, pageCursor *string) {
+	users = make([]User, len(dbUsers))
+	for i, dbUser := range dbUsers {
+		users[i] = dbUser.ToDto()
+	}
+
+	// Calculate next cursor
+	if len(dbUsers) == database.MaxPageItems {
+		lastUser := dbUsers[len(dbUsers)-1]
+		nextCursor := cursor.CreateStringIdCursor(lastUser.Id, lastUser.Username)
+		pageCursor = &nextCursor
+	} else {
+		pageCursor = nil
+	}
+
+	return
 }

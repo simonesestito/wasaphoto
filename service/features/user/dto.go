@@ -41,3 +41,8 @@ type BanResult struct {
 	BannedId string `json:"bannedId"`
 	BannerId string `json:"bannerId"`
 }
+
+type IdUserCursor struct {
+	api.PaginationInfo
+	IdParams
+}

@@ -4,6 +4,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/api/route"
+	"github.com/simonesestito/wasaphoto/service/features/user"
 	"net/http"
 )
 
@@ -22,6 +23,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Method:  http.MethodDelete,
 			Path:    "/users/:userId/followings/:followedId",
 			Handler: controller.unfollowUser,
+		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/users/:userId/followers/",
+			Handler: controller.listFollowers,
 		},
 	}
 }
@@ -60,4 +66,22 @@ func (controller Controller) unfollowUser(w http.ResponseWriter, _ *http.Request
 
 	err := controller.Service.UnfollowUser(context.UserId, args.FollowedId)
 	api.HandleErrorsResponse(err, w, http.StatusNoContent, context.Logger)
+}
+
+func (controller Controller) listFollowers(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &user.IdUserCursor{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	followers, cursor, err := controller.Service.ListFollowersAs(args.UserId, context.UserId, args.PageCursorOrEmpty)
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, api.PageResult[user.User]{
+			NextPageCursor: cursor,
+			PageData:       followers,
+		}, http.StatusOK, context.Logger)
+	}
 }
