@@ -52,11 +52,12 @@ func ParseAllRequestVariables[T any](r *http.Request, params httprouter.Params, 
 func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
 	// Convert allParamsMap to a struct
 	decoderConfig := &mapstructure.DecoderConfig{
-		ErrorUnused: true,
-		ZeroFields:  true,
-		TagName:     "json",
-		Squash:      true,
-		Result:      paramsStruct,
+		ErrorUnused:      true,
+		ZeroFields:       true,
+		TagName:          "json",
+		Squash:           true,
+		Result:           paramsStruct,
+		WeaklyTypedInput: true,
 	}
 
 	decoder, err := mapstructure.NewDecoder(decoderConfig)

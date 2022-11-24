@@ -684,7 +684,7 @@ components:
       description: Result representing an error description
       type: string
       minLength: 0
-      maxLength: 100
+      maxLength: 250
       readOnly: true
 
     ResourceId:
@@ -872,6 +872,7 @@ components:
       description: String to be sent as pageCursor in the subsequent request
       minLength: 1
       maxLength: 80
+      nullable: true
       example: "MjFkMTM5ZmUtNWRjNi00OThkLWEyMTAtNmUyNDM1N2MwNmFhOzIwMjItMTEtMjFUMTE6NTM6MDha"
       pattern: "^[a-zA-Z0-9_-]$"
 

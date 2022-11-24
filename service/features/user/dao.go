@@ -15,7 +15,8 @@ type Dao interface {
 	UnbanUser(bannedUuid uuid.UUID, bannerUuid uuid.UUID) (bool, error)
 	EditUser(userUuid uuid.UUID, user ModelUser) error
 	EditUsername(userUuid uuid.UUID, username string) error
-	GetBannedUsersAs(userUuid uuid.UUID, searchAsId uuid.UUID) ([]ModelUserWithCustom, error)
+	GetUserByUsernameAs(username string, searchAsId uuid.UUID) (*ModelUserWithCustom, error)
+	ListUsersByUsernameAs(username string, searchAsId uuid.UUID, afterUsername string, afterId uuid.UUID) ([]ModelUserWithCustom, error)
 }
 
 type DbDao struct {
@@ -103,4 +104,67 @@ func (dao DbDao) EditUser(userUuid uuid.UUID, user ModelUser) error {
 func (dao DbDao) EditUsername(userUuid uuid.UUID, username string) error {
 	query := "UPDATE User SET username = ? WHERE id = ?"
 	return dao.Db.Exec(query, username, userUuid.Bytes())
+}
+
+func (dao DbDao) GetUserByUsernameAs(username string, searchAsId uuid.UUID) (*ModelUserWithCustom, error) {
+	query := `
+		SELECT UserInfo.*,
+		       EXISTS(SELECT * FROM Ban WHERE bannedId = UserInfo.id AND bannerId = ?) AS banned,
+		       EXISTS(SELECT * FROM Follow WHERE followedId = UserInfo.id AND followerId = ?) AS following
+		FROM UserInfo
+		WHERE UserInfo.username = ?`
+
+	row := &ModelUserWithCustom{}
+	err := dao.Db.QueryStructRow(
+		row,
+		query,
+		searchAsId.Bytes(),
+		searchAsId.Bytes(),
+		username,
+	)
+
+	if err == database.ErrNoResult {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	} else {
+		return row, nil
+	}
+}
+
+func (dao DbDao) ListUsersByUsernameAs(username string, searchAsId uuid.UUID, afterUsername string, afterId uuid.UUID) ([]ModelUserWithCustom, error) {
+	query := `
+		SELECT UserInfo.*,
+		       EXISTS(SELECT * FROM Ban WHERE bannedId = UserInfo.id AND bannerId = ?) AS banned,
+		       EXISTS(SELECT * FROM Follow WHERE followedId = UserInfo.id AND followerId = ?) AS following
+		FROM UserInfo
+		WHERE username LIKE ?
+		 	  -- Cursor pagination
+			  AND (username, id) > (?, ?)
+			  AND NOT EXISTS(SELECT * FROM Ban WHERE Ban.bannerId = UserInfo.id AND Ban.bannedId = ?)
+		ORDER BY username, id
+		LIMIT ?`
+
+	rows, err := dao.Db.QueryStructRows(
+		ModelUserWithCustom{},
+		query,
+		searchAsId.Bytes(),
+		searchAsId.Bytes(),
+		"%"+username+"%",
+		afterUsername,
+		afterId.Bytes(),
+		searchAsId.Bytes(),
+		database.MaxPageItems,
+	)
+
+	var photos []ModelUserWithCustom
+	var entity any
+	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
+		photos = append(photos, entity.(ModelUserWithCustom))
+	}
+	if err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return photos, nil
 }

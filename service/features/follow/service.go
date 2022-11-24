@@ -138,6 +138,6 @@ func (service ServiceImpl) ListFollowingsAs(userId string, searchAs string, page
 	}
 
 	// Convert to DTO
-	photos, nextCursor := user.DbUsersListToPage(dbFollowings)
-	return photos, nextCursor, nil
+	users, nextCursor := user.DbUsersListToPage(dbFollowings)
+	return users, nextCursor, nil
 }

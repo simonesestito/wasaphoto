@@ -30,6 +30,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/users/:userId/username",
 			Handler: controller.setMyUserName,
 		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/users/",
+			Handler: controller.searchUsers,
+		},
 	}
 }
 
@@ -112,5 +117,40 @@ func (controller Controller) setMyUserName(w http.ResponseWriter, r *http.Reques
 		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
 	} else {
 		api.SendJson(w, updatedUser, 200, context.Logger)
+	}
+}
+
+func (controller Controller) searchUsers(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &SearchParams{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	var (
+		users  []User
+		cursor *string
+		err    error
+	)
+
+	if args.ExactMatch {
+		var singleUser *User
+		singleUser, err = controller.Service.GetUserByUsernameAs(args.Username, context.UserId)
+		if singleUser == nil {
+			users = []User{}
+		} else {
+			users = []User{*singleUser}
+		}
+	} else {
+		users, cursor, err = controller.Service.ListUsersByUsernameAs(args.Username, context.UserId, args.PageCursorOrEmpty)
+	}
+
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, api.PageResult[User]{
+			NextPageCursor: cursor,
+			PageData:       users,
+		}, http.StatusOK, context.Logger)
 	}
 }

@@ -4,12 +4,15 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
+	"github.com/simonesestito/wasaphoto/service/utils/cursor"
 )
 
 type Service interface {
 	GetUserAs(searchedId string, searchAsId string) (*User, error)
 	UpdateUserDetails(id string, newUser NewUser) (User, error)
 	UpdateUsername(id string, username string) (User, error)
+	GetUserByUsernameAs(username string, searchAsId string) (*User, error)
+	ListUsersByUsernameAs(username string, searchAsId string, pageCursor string) ([]User, *string, error)
 }
 
 type ServiceImpl struct {
@@ -87,4 +90,34 @@ func (service ServiceImpl) UpdateUsername(id string, username string) (User, err
 		return User{}, err
 	}
 	return updatedUser.ToDto(), nil
+}
+
+func (service ServiceImpl) GetUserByUsernameAs(username string, searchAsId string) (*User, error) {
+	searchAsUuid := uuid.FromStringOrNil(searchAsId)
+	dbUser, err := service.Db.GetUserByUsernameAs(username, searchAsUuid)
+	if err != nil {
+		return nil, err
+	} else if dbUser == nil {
+		return nil, nil
+	}
+
+	user := dbUser.ToDto()
+	return &user, nil
+}
+
+func (service ServiceImpl) ListUsersByUsernameAs(username string, searchAsId string, pageCursor string) ([]User, *string, error) {
+	searchAsUuid := uuid.FromStringOrNil(searchAsId)
+	afterId, afterUsername, err := cursor.ParseStringIdCursor(pageCursor)
+	if err != nil {
+		return nil, nil, api.ErrWrongCursor
+	}
+
+	dbUsers, err := service.Db.ListUsersByUsernameAs(username, searchAsUuid, afterUsername, afterId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Convert to DTO
+	users, nextCursor := DbUsersListToPage(dbUsers)
+	return users, nextCursor, nil
 }
