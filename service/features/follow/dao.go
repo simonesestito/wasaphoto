@@ -40,6 +40,7 @@ func (db DbDao) GetFollowersPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, a
 		WHERE Follow.followedId = ?
 		 	  -- Cursor pagination
 			  AND (username, id) > (?, ?)
+		 	  AND NOT EXISTS(SELECT * FROM Ban WHERE Ban.bannerId = UserInfo.id AND Ban.bannedId = ?)
 		ORDER BY username, id
 		LIMIT ?`
 
@@ -51,6 +52,7 @@ func (db DbDao) GetFollowersPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, a
 		userUuid.Bytes(),
 		afterUsername,
 		afterFollowerId.Bytes(),
+		searchAsUuid.Bytes(),
 		database.MaxPageItems,
 	)
 
@@ -76,6 +78,7 @@ func (db DbDao) GetFollowingsPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, 
 		WHERE Follow.followerId = ?
 		 	  -- Cursor pagination
 			  AND (username, id) > (?, ?)
+			  AND NOT EXISTS(SELECT * FROM Ban WHERE Ban.bannerId = UserInfo.id AND Ban.bannedId = ?)
 		ORDER BY username, id
 		LIMIT ?`
 
@@ -87,6 +90,7 @@ func (db DbDao) GetFollowingsPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, 
 		userUuid.Bytes(),
 		afterUsername,
 		afterFollowerId.Bytes(),
+		searchAsUuid.Bytes(),
 		database.MaxPageItems,
 	)
 
