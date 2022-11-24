@@ -12,6 +12,7 @@ type Service interface {
 	FollowUser(followerId string, followingId string) error
 	UnfollowUser(followerId string, followingId string) error
 	ListFollowersAs(userId string, searchAs string, pageCursor string) ([]user.User, *string, error)
+	ListFollowingsAs(userId string, searchAs string, pageCursor string) ([]user.User, *string, error)
 }
 
 type ServiceImpl struct {
@@ -106,5 +107,39 @@ func (service ServiceImpl) ListFollowersAs(userId string, searchAs string, pageC
 
 	// Convert to DTO
 	photos, nextCursor := user.DbUsersListToPage(dbFollowers)
+	return photos, nextCursor, nil
+}
+
+func (service ServiceImpl) ListFollowingsAs(userId string, searchAs string, pageCursor string) ([]user.User, *string, error) {
+	userUuid := uuid.FromStringOrNil(userId)
+	searchAsUuid := uuid.FromStringOrNil(searchAs)
+	if userUuid.IsNil() || searchAsUuid.IsNil() {
+		return nil, nil, api.ErrWrongUUID
+	}
+
+	// Check if "userId" banned me
+	isBanned, err := service.BanService.IsUserBanned(searchAs, userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if isBanned {
+		return nil, nil, api.ErrUserBanned
+	}
+
+	// Parse cursor
+	afterFollowingId, afterUsername, err := cursor.ParseStringIdCursor(pageCursor)
+	if err != nil {
+		return nil, nil, api.ErrWrongCursor
+	}
+
+	// Get following I can actually see
+	dbFollowings, err := service.Db.GetFollowingsPageAs(userUuid, searchAsUuid, afterFollowingId, afterUsername)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Convert to DTO
+	photos, nextCursor := user.DbUsersListToPage(dbFollowings)
 	return photos, nextCursor, nil
 }

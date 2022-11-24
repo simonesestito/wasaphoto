@@ -29,6 +29,11 @@ func (controller Controller) ListRoutes() []route.Route {
 			Path:    "/users/:userId/followers/",
 			Handler: controller.listFollowers,
 		},
+		route.SecureRoute{
+			Method:  http.MethodGet,
+			Path:    "/users/:userId/followings/",
+			Handler: controller.listFollowings,
+		},
 	}
 }
 
@@ -76,6 +81,23 @@ func (controller Controller) listFollowers(w http.ResponseWriter, r *http.Reques
 	}
 
 	followers, cursor, err := controller.Service.ListFollowersAs(args.UserId, context.UserId, args.PageCursorOrEmpty)
+	if err != nil {
+		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
+	} else {
+		api.SendJson(w, api.PageResult[user.User]{
+			NextPageCursor: cursor,
+			PageData:       followers,
+		}, http.StatusOK, context.Logger)
+	}
+}
+func (controller Controller) listFollowings(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &user.IdUserCursor{}, context.Logger)
+	if bodyErr != nil {
+		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
+		return
+	}
+
+	followers, cursor, err := controller.Service.ListFollowingsAs(args.UserId, context.UserId, args.PageCursorOrEmpty)
 	if err != nil {
 		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
 	} else {
