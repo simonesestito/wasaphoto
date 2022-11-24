@@ -42,6 +42,7 @@ func (ioc *Container) CreateFollowService() follow.Service {
 	return follow.NewServiceImpl(
 		ioc.CreateFollowDao(),
 		ioc.CreateBanService(),
+		ioc.CreateUserService(),
 	)
 }
 

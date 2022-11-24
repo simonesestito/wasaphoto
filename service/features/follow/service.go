@@ -16,14 +16,16 @@ type Service interface {
 }
 
 type ServiceImpl struct {
-	Db         Dao
-	BanService user.BanService
+	Db          Dao
+	BanService  user.BanService
+	UserService user.Service
 }
 
-func NewServiceImpl(db Dao, banService user.BanService) ServiceImpl {
+func NewServiceImpl(db Dao, banService user.BanService, userService user.Service) ServiceImpl {
 	service := ServiceImpl{
-		Db:         db,
-		BanService: banService,
+		Db:          db,
+		BanService:  banService,
+		UserService: userService,
 	}
 
 	// Perform actions when a user is banned
@@ -83,14 +85,12 @@ func (service ServiceImpl) ListFollowersAs(userId string, searchAs string, pageC
 		return nil, nil, api.ErrWrongUUID
 	}
 
-	// Check if "userId" banned me
-	isBanned, err := service.BanService.IsUserBanned(searchAs, userId)
+	// Check if "userId" banned me and if it exists
+	foundRequestedUser, err := service.UserService.GetUserAs(userId, searchAs)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	if isBanned {
-		return nil, nil, api.ErrUserBanned
+	} else if foundRequestedUser == nil {
+		return nil, nil, api.ErrNotFound
 	}
 
 	// Parse cursor
@@ -117,14 +117,12 @@ func (service ServiceImpl) ListFollowingsAs(userId string, searchAs string, page
 		return nil, nil, api.ErrWrongUUID
 	}
 
-	// Check if "userId" banned me
-	isBanned, err := service.BanService.IsUserBanned(searchAs, userId)
+	// Check if "userId" banned me and if it exists
+	foundRequestedUser, err := service.UserService.GetUserAs(userId, searchAs)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	if isBanned {
-		return nil, nil, api.ErrUserBanned
+	} else if foundRequestedUser == nil {
+		return nil, nil, api.ErrNotFound
 	}
 
 	// Parse cursor
