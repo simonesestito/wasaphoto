@@ -873,6 +873,7 @@ components:
       minLength: 1
       maxLength: 80
       example: "MjFkMTM5ZmUtNWRjNi00OThkLWEyMTAtNmUyNDM1N2MwNmFhOzIwMjItMTEtMjFUMTE6NTM6MDha"
+      pattern: "^[a-zA-Z0-9_-]$"
 
     PaginatedComments:
       description: Current page of comments
