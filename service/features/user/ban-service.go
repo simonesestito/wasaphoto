@@ -11,7 +11,6 @@ type BanService interface {
 	UnbanUser(bannedId string, bannerId string) error
 	IsUserBanned(bannedId string, bannerId string) (bool, error)
 	AddBanListener(tag string, listener BanListener)
-	GetBannedUsers(id string) ([]User, error)
 }
 
 type BanListener func(bannedId string, bannerId string) error
@@ -83,23 +82,4 @@ func (service *BanServiceImpl) AddBanListener(tag string, listener BanListener) 
 
 	// Use a tag to avoid adding the same listener twice
 	service.listeners[tag] = listener
-}
-
-func (service *BanServiceImpl) GetBannedUsers(id string) ([]User, error) {
-	userUuid := uuid.FromStringOrNil(id)
-	if userUuid.IsNil() {
-		return nil, api.ErrWrongUUID
-	}
-
-	userEntities, err := service.Db.GetBannedUsersAs(userUuid, userUuid)
-	if err != nil {
-		return nil, err
-	}
-
-	users := make([]User, len(userEntities))
-	for i, entity := range userEntities {
-		users[i] = entity.ToDto()
-	}
-
-	return users, nil
 }
