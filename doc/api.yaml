@@ -874,7 +874,7 @@ components:
       maxLength: 80
       nullable: true
       example: "MjFkMTM5ZmUtNWRjNi00OThkLWEyMTAtNmUyNDM1N2MwNmFhOzIwMjItMTEtMjFUMTE6NTM6MDha"
-      pattern: "^[a-zA-Z0-9_-]$"
+      pattern: "^[a-zA-Z0-9_-]+$"
 
     PaginatedComments:
       description: Current page of comments
