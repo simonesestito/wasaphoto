@@ -1,0 +1,15 @@
+# This is the configuration file for the API service
+# It follows the struct in cmd/webapi/load-configuration.go
+
+log:
+  debug: true
+  filename: "-"
+
+web:
+  apihost: 127.0.0.1:8080
+  readtimeout: 5s
+  writetimeout: 5s
+  shutdowntimeout: 5s
+
+db:
+  filename: "wasaphoto.db"
