@@ -20,6 +20,13 @@ It consists of:
 
 ## Project structure and architecture
 
+First of all, a quick note on **webui/node_modules**:
+I'm really against committing that folder, since it makes no sense, also considering that many packages have different build outputs based on the host architecture. And also, *yarn* has a feature for Vendoring, which is specifically made for this purpose.
+
+Anyway, it's required on the specs for this exam, so I can't help but commit that folder too.
+
+And now, let's talk about real project structure:
+
 * `service/` contains all the private application code (project-specific functionalities).
 	* `service/features` contains all the application code, **packaged by features**, which is a more robust way
 	  of packaging source code compared to the more naive approach of packaging by type (e.g.: controllers, services, ...)
