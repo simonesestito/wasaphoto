@@ -12,6 +12,7 @@ export function handleApiError(response) {
         case 401: throw new AuthError();
         case 403: throw new ForbiddenError();
 		case 404: throw new NotFoundError('Item not found');
+		case 409: throw new ConflictError(null);
         case 500: throw new ServerError();
 		default: throw new Error('Unexpected error received from server: ' + response.status);
     }
@@ -31,6 +32,16 @@ export class ServerError extends Error {
     constructor() {
         super("Unexpected error on server side");
     }
+}
+
+export class ConflictError extends Error {
+	/**
+	 * Conflict error, with an optional custom message
+	 * @param {string|null} message Custom error message
+	 */
+	constructor(message) {
+		super(message || 'A conflict occurred');
+	}
 }
 
 export class AuthError extends Error {

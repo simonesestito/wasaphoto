@@ -1,6 +1,6 @@
 import api from "./axios";
 import {getCurrentUID} from "./auth-store";
-import {handleApiError, NotFoundError} from "./api-errors";
+import {ConflictError, handleApiError, NotFoundError} from "./api-errors";
 
 export const BanService = Object.freeze({
 	/**
@@ -13,7 +13,7 @@ export const BanService = Object.freeze({
 		switch (response.status) {
 			case 200: case 201: return;
 			case 404: throw new NotFoundError("User to ban not found");
-			case 409: throw new Error("You cannot ban yourself");
+			case 409: throw new ConflictError("You cannot ban yourself");
 			default: handleApiError(response);
 		}
 	},

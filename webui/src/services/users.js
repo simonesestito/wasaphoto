@@ -1,5 +1,5 @@
 import api from "./axios";
-import {handleApiError} from "./api-errors";
+import {ConflictError, handleApiError} from "./api-errors";
 import {getCurrentUID} from "./auth-store";
 
 export const UsersService = Object.freeze({
@@ -47,7 +47,7 @@ export const UsersService = Object.freeze({
 
 		switch (response.status) {
 			case 200: return response.data;
-			case 409: throw new Error("Username already taken");
+			case 409: throw new ConflictError("Username already taken");
 			default: handleApiError(response);
 		}
 	},
@@ -62,7 +62,7 @@ export const UsersService = Object.freeze({
 
 		switch (response.status) {
 			case 200: return response.data;
-			case 409: throw new Error("Username already taken");
+			case 409: throw new ConflictError("Username already taken");
 			default: handleApiError(response);
 		}
 	}
