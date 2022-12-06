@@ -5,15 +5,17 @@ import {UsersService} from "../services";
 import ErrorMsg from "../components/ErrorMsg.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import {getCurrentUID} from "../services/auth-store";
+import SuccessMsg from "../components/SuccessMsg.vue";
 
 export default {
 	name: "EditAccountView",
-	components: {LoadingSpinner, ErrorMsg, UsernameInput, PageSkeleton},
+	components: {SuccessMsg, LoadingSpinner, ErrorMsg, UsernameInput, PageSkeleton},
 	data() {
 		return {
 			loading: false,
 			errorMessage: null,
 			myProfile: null,
+			success: false,
 		};
 	},
 	methods: {
@@ -28,15 +30,17 @@ export default {
 			}
 		},
 		onError(error) {
+			this.success = false;
 			this.loading = false;
 			this.errorMessage = error;
 		},
 		async onUpdateUsername(username) {
+			this.success = false;
 			this.loading = true;
 			this.errorMessage = null;
 			try {
 				await UsersService.setMyUsername(username);
-				// TODO: Show OK alert
+				this.success = true;
 			} catch (err) {
 				this.errorMessage = err.toString();
 			} finally {
@@ -46,6 +50,7 @@ export default {
 		async onUpdateDetails(event) {
 			event.preventDefault();
 			this.errorMessage = null;
+			this.success = false;
 
 			// Send HTTP!
 			this.loading = true;
@@ -55,7 +60,7 @@ export default {
 					surname: this.myProfile.surname,
 					username: this.myProfile.username,
 				});
-				// TODO: OK message
+				this.success = true;
 			} catch (err) {
 				this.errorMessage = err.toString();
 			} finally {
@@ -76,6 +81,8 @@ export default {
 			<ErrorMsg :msg="errorMessage"/>
 			<hr>
 		</div>
+
+		<SuccessMsg v-if="success" msg="Operation succeeded" />
 
 		<LoadingSpinner v-if="loading"/>
 
