@@ -29,7 +29,10 @@ export default {
 		async onClick() {
 			saveAuthToken(null);
 			await router.replace('/login');
-		}
+		},
+		async edit() {
+			await router.push('/me/edit');
+		},
     },
     mounted() {
         this.refresh()
@@ -38,7 +41,7 @@ export default {
 </script>
 
 <template>
-	<PageSkeleton title="My Account" :main-action="{text:'Logout', onClick: this.onClick}" :actions="[{text:'Edit account'}]">
+	<PageSkeleton title="My Account" :main-action="{text:'Logout', onClick: this.onClick}" :actions="[{text:'Edit account', onClick: this.edit}]">
 		<ErrorMsg v-if="errorMessage" :msg="errorMessage" />
 
 		<LoadingSpinner v-if="loading" />

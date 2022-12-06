@@ -4,6 +4,7 @@ import MyAccountView from '../views/MyAccountView.vue';
 import SearchUsers from '../views/SearchUsers.vue';
 import LoginView from "../views/LoginView.vue";
 import {getCurrentUID} from "../services/auth-store";
+import EditAccountView from "../views/EditAccountView.vue";
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,7 @@ const router = createRouter({
 		{path: '/me', component: MyAccountView},
 		{path: '/search', component: SearchUsers},
 		{path: '/login', component: LoginView},
+		{path: '/me/edit', component: EditAccountView},
 	]
 });
 

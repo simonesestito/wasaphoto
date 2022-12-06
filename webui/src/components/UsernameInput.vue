@@ -7,10 +7,11 @@ export default {
 	props: [
 		'loading',
 		'submitText',
+		'initialInput',
 	],
 	data() {
 		return {
-			userInput: '',
+			userInput: this.initialInput || '',
 			errorMessage: null,
 		};
 	},
@@ -46,7 +47,7 @@ export default {
 			</div>
 			<input type="text" class="form-control" placeholder="Username" aria-label="Username" v-model="userInput">
 			<div class="input-group-append">
-				<input class="btn btn-outline-primary" type="submit" :value="submitText">
+				<input class="btn btn-outline-primary" type="submit" :value="submitText" :disabled="loading">
 			</div>
 		</div>
 	</form>

@@ -7,8 +7,8 @@ export const api = axios.create({
 	validateStatus: (_) => true,
 });
 
-api.interceptors.request.use(function (config) {
-	config.headers.Authorization = 'Bearer ' + getCurrentUID();
+api.interceptors.request.use(config => {
+	config.headers['Authorization'] = 'Bearer ' + getCurrentUID();
 	return config;
 });
 

@@ -43,7 +43,7 @@ export const UsersService = Object.freeze({
 	 * @returns {Promise<void>}
 	 */
 	async setMyDetails(userDetails) {
-		const response = await api.put(`/users/${getCurrentUID()}`);
+		const response = await api.put(`/users/${getCurrentUID()}`, userDetails);
 
 		switch (response.status) {
 			case 200: return response.data;
@@ -58,7 +58,7 @@ export const UsersService = Object.freeze({
 	 * @returns {Promise<void>}
 	 */
 	async setMyUsername(username) {
-		const response = await api.put(`/users/${getCurrentUID()}/username`);
+		const response = await api.put(`/users/${getCurrentUID()}/username`, username);
 
 		switch (response.status) {
 			case 200: return response.data;
