@@ -1,6 +1,9 @@
 <script>
+import PageSkeleton from "../components/PageSkeleton.vue";
+import UsernameInput from "../components/UsernameInput.vue";
 export default {
-    data: function () {
+	components: {UsernameInput, PageSkeleton},
+	data: function () {
         return {
             errormsg: null,
             loading: false,
@@ -27,28 +30,8 @@ export default {
 </script>
 
 <template>
-    <div>
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Search Users</h1>
-
-            <!-- Username search bar -->
-            <div class="input-group w-50">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="search-username-field">@</span>
-                </div>
-                <input type="text" class="form-control" placeholder="Username" aria-label="Username"
-                    aria-describedby="search-username-field">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-primary" type="button">Search</button>
-                </div>
-            </div>
-        </div>
-
-        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-    </div>
+	<PageSkeleton title="Search Users">
+		<!-- Username search bar -->
+		<UsernameInput submit-text="Search" />
+	</PageSkeleton>
 </template>
-
-<style>
-
-</style>

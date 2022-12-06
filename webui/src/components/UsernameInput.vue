@@ -6,6 +6,7 @@ export default {
 	],
 	props: [
 		'loading',
+		'submitText',
 	],
 	data() {
 		return {
@@ -39,12 +40,14 @@ export default {
 
 <template>
 	<form @submit="login">
-		<div class="mb-3">
-			<label for="usernameInput" class="form-label">Username</label>
-			<input type="text" class="form-control" id="usernameInput" v-model="userInput">
+		<div class="input-group w-50">
+			<div class="input-group-prepend">
+				<span class="input-group-text" id="search-username-field">@</span>
+			</div>
+			<input type="text" class="form-control" placeholder="Username" aria-label="Username">
+			<div class="input-group-append">
+				<input class="btn btn-outline-primary" type="submit" :value="submitText">
+			</div>
 		</div>
-
-		<input class="btn btn-primary" type="submit" value="Login" :disabled="loading">
 	</form>
-
 </template>

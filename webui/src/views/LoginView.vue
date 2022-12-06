@@ -2,6 +2,7 @@
 import {AuthService} from "../services";
 import UsernameInput from '../components/UsernameInput.vue';
 import router from "../router";
+import PageSkeleton from "../components/PageSkeleton.vue";
 
 export default {
 	data: function () {
@@ -28,20 +29,15 @@ export default {
 		}
 	},
 	components: {
+		PageSkeleton,
 		UsernameInput,
 	}
 }
 </script>
 
 <template>
-	<div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Login</h1>
-		</div>
-
-		<UsernameInput @submit="login" @error="onError" :loading="this.loading" />
-
+	<PageSkeleton title="Login">
+		<UsernameInput @submit="login" @error="onError" :loading="this.loading" submit-text="Login" />
 		<ErrorMsg v-if="this.errorMessage" :msg="this.errorMessage" />
-	</div>
+	</PageSkeleton>
 </template>
