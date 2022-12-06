@@ -44,7 +44,7 @@ export default {
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="search-username-field">@</span>
 			</div>
-			<input type="text" class="form-control" placeholder="Username" aria-label="Username">
+			<input type="text" class="form-control" placeholder="Username" aria-label="Username" v-model="userInput">
 			<div class="input-group-append">
 				<input class="btn btn-outline-primary" type="submit" :value="submitText">
 			</div>
