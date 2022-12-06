@@ -1,27 +1,30 @@
 <script>
 import PageSkeleton from "../components/PageSkeleton.vue";
-import {saveAuthToken} from "../services/auth-store";
+import {getCurrentUID, saveAuthToken} from "../services/auth-store";
 import router from "../router";
+import {UsersService} from "../services";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
+
 export default {
-	components: {PageSkeleton},
+	components: {LoadingSpinner, PageSkeleton},
 	data: function () {
         return {
-            errormsg: null,
+            errorMessage: null,
             loading: false,
-            some_data: null,
+            myProfile: null,
         }
     },
     methods: {
         async refresh() {
             this.loading = true;
-            this.errormsg = null;
+            this.errorMessage = null;
             try {
-                let response = await this.$axios.get("/");
-                this.some_data = response.data;
+                this.myProfile = await UsersService.getUserProfile(getCurrentUID());
             } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
+                this.errorMessage = e.toString();
+            } finally {
+				this.loading = false;
+			}
         },
 		async onClick() {
 			saveAuthToken(null);
@@ -36,7 +39,12 @@ export default {
 
 <template>
 	<PageSkeleton title="My Account" :main-action="{text:'Logout', onClick: this.onClick}" :actions="[{text:'Edit account'}]">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+		<ErrorMsg v-if="errorMessage" :msg="errorMessage" />
+
+		<LoadingSpinner v-if="loading" />
+
+		<!-- User simple summary -->
+		<p v-if="myProfile">Hi, {{ myProfile.name }} {{ myProfile.surname }} (@{{myProfile.username}})</p>
 	</PageSkeleton>
 </template>
 
