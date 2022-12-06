@@ -110,6 +110,9 @@ func run() error {
 		return fmt.Errorf("registering web UI handler: %w", err)
 	}
 
+	// Apply CORS
+	router = applyCORSHandler(router)
+
 	// Create the API server
 	apiServer := http.Server{
 		Addr:              cfg.Web.APIHost,
