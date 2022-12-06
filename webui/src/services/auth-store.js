@@ -2,10 +2,14 @@ const AUTH_TOKEN_KEY = 'auth-token';
 
 /**
  * Save the new auth token received
- * @param {string} authToken
+ * @param {string|null} authToken
  */
 export function saveAuthToken(authToken) {
-    localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+    if (authToken) {
+		localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+	} else {
+		localStorage.removeItem(AUTH_TOKEN_KEY);
+	}
 }
 
 /**

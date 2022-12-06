@@ -44,6 +44,6 @@ export const AuthService = Object.freeze({
      * Logout current user
      */
     logout() {
-        saveAuthToken('');
+        saveAuthToken(null);
     }
 });

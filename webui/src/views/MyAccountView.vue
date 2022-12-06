@@ -1,5 +1,7 @@
 <script>
 import PageSkeleton from "../components/PageSkeleton.vue";
+import {saveAuthToken} from "../services/auth-store";
+import router from "../router";
 export default {
 	components: {PageSkeleton},
 	data: function () {
@@ -21,6 +23,10 @@ export default {
             }
             this.loading = false;
         },
+		async onClick() {
+			saveAuthToken(null);
+			await router.replace('/login');
+		}
     },
     mounted() {
         this.refresh()
@@ -29,7 +35,7 @@ export default {
 </script>
 
 <template>
-	<PageSkeleton title="My Account" :main-action="{text:'Logout'}" :actions="[{text:'Edit account'}]">
+	<PageSkeleton title="My Account" :main-action="{text:'Logout', onClick: this.onClick}" :actions="[{text:'Edit account'}]">
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 	</PageSkeleton>
 </template>
