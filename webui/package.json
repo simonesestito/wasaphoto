@@ -1,6 +1,6 @@
 {
-	"name": "teapot",
-	"version": "0.0.0",
+	"name": "wasaphoto",
+	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite",
 		"build-dev": "vite build --mode development",
