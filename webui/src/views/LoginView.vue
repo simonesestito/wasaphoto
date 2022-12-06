@@ -17,7 +17,7 @@ export default {
 			this.errorMessage = null;
 			try {
 				const {isNewUser} = await AuthService.doLogin(username);
-				await router.push(isNewUser ? '/me' : '/');
+				await router.push(isNewUser ? '/me/edit' : '/');
 			} catch (e) {
 				this.errorMessage = e.toString();
 			} finally {
