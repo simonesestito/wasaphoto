@@ -7,6 +7,7 @@ export const UsersService = Object.freeze({
 	 * Search users by username, performing a text search
 	 * @param {string} username Username or partial username to search
 	 * @param {string|null} pageCursor Search page cursor
+	 * @returns Promise<any>
 	 */
 	async searchUsers(username, pageCursor) {
 		return _searchUsers(username, {exactMatch: false}, pageCursor);
@@ -74,6 +75,7 @@ export const UsersService = Object.freeze({
  * @param {string} username username to search, or partial, according to 'exactMatch'
  * @param {boolean} exactMatch Indicates the type of search to perform
  * @param {string|null} pageCursor Page cursor of the current search, if any
+ * @returns Promise<any>
  */
 async function _searchUsers(username, {exactMatch}, pageCursor) {
 	const apiPath = Object.entries({
