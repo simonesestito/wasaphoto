@@ -9,14 +9,14 @@ import (
 func ParseDateIdCursor(userCursor string) (uuid.UUID, time.Time, error) {
 	// Parse as a string
 	id, rawDate, err := ParseStringIdCursor(userCursor)
-	if err != nil {
-		return uuid.Nil, time.Time{}, err
+	if err != nil || userCursor == "" {
+		return uuid.Nil, time.Now(), err
 	}
 
 	// Parse date
 	date, err := timeprovider.UTCStringToDate(rawDate)
 	if err != nil {
-		return uuid.Nil, time.Time{}, err
+		return uuid.Nil, time.Now(), err
 	}
 
 	// Success!

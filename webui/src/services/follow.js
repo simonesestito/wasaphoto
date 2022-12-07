@@ -1,4 +1,4 @@
-import { handleApiError, NotFoundError } from "./api-errors";
+import {ConflictError, handleApiError, NotFoundError} from "./api-errors";
 import api from "./axios";
 import {getCurrentUID} from "./auth-store";
 
@@ -18,7 +18,7 @@ export const FollowService = Object.freeze({
 
         switch (response.status) {
             case 200: return response.data;
-            case 404: throw NotFoundError('User not found');
+            case 404: throw new NotFoundError('User not found');
             default: handleApiError(response);
         }
     },
@@ -38,7 +38,7 @@ export const FollowService = Object.freeze({
 
         switch (response.status) {
             case 200: return response.data;
-            case 404: throw NotFoundError('User not found');
+            case 404: throw new NotFoundError('User not found');
             default: handleApiError(response);
         }
     },
@@ -65,7 +65,8 @@ export const FollowService = Object.freeze({
 
         switch (response.status) {
             case 200: case 201: return;
-            case 404: throw NotFoundError('User to follow not found');
+            case 404: throw new NotFoundError('User to follow not found');
+			case 409: throw new ConflictError(response.data);
             default: handleApiError(response);
         }
     }

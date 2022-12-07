@@ -61,6 +61,6 @@ export default {
 		<LoadingSpinner v-if="loading" />
 
 		<!-- Show more -->
-		<ShowMore v-if="pageCursor" @loadNext="loadNextPage" />
+		<ShowMore v-if="pageCursor && !loading" @loadNext="loadNextPage" />
 	</PageSkeleton>
 </template>

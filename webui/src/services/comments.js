@@ -17,7 +17,7 @@ export const CommentsService = Object.freeze({
 
         switch (response.status) {
             case 200: return response.data;
-            case 404: throw NotFoundError('Required post does not exist');
+            case 404: throw new NotFoundError('Required post does not exist');
             default: handleApiError(response);
         }
     },
@@ -34,7 +34,7 @@ export const CommentsService = Object.freeze({
 
         switch (response.status) {
             case 201: return response.data;
-            case 404: throw NotFoundError('Required post does not exist');
+            case 404: throw new NotFoundError('Required post does not exist');
             default: handleApiError(response);
         }
     },
@@ -49,7 +49,7 @@ export const CommentsService = Object.freeze({
 
         switch (response.status) {
             case 204: return;
-            case 404: throw NotFoundError('Required post does not exist');
+            case 404: throw new NotFoundError('Required post does not exist');
             default: handleApiError(response);
         }
     }

@@ -52,6 +52,7 @@ func (controller Controller) uploadPhoto(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		api.HandleErrorsResponse(err, w, http.StatusCreated, context.Logger)
 	} else {
+		photo.AddImageHost(r)
 		api.SendJson(w, photo, http.StatusCreated, context.Logger)
 	}
 }
@@ -82,6 +83,11 @@ func (controller Controller) listUserPhotos(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
 	} else {
+		// Add photo URL prefix
+		for i := range photos {
+			photos[i].AddImageHost(r)
+		}
+
 		api.SendJson(w, api.PageResult[Photo]{
 			NextPageCursor: cursor,
 			PageData:       photos,

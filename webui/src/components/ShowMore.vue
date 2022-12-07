@@ -11,7 +11,7 @@ export default {
 </script>
 
 <template>
-	<div class="row justify-content-center">
-		<button type="button" class="btn btn-outline-light" @click="loadMore">Load more</button>
+	<div class="row-cols-1 mt-4">
+		<button type="button" class="btn btn-outline-secondary" @click="loadMore">Load more</button>
 	</div>
 </template>

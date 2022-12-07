@@ -1,5 +1,7 @@
 <script>
 import {FollowService} from "../services";
+import router from "../router";
+import {toRefs} from "vue";
 
 export default {
 	name: "UserListItem",
@@ -8,8 +10,10 @@ export default {
 	data() {
 		return {
 			loading: false,
-			liveUser: this.user,
 		};
+	},
+	setup(props) {
+		return toRefs(props);
 	},
 	methods: {
 		async follow() {
@@ -23,26 +27,29 @@ export default {
 			this.$emit('error', '');
 			try {
 				if (follow) {
-					await FollowService.followUser(this.liveUser.id);
+					await FollowService.followUser(this.user.id);
 				} else {
-					await FollowService.unfollowUser(this.liveUser.id);
+					await FollowService.unfollowUser(this.user.id);
 				}
 
-				this.liveUser.following = follow;
+				this.user.following = follow;
 			} catch (err) {
 				this.$emit('error', err);
 			} finally {
 				this.loading = false;
 			}
+		},
+		async goToUser() {
+			await router.push(`/users/${this.user.username}`);
 		}
 	}
 }
 </script>
 
 <template>
-	<div class="user-list-item p-4 mt-3">
+	<div class="user-list-item p-4 mt-3"> <!-- @click="goToUser"> -->
 		<div class="row">
-			<div class="col col-lg-10 d-flex align-items-center">
+			<div class="col col-lg-10 d-flex align-items-center" @click="goToUser">
 				<p>
 					<span><b>{{ user.name }} {{ user.surname }}</b></span>
 					<br>

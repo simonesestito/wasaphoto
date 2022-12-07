@@ -8,7 +8,7 @@ export const PhotosService = Object.freeze({
 	 * @param {string|null} pageCursor Current page cursor
 	 */
     async listUserPhotos(userId, pageCursor) {
-		let apiPath = `/users/${userId}/photos`;
+		let apiPath = `/users/${userId}/photos/`;
 		if (pageCursor) {
 			apiPath += '?pageCursor=' + pageCursor;
 		}
@@ -17,7 +17,7 @@ export const PhotosService = Object.freeze({
 
 		switch (response.status) {
 			case 200: return response.data;
-			case 404: throw NotFoundError('User not found');
+			case 404: throw new NotFoundError('User not found');
 			default: handleApiError(response);
 		}
 	},
@@ -31,7 +31,7 @@ export const PhotosService = Object.freeze({
 
 		switch (response.status) {
 			case 201: return response.data;
-			case 415: throw BadRequestError('Selected photo file cannot be processed as an image');
+			case 415: throw new BadRequestError('Selected photo file cannot be processed as an image');
 			default: handleApiError(response);
 		}
 	},

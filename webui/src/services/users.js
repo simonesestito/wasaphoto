@@ -1,5 +1,5 @@
 import api from "./axios";
-import {ConflictError, handleApiError} from "./api-errors";
+import {ConflictError, handleApiError, NotFoundError} from "./api-errors";
 import {getCurrentUID} from "./auth-store";
 
 export const UsersService = Object.freeze({
@@ -20,7 +20,11 @@ export const UsersService = Object.freeze({
 	 */
 	async getByUsername(username) {
 		const pageResult = await _searchUsers(username, {exactMatch: true}, null);
-		return pageResult.pageData[0];
+		const foundUser = pageResult.pageData.find(user => user.username === username);
+		if (!foundUser) {
+			throw new NotFoundError('User not found');
+		}
+		return foundUser;
 	},
 
 	/**
@@ -81,7 +85,7 @@ async function _searchUsers(username, {exactMatch}, pageCursor) {
 	const apiPath = Object.entries({
 		username, exactMatch, pageCursor
 	}).filter(([_, value]) => value !== null)
-		.map(([key, value]) => [key, value.toString()])
+		.map(([key, value]) => [key, value == null ? null : value.toString()])
 		.map(entry => entry.map(encodeURIComponent))
 		.reduce((acc, [key, value]) => `${acc}&${key}=${value}`, '/users/?');
 
