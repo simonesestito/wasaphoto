@@ -15,41 +15,41 @@ import (
 	"strings"
 )
 
-type MalformedRequest struct {
+type MalformedRequestError struct {
 	StatusCode int
 	Message    string
 }
 
-func (err *MalformedRequest) Error() string { return err.Message }
+func (err *MalformedRequestError) Error() string { return err.Message }
 
-func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+func ParseRequestVariables[T any](params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequestError) {
 	paramsMap, err := utils.ParamsToMap(params)
 	if err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+		return nil, &MalformedRequestError{http.StatusBadRequest, err.Error()}
 	}
 	return parseVariablesFromMap(paramsMap, paramsStruct, logger)
 }
 
-func ParseAllRequestVariables[T any](r *http.Request, params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+func ParseAllRequestVariables[T any](r *http.Request, params httprouter.Params, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequestError) {
 	paramsMap, err := utils.ParamsToMap(params)
 	if err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+		return nil, &MalformedRequestError{http.StatusBadRequest, err.Error()}
 	}
 
 	queryVariables, err := utils.MapGetFirstValue(r.URL.Query())
 	if err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+		return nil, &MalformedRequestError{http.StatusBadRequest, err.Error()}
 	}
 
 	allParams, err := utils.JoinMaps(paramsMap, queryVariables)
 	if err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+		return nil, &MalformedRequestError{http.StatusBadRequest, err.Error()}
 	}
 
 	return parseVariablesFromMap(allParams, paramsStruct, logger)
 }
 
-func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequestError) {
 	// Convert allParamsMap to a struct
 	decoderConfig := &mapstructure.DecoderConfig{
 		ErrorUnused:      true,
@@ -64,11 +64,11 @@ func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, 
 	if err != nil {
 		msg := "Error creating a decoder"
 		logger.Errorf("%s: %s", msg, err.Error())
-		return nil, &MalformedRequest{http.StatusInternalServerError, msg}
+		return nil, &MalformedRequestError{http.StatusInternalServerError, msg}
 	}
 
 	if err := decoder.Decode(paramsMap); err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, err.Error()}
+		return nil, &MalformedRequestError{http.StatusBadRequest, err.Error()}
 	}
 
 	// Validate parsed struct
@@ -79,25 +79,25 @@ func parseVariablesFromMap[T any](paramsMap map[string]string, paramsStruct *T, 
 	return paramsStruct, nil
 }
 
-func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequest) {
+func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger logrus.FieldLogger) (*T, *MalformedRequestError) {
 	// Close request body at the end of parsing
 	defer request.Body.Close()
 
 	// Check content type
 	if request.Header.Get("Content-Type") != "application/json" {
-		return nil, &MalformedRequest{http.StatusUnsupportedMediaType, "Content-Type is not JSON"}
+		return nil, &MalformedRequestError{http.StatusUnsupportedMediaType, "Content-Type is not JSON"}
 	}
 
 	// Decode JSON body
 	decoder := json.NewDecoder(request.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(bodyStruct); err != nil {
-		return nil, &MalformedRequest{http.StatusBadRequest, explainJsonError(err, logger)}
+		return nil, &MalformedRequestError{http.StatusBadRequest, explainJsonError(err, logger)}
 	}
 
 	// Check if no more JSON is available
 	if decoder.Decode(&struct{}{}) != io.EOF {
-		return nil, &MalformedRequest{
+		return nil, &MalformedRequestError{
 			http.StatusBadRequest, "Request body can only contain one JSON object",
 		}
 	}
@@ -110,7 +110,7 @@ func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger lo
 	return bodyStruct, nil
 }
 
-func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *MalformedRequest {
+func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *MalformedRequestError {
 	validate := validator.New()
 
 	if err := validate.RegisterValidation("username", func(field validator.FieldLevel) bool {
@@ -123,13 +123,13 @@ func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *Ma
 		match, err := regexp.MatchString("^[a-z_0-9]+$", username)
 		return match && err == nil
 	}); err != nil {
-		return &MalformedRequest{StatusCode: http.StatusInternalServerError, Message: err.Error()}
+		return &MalformedRequestError{StatusCode: http.StatusInternalServerError, Message: err.Error()}
 	}
 
 	if err := validate.RegisterValidation("singleline", func(field validator.FieldLevel) bool {
 		return !strings.Contains(field.Field().String(), "\n")
 	}); err != nil {
-		return &MalformedRequest{StatusCode: http.StatusInternalServerError, Message: err.Error()}
+		return &MalformedRequestError{StatusCode: http.StatusInternalServerError, Message: err.Error()}
 	}
 
 	if err := validate.Struct(parsedStruct); err != nil {
@@ -137,7 +137,7 @@ func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *Ma
 		if !errors.As(err, &validationError) {
 			msg := "Unexpected error validating body input"
 			logger.Errorf("%s: %s", msg, err.Error())
-			return &MalformedRequest{http.StatusInternalServerError, msg}
+			return &MalformedRequestError{http.StatusInternalServerError, msg}
 		}
 
 		msg := "Error validating input body"
@@ -146,7 +146,7 @@ func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *Ma
 			msg = fmt.Sprintf("%s: %s %s %s", msg, err.Namespace(), err.Tag(), err.Param())
 		}
 
-		return &MalformedRequest{http.StatusBadRequest, msg}
+		return &MalformedRequestError{http.StatusBadRequest, msg}
 	}
 
 	return nil
@@ -181,7 +181,7 @@ func explainJsonError(err error, logger logrus.FieldLogger) string {
 	}
 }
 
-func ParseVariablesAndBody[V any, B any](r *http.Request, params httprouter.Params, varsStruct *V, bodyStruct *B, logger logrus.FieldLogger) (*V, *B, *MalformedRequest) {
+func ParseVariablesAndBody[V any, B any](r *http.Request, params httprouter.Params, varsStruct *V, bodyStruct *B, logger logrus.FieldLogger) (*V, *B, *MalformedRequestError) {
 	args, err := ParseRequestVariables(params, varsStruct, logger)
 	if err != nil {
 		return nil, nil, err
