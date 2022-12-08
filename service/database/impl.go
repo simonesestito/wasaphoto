@@ -52,14 +52,16 @@ func (db appSqlDatabase) Version() (int, error) {
 	}
 
 	rows, err := db.DB.Query("SELECT version FROM SchemaVersion")
-	if err == nil {
-		defer tryClosingRows(rows)
-	}
-	nextRow := rows.Next()
 	switch {
-	case err == sql.ErrNoRows || !nextRow:
+	case errors.Is(err, sql.ErrNoRows):
 		return 0, nil
-	case err == nil && nextRow:
+	case err == nil:
+		defer tryClosingRows(rows)
+
+		if nextRow := rows.Next(); !nextRow {
+			return 0, nil
+		}
+
 		var version int
 		if err := rows.Scan(&version); err != nil {
 			return 0, err

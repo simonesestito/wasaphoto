@@ -101,12 +101,16 @@ func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterC
 		database.MaxPageItems,
 	)
 
-	var photos []EntityCommentWithCustom
+	if err != nil {
+		return nil, err
+	}
+
+	var comments []EntityCommentWithCustom
 	var entity any
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		newPhoto, ok := entity.(EntityCommentWithCustom)
+		newComment, ok := entity.(EntityCommentWithCustom)
 		if ok {
-			photos = append(photos, newPhoto)
+			comments = append(comments, newComment)
 		} else {
 			return nil, errors.New("invalid cast from db map to application entity")
 		}
@@ -115,5 +119,5 @@ func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterC
 		return nil, err
 	}
 
-	return photos, nil
+	return comments, nil
 }

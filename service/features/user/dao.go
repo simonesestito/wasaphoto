@@ -52,7 +52,9 @@ func (dao DbDao) InsertOrGetUserId(user ModelUser) (uuid.UUID, bool, error) {
 	// Get user if exists
 	existingUserId := make([]byte, 16)
 	result, err := tx.Query("SELECT id FROM User WHERE username = ?", user.Username)
-	defer result.Close()
+	if err != nil && result != nil {
+		defer result.Close()
+	}
 
 	if !errors.Is(err, sql.ErrNoRows) && err != nil {
 		// Unexpected error
