@@ -162,7 +162,7 @@ func explainJsonError(err error, logger logrus.FieldLogger) string {
 		return fmt.Sprintf("Request body contains badly-formed JSON (at position %d)", syntaxError.Offset)
 
 	case errors.Is(err, io.ErrUnexpectedEOF):
-		return fmt.Sprintf("Request body contains badly-formed JSON")
+		return "Request body contains badly-formed JSON"
 
 	case errors.As(err, &unmarshalTypeError):
 		return fmt.Sprintf("Request body contains an invalid value for the %q field (at position %d)", unmarshalTypeError.Field, unmarshalTypeError.Offset)
