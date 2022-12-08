@@ -55,6 +55,8 @@ func (imgApi API) uploadPhoto(imageData []byte) (string, error) {
 		return "", err
 	}
 
+	defer response.Body.Close()
+
 	switch response.StatusCode {
 	case http.StatusCreated:
 		return response.Header.Get("Location"), nil
@@ -91,6 +93,8 @@ func (imgApi API) convertToWebp(imageId string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
 		return nil, errors.New("TinyPNG API status code response: " + response.Status)
