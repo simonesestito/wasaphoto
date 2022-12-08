@@ -2,7 +2,6 @@ package cursor
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"strings"
@@ -23,7 +22,7 @@ func ParseStringIdCursor(userCursor string) (uuid.UUID, string, error) {
 	// Split cursor
 	cursorParts := strings.Split(rawCursor, ";")
 	if len(cursorParts) != 2 {
-		return uuid.Nil, "", errors.New(fmt.Sprintf("invalid cursor has %d parts (2 expected)", len(cursorParts)))
+		return uuid.Nil, "", fmt.Errorf("invalid cursor has %d parts (2 expected)", len(cursorParts))
 	}
 	rawId := cursorParts[0]
 	rawSecondParam := cursorParts[1]

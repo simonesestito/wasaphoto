@@ -43,7 +43,7 @@ func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatab
 
 	appDatabase, err := database.New(rawDatabase, logger)
 	if err != nil {
-		return Container{}, errors.New(fmt.Sprintf("error wrapping database: %s", err.Error()))
+		return Container{}, fmt.Errorf("error wrapping database: %s", err.Error())
 	}
 
 	return Container{

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/julienschmidt/httprouter"
@@ -48,7 +47,7 @@ func (router *_router) Register(routeInfo route.Route) error {
 	case isSecure:
 		handler = router.authMiddleware.Intercept(secureRoute.Handler)
 	default:
-		return errors.New(fmt.Sprintf("Unknown route type: %s", reflect.TypeOf(routeInfo)))
+		return fmt.Errorf("Unknown route type: %s", reflect.TypeOf(routeInfo))
 	}
 
 	// Wrap with other middlewares
