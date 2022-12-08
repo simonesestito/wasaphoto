@@ -158,14 +158,31 @@ func (dao DbDao) ListUsersByUsernameAs(username string, searchAsId uuid.UUID, af
 		database.MaxPageItems,
 	)
 
-	var photos []ModelUserWithCustom
-	var entity any
-	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		photos = append(photos, entity.(ModelUserWithCustom))
-	}
-	if errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		return nil, err
 	}
 
-	return photos, nil
+	return ParseUserEntities(rows)
+}
+
+func ParseUserEntities(rows database.StructRows) ([]ModelUserWithCustom, error) {
+	var (
+		users  []ModelUserWithCustom
+		entity any
+		err    error
+	)
+
+	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
+		newUser, ok := entity.(ModelUserWithCustom)
+		if ok {
+			users = append(users, newUser)
+		} else {
+			return nil, errors.New("invalid cast from db map to application entity")
+		}
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	return users, nil
 }

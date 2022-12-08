@@ -38,11 +38,15 @@ func (router *_router) RegisterStatic(localPath string, httpPath string) {
 func (router *_router) Register(routeInfo route.Route) error {
 	// Get route handler
 	var handler route.Handler
-	switch routeInfo.(type) {
-	case route.AnonymousRoute:
-		handler = routeInfo.(route.AnonymousRoute).Handler
-	case route.SecureRoute:
-		handler = router.authMiddleware.Intercept(routeInfo.(route.SecureRoute).Handler)
+
+	anonymousRoute, isAnonymous := routeInfo.(route.AnonymousRoute)
+	secureRoute, isSecure := routeInfo.(route.SecureRoute)
+
+	switch {
+	case isAnonymous:
+		handler = anonymousRoute.Handler
+	case isSecure:
+		handler = router.authMiddleware.Intercept(secureRoute.Handler)
 	default:
 		return errors.New(fmt.Sprintf("Unknown route type: %s", reflect.TypeOf(routeInfo)))
 	}

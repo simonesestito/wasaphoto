@@ -1,8 +1,6 @@
 package stream
 
 import (
-	"database/sql"
-	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
@@ -42,14 +40,9 @@ func (db DbDao) GetMyFollowingsPhotosSortedByDate(userId uuid.UUID, afterId uuid
 		database.MaxPageItems,
 	)
 
-	var photos []photo.EntityPhotoAuthorInfo
-	var entity any
-	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		photos = append(photos, entity.(photo.EntityPhotoAuthorInfo))
-	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		return nil, err
 	}
 
-	return photos, nil
+	return photo.ParsePhotoEntity(rows)
 }

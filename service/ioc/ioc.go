@@ -65,7 +65,12 @@ func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
 func (ioc *Container) CreateStorage() storage.Storage {
 	const key = "storage.Storage"
 	if previousInstance, ok := ioc.instances[key]; ok {
-		return previousInstance.(storage.Storage)
+		castedInstance, ok := previousInstance.(storage.Storage)
+		if ok {
+			return castedInstance
+		} else {
+			ioc.logger.Fatalf("Unable to recycle old storage instance in ioc.CreateStorage")
+		}
 	}
 
 	// Create a new storage.Storage

@@ -27,7 +27,12 @@ func (ioc *Container) CreateUserService() user.Service {
 func (ioc *Container) CreateBanService() user.BanService {
 	const key = "user.BanService"
 	if previousInstance, ok := ioc.instances[key]; ok {
-		return previousInstance.(user.BanService)
+		castedInstance, ok := previousInstance.(user.BanService)
+		if ok {
+			return castedInstance
+		} else {
+			ioc.logger.Fatalf("Unable to recycle old storage instance in ioc.CreateBanService")
+		}
 	}
 
 	// Create a new BanService

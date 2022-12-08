@@ -92,10 +92,27 @@ func (db DbDao) ListUsersPhotoAfter(authorUuid uuid.UUID, searchAsUuid uuid.UUID
 		database.MaxPageItems,
 	)
 
-	var photos []EntityPhotoAuthorInfo
-	var entity any
+	if err != nil {
+		return nil, err
+	}
+
+	return ParsePhotoEntity(rows)
+}
+
+func ParsePhotoEntity(rows database.StructRows) ([]EntityPhotoAuthorInfo, error) {
+	var (
+		photos []EntityPhotoAuthorInfo
+		entity any
+		err    error
+	)
+
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		photos = append(photos, entity.(EntityPhotoAuthorInfo))
+		newPhoto, ok := entity.(EntityPhotoAuthorInfo)
+		if ok {
+			photos = append(photos, newPhoto)
+		} else {
+			return nil, errors.New("invalid cast from db map to application entity")
+		}
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err

@@ -1,8 +1,6 @@
 package follow
 
 import (
-	"database/sql"
-	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/user"
@@ -57,16 +55,11 @@ func (db DbDao) GetFollowersPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, a
 		database.MaxPageItems,
 	)
 
-	var photos []user.ModelUserWithCustom
-	var entity any
-	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		photos = append(photos, entity.(user.ModelUserWithCustom))
-	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		return nil, err
 	}
 
-	return photos, nil
+	return user.ParseUserEntities(rows)
 }
 
 func (db DbDao) GetFollowingsPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, afterFollowerId uuid.UUID, afterUsername string) ([]user.ModelUserWithCustom, error) {
@@ -95,14 +88,9 @@ func (db DbDao) GetFollowingsPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, 
 		database.MaxPageItems,
 	)
 
-	var photos []user.ModelUserWithCustom
-	var entity any
-	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
-		photos = append(photos, entity.(user.ModelUserWithCustom))
-	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		return nil, err
 	}
 
-	return photos, nil
+	return user.ParseUserEntities(rows)
 }
