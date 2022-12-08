@@ -47,7 +47,9 @@ func (dao DbDao) InsertOrGetUserId(user ModelUser) (uuid.UUID, bool, error) {
 	if err != nil {
 		return uuid.Nil, false, err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	// Get user if exists
 	existingUserId := make([]byte, 16)
