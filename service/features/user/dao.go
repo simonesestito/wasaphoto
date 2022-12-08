@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 )
@@ -27,7 +28,7 @@ func (dao DbDao) GetUserById(id uuid.UUID) (*ModelUser, error) {
 	user := &ModelUser{}
 	err := dao.Db.QueryStructRow(user, "SELECT * FROM User WHERE id = ?", id.Bytes())
 	switch {
-	case err == database.ErrNoResult:
+	case errors.Is(err, database.ErrNoResult):
 		return nil, nil
 	case err != nil:
 		return nil, err
@@ -53,12 +54,12 @@ func (dao DbDao) InsertOrGetUserId(user ModelUser) (uuid.UUID, bool, error) {
 	result, err := tx.Query("SELECT id FROM User WHERE username = ?", user.Username)
 	defer result.Close()
 
-	if err != sql.ErrNoRows && err != nil {
+	if !errors.Is(err, sql.ErrNoRows) && err != nil {
 		// Unexpected error
 		return uuid.Nil, false, err
 	}
 
-	if err == sql.ErrNoRows || !result.Next() {
+	if errors.Is(err, sql.ErrNoRows) || !result.Next() {
 		// Username not found, create it!
 		_, err = tx.Exec("INSERT INTO User (id, name, surname, username) VALUES (?, ?, ?, ?)", user.Id, user.Name, user.Surname, user.Username)
 		if err != nil {
@@ -87,7 +88,7 @@ func (dao DbDao) GetUserByIdAs(id uuid.UUID, searchAsId uuid.UUID) (*ModelUserWi
 		"FROM UserInfo WHERE id = ?"
 	err := dao.Db.QueryStructRow(user, query, id.Bytes(), searchAsId.Bytes(), id.Bytes(), searchAsId.Bytes(), id.Bytes())
 	switch {
-	case err == database.ErrNoResult:
+	case errors.Is(err, database.ErrNoResult):
 		return nil, nil
 	case err != nil:
 		return nil, err
@@ -123,7 +124,7 @@ func (dao DbDao) GetUserByUsernameAs(username string, searchAsId uuid.UUID) (*Mo
 		username,
 	)
 
-	if err == database.ErrNoResult {
+	if errors.Is(err, database.ErrNoResult) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -162,7 +163,7 @@ func (dao DbDao) ListUsersByUsernameAs(username string, searchAsId uuid.UUID, af
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(ModelUserWithCustom))
 	}
-	if err != sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

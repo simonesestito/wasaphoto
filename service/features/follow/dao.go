@@ -2,6 +2,7 @@ package follow
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/user"
@@ -61,7 +62,7 @@ func (db DbDao) GetFollowersPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, a
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(user.ModelUserWithCustom))
 	}
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
@@ -99,7 +100,7 @@ func (db DbDao) GetFollowingsPageAs(userUuid uuid.UUID, searchAsUuid uuid.UUID, 
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(user.ModelUserWithCustom))
 	}
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

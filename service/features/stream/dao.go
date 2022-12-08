@@ -2,6 +2,7 @@ package stream
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/features/photo"
@@ -46,7 +47,7 @@ func (db DbDao) GetMyFollowingsPhotosSortedByDate(userId uuid.UUID, afterId uuid
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(photo.EntityPhotoAuthorInfo))
 	}
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

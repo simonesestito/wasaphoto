@@ -42,7 +42,7 @@ func (imgApi API) uploadPhoto(imageData []byte) (string, error) {
 		Method: http.MethodPost,
 		URL:    apiUrl,
 		Header: map[string][]string{
-			//"Content-Type":  {"image/*"},
+			// "Content-Type":  {"image/*"},
 			"Authorization": {imgApi.getAuthString()},
 		},
 		Body:          io.NopCloser(bytes.NewReader(imageData)),

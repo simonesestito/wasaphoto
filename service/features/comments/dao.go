@@ -2,6 +2,7 @@ package comments
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 )
@@ -43,7 +44,7 @@ WHERE CommentWithAuthor.id = ?`
 	// Fix shadowed properties
 	entity.ModelUserWithCustom.ModelUser.Id = entity.EntityComment.AuthorId
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func (db DbDao) DeleteByIdPhotoAndAuthor(commentUuid uuid.UUID, photoUuid uuid.U
 func (db DbDao) GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAndPhoto, error) {
 	entity := &CommentIdWithAuthorAndPhoto{}
 	err := db.Db.QueryStructRow(entity, "SELECT * FROM CommentIdWithAuthorAndPhoto WHERE commentId = ?", commentUuid.Bytes())
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -105,7 +106,7 @@ func (db DbDao) GetCommentsAfter(photoUuid uuid.UUID, userUuid uuid.UUID, afterC
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(EntityCommentWithCustom))
 	}
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

@@ -2,6 +2,7 @@ package photo
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/database"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
@@ -35,7 +36,7 @@ WHERE P.id = ?
 	// Fix shadowed properties
 	photo.ModelUser.Id = photo.EntityPhoto.AuthorId
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 
@@ -49,7 +50,7 @@ func (db DbDao) NewPhotoPerUser(photoId uuid.UUID, userId uuid.UUID, imageUrl st
 
 func (db DbDao) DeletePhoto(imageUuid uuid.UUID) error {
 	err := db.Db.Exec("DELETE FROM Photo WHERE id = ?", imageUuid.Bytes())
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil
 	} else {
 		return err
@@ -60,7 +61,7 @@ func (db DbDao) GetPhotoById(imageUuid uuid.UUID) (*EntityPhotoInfo, error) {
 	photo := EntityPhotoInfo{}
 	query := "SELECT * FROM PhotoInfo WHERE id = ?"
 	err := db.Db.QueryStructRow(&photo, query, imageUuid.Bytes())
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 	return &photo, err
@@ -96,7 +97,7 @@ func (db DbDao) ListUsersPhotoAfter(authorUuid uuid.UUID, searchAsUuid uuid.UUID
 	for entity, err = rows.Next(); err == nil; entity, err = rows.Next() {
 		photos = append(photos, entity.(EntityPhotoAuthorInfo))
 	}
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

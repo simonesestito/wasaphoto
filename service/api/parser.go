@@ -133,8 +133,8 @@ func ValidateParsedStruct[T any](parsedStruct *T, logger logrus.FieldLogger) *Ma
 	}
 
 	if err := validate.Struct(parsedStruct); err != nil {
-		validationError, ok := err.(validator.ValidationErrors)
-		if !ok {
+		validationError := validator.ValidationErrors{}
+		if !errors.As(err, &validationError) {
 			msg := "Unexpected error validating body input"
 			logger.Errorf("%s: %s", msg, err.Error())
 			return &MalformedRequest{http.StatusInternalServerError, msg}
