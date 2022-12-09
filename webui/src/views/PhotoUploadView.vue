@@ -1,10 +1,12 @@
 <script>
 import PageSkeleton from "../components/PageSkeleton.vue";
-import {PhotosService} from "../services";
+import {PhotosService, UsersService} from "../services";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import SuccessMsg from "../components/SuccessMsg.vue";
 import ErrorMsg from "../components/ErrorMsg.vue";
 import UploadDropArea from "../components/UploadDropArea.vue";
+import router from "../router";
+import {getCurrentUID} from "../services/auth-store";
 
 export default {
 	name: "PhotoUploadView",
@@ -48,25 +50,30 @@ export default {
 				this.$refs.input.value = '';
 			}
 		},
+		async goToMyProfile() {
+			const myProfile = await UsersService.getUserProfile(getCurrentUID());
+			await router.push(`/users/${myProfile.username}`);
+		}
 	},
 }
 </script>
 
 <template>
-	<UploadDropArea @drop="uploadPhoto" />
+	<UploadDropArea @drop="uploadPhoto">
 
-	<PageSkeleton title="Upload New Photo">
-		<ErrorMsg :msg="errorMessage"/>
-		<SuccessMsg v-if="success" msg="Upload succeeded"/>
-		<LoadingSpinner v-if="loading"/>
+		<PageSkeleton title="Upload New Photo" :actions="[{text:'My profile', onClick: goToMyProfile}]">
+			<ErrorMsg :msg="errorMessage"/>
+			<SuccessMsg v-if="success" msg="Upload succeeded"/>
+			<LoadingSpinner v-if="loading"/>
 
-		<input type="file" accept="image/*" ref="input" class="photo-upload-input" @change="onFilePicked">
+			<input type="file" accept="image/*" ref="input" class="photo-upload-input" @change="onFilePicked">
 
-		<div class="photo-upload-box" :class="{disabled: loading}"
-			 @click="requestPhotoFile">
-			Click to pick an image or drop it here
-		</div>
-	</PageSkeleton>
+			<div class="photo-upload-box" :class="{disabled: loading}"
+				 @click="requestPhotoFile">
+				Click to pick an image or drop it here
+			</div>
+		</PageSkeleton>
+	</UploadDropArea>
 </template>
 
 <style scoped>

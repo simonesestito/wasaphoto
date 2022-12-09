@@ -1,20 +1,21 @@
 <script>
 import UploadDropIcon from "./UploadDropIcon.vue";
+
 export default {
 	name: "UploadDropArea",
 	components: {UploadDropIcon},
 	emits: ['drop'],
 	data() {
 		return {
-			droppingStatus: false,
+			droppingStatus: 0,
 		};
 	},
 	methods: {
 		setActive() {
-			this.droppingStatus = true;
+			this.droppingStatus++;
 		},
 		setInactive() {
-			this.droppingStatus = false;
+			setTimeout(() => this.droppingStatus--, 200);
 		},
 		onDrop(event) {
 			event.preventDefault();
@@ -40,30 +41,45 @@ export default {
 
 <template>
 	<div class="drag-area"
-		 :class="{active: droppingStatus}"
 		 @dragenter.prevent="setActive"
 		 @dragleave.prevent="setInactive"
-		 @dragover.prevent="setActive"
+		 @dragover.prevent=""
 		 @drop.prevent="onDrop">
-		<UploadDropIcon />
+
+		<slot @dragenter.prevent="setActive"
+			  @dragleave.prevent="setInactive"
+			  @dragover.prevent="setActive"
+			  @drop.prevent="onDrop"/>
+
+		<div :class="{active: droppingStatus}" class="drag-area-indicator">
+			<UploadDropIcon/>
+		</div>
+
 	</div>
 </template>
 
 <style scoped>
 .drag-area {
+	width: 100%;
+	height: 100%;
+}
+
+.drag-area-indicator {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background-color: rgba(48,202,214,0.4);
+
+	display: none;
 	opacity: 0;
 	transition: opacity 0.15s ease-in;
-	z-index: -1;
+
+	background-color: rgba(48, 202, 214, 0.4);
 }
 
-.drag-area.active {
+.drag-area-indicator.active {
+	display: block;
 	opacity: 1;
-	z-index: 10;
 }
 </style>
