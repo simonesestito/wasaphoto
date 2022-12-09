@@ -9,7 +9,7 @@ export const FollowService = Object.freeze({
      * @param {string?} pageCursor
      */
     async listFollowers(userId, pageCursor) {
-        let apiPath = `/users/${userId}/followers`;
+        let apiPath = `/users/${userId}/followers/`;
         if (pageCursor) {
             apiPath += '?pageCursor=' + encodeURIComponent(pageCursor);
         }
@@ -29,7 +29,7 @@ export const FollowService = Object.freeze({
      * @param {string?} pageCursor
      */
      async listFollowings(userId, pageCursor) {
-        let apiPath = `/users/${userId}/followings`;
+        let apiPath = `/users/${userId}/followings/`;
         if (pageCursor) {
             apiPath += '?pageCursor=' + encodeURIComponent(pageCursor);
         }

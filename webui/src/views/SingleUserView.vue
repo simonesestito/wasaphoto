@@ -140,18 +140,30 @@ export default {
 		<!-- User profile -->
 		<div v-if="user">
 			<div class="row-cols-md-3 d-flex justify-content-evenly">
-				<span><b>Followers: </b> {{ this.user.followersCount }}</span>
-				<span><b>Followings: </b> {{ this.user.followingsCount }}</span>
+				<span>
+					<RouterLink :to="`/users/${this.user.username}/followers`"><b>Followers: </b> {{
+							this.user.followersCount
+						}}
+					</RouterLink>
+				</span>
+				<span>
+					<RouterLink
+						:to="`/users/${this.user.username}/followings`"><b>Followings: </b> {{
+							this.user.followingsCount
+						}}
+					</RouterLink>
+				</span>
 				<span><b>Posts count: </b> {{ this.user.postsCount }}</span>
 			</div>
 
 			<div>
 				<div class="posts-grid mt-3">
-					<div v-for="photo in photos" class="posts-grid-item" :style="{backgroundImage: `url(${photo.imageUrl})`}" />
+					<div v-for="photo in photos" class="posts-grid-item"
+						 :style="{backgroundImage: `url(${photo.imageUrl})`}"/>
 				</div>
 			</div>
 
-			<ShowMore v-if="photosCursor && !loading" @loadMore="loadMore" />
+			<ShowMore v-if="photosCursor && !loading" @loadMore="loadMore"/>
 		</div>
 	</PageSkeleton>
 </template>

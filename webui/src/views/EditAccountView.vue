@@ -108,7 +108,7 @@ export default {
 
 			<h3>Edit username</h3>
 			<UsernameInput submit-text="Change username" :loading="this.loading" @submit="onUpdateUsername"
-						   @error="onError" :initial-input="myProfile.username" />
+						   :initial-input="myProfile.username" />
 		</div>
 	</PageSkeleton>
 </template>
