@@ -5,6 +5,7 @@ import {toRefs} from "vue";
 import ErrorMsg from "./ErrorMsg.vue";
 import LoadingSpinner from "./LoadingSpinner.vue";
 import {getCurrentUID} from "../services/auth-store";
+import {formatDate} from "../services/format-date";
 
 export default {
 	name: "PhotoListItem",
@@ -20,6 +21,9 @@ export default {
 		return toRefs(props);
 	},
 	methods: {
+		formatDate() {
+			return formatDate
+		},
 		async doLike(like) {
 			if (this.loading) return;
 
@@ -90,8 +94,7 @@ export default {
 			<div class="photo-content">
 				<img :src="photo.imageUrl" alt="User photo">
 			</div>
-			<p class="post-date">{{ new Date(photo.publishDate).toLocaleDateString() }}
-				{{ new Date(photo.publishDate).toLocaleTimeString() }}</p>
+			<p class="post-date">{{ formatDate(photo.publishDate) }}</p>
 			<div class="row actions-row">
 				<p class="likes" @click="doLike(!photo.liked)">
 					<svg class="feather" :class="{ active: photo.liked, disabled: loading }">
