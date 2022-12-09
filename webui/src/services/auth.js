@@ -13,16 +13,17 @@ export const AuthService = Object.freeze({
     /**
      * Login or sign up
      * @param {string} username User username
+	 * @param {boolean} keepSignedIn Keep me signed in
      * @returns {Promise<UserLoginResult>}
      */
-    async doLogin(username) {
+    async doLogin(username, keepSignedIn) {
         const response = await api.post('/session', {
             username: username,
         });
 
         // Save new auth token
         if (response.status >= 200 && response.status < 300 && response.data.userId) {
-            saveAuthToken(response.data.userId);
+            saveAuthToken(response.data.userId, keepSignedIn);
         }
 
         if (response.status === 200) {

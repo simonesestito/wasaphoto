@@ -41,7 +41,7 @@ export default {
 	<ErrorMsg v-if="errorMessage" :msg="errorMessage" />
 
 	<form @submit="login">
-		<div class="input-group w-50">
+		<div class="input-group">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="search-username-field">@</span>
 			</div>

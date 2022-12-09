@@ -3,13 +3,19 @@ const AUTH_TOKEN_KEY = 'auth-token';
 /**
  * Save the new auth token received
  * @param {string|null} authToken
+ * @param {boolean} [keepSignedIn] Keep me signed in
  */
-export function saveAuthToken(authToken) {
+export function saveAuthToken(authToken, keepSignedIn) {
+	const storage = keepSignedIn ? localStorage : sessionStorage;
+	const resetStorage = keepSignedIn ? sessionStorage : localStorage;
+
     if (authToken) {
-		localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+		storage.setItem(AUTH_TOKEN_KEY, authToken);
 	} else {
-		localStorage.removeItem(AUTH_TOKEN_KEY);
+		storage.removeItem(AUTH_TOKEN_KEY);
 	}
+
+	resetStorage.removeItem(AUTH_TOKEN_KEY);
 }
 
 /**
@@ -17,7 +23,12 @@ export function saveAuthToken(authToken) {
  * @returns {string|null} Saved auth token, if any
  */
 export function getAuthToken() {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+	const persistingToken = localStorage.getItem(AUTH_TOKEN_KEY);
+	if (persistingToken) {
+		return persistingToken;
+	}
+
+	return sessionStorage.getItem(AUTH_TOKEN_KEY);
 }
 
 /**
