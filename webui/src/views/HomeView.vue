@@ -5,6 +5,7 @@ import ErrorMsg from "../components/ErrorMsg.vue";
 import PageSkeleton from "../components/PageSkeleton.vue";
 import ShowMore from "../components/ShowMore.vue";
 import PhotoListItem from "../components/PhotoListItem.vue";
+import router from "../router";
 
 export default {
 	name: 'HomeView',
@@ -39,6 +40,9 @@ export default {
 				this.loading = false;
 			}
 		},
+		async goToUpload() {
+			await router.push('/upload');
+		},
 	},
 	mounted() {
 		this.refresh();
@@ -47,7 +51,7 @@ export default {
 </script>
 
 <template>
-	<PageSkeleton title="Home Page" :main-action="{text: 'Upload Photo'}">
+	<PageSkeleton title="Home Page" :main-action="{text: 'Upload Photo', onClick: this.goToUpload}">
 		<LoadingSpinner v-if="loading"/>
 		<ErrorMsg :msg="errorMessage"/>
 
@@ -58,7 +62,7 @@ export default {
 					   :show-author="true"/>
 
 		<!-- Empty view -->
-		<p v-if="!loading && photos.length === 0">
+		<p v-if="!loading && photos.length === 0 && !errorMessage">
 			<svg class="feather">
 				<use href="/feather-sprite-v4.29.0.svg#frown"/>
 			</svg>

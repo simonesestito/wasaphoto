@@ -24,10 +24,10 @@ export const PhotosService = Object.freeze({
 
 	/**
 	 * Upload photo
+	 * @param {File} photoFile
 	 */
 	async uploadPhoto(photoFile) {
-		// TODO: Handle photoFile
-		const response = await api.post('/photos');
+		const response = await api.post('/photos', await photoFile.arrayBuffer());
 
 		switch (response.status) {
 			case 201: return response.data;
