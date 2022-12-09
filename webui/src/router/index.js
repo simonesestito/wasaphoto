@@ -6,6 +6,8 @@ import LoginView from "../views/LoginView.vue";
 import {getCurrentUID} from "../services/auth-store";
 import EditAccountView from "../views/EditAccountView.vue";
 import SingleUserView from "../views/SingleUserView.vue";
+import FollowersView from "../views/FollowersView.vue";
+import FollowingsView from "../views/FollowingsView.vue";
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -16,6 +18,8 @@ const router = createRouter({
 		{path: '/login', component: LoginView},
 		{path: '/me/edit', component: EditAccountView},
 		{path: '/users/:username', component: SingleUserView},
+		{path: '/users/:username/followers', component: FollowersView},
+		{path: '/users/:username/followings', component: FollowingsView},
 	]
 });
 

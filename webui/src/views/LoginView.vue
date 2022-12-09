@@ -37,7 +37,7 @@ export default {
 
 <template>
 	<PageSkeleton title="Login">
-		<UsernameInput @submit="login" @error="onError" :loading="this.loading" submit-text="Login" />
+		<UsernameInput @submit="login" :loading="this.loading" submit-text="Login" />
 		<ErrorMsg v-if="this.errorMessage" :msg="this.errorMessage" />
 	</PageSkeleton>
 </template>

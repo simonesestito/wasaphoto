@@ -2,7 +2,6 @@
 export default {
 	emits: [
 		'submit',
-		'error',
 	],
 	props: [
 		'loading',
@@ -20,8 +19,6 @@ export default {
 			event.preventDefault();
 			if (this.validate())
 				this.$emit('submit', this.userInput);
-			else
-				this.$emit('error', this.errorMessage);
 		},
 		validate() {
 			if (this.userInput.length < 3)
@@ -40,6 +37,9 @@ export default {
 </script>
 
 <template>
+	<!-- Error -->
+	<ErrorMsg v-if="errorMessage" :msg="errorMessage" />
+
 	<form @submit="login">
 		<div class="input-group w-50">
 			<div class="input-group-prepend">
