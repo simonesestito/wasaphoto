@@ -5,10 +5,11 @@ import ErrorMsg from "../components/ErrorMsg.vue";
 import PageSkeleton from "../components/PageSkeleton.vue";
 import {BanService} from "../services/ban";
 import ShowMore from "../components/ShowMore.vue";
+import PhotoListItem from "../components/PhotoListItem.vue";
 
 export default {
 	name: 'SingleUserView',
-	components: {ShowMore, PageSkeleton, ErrorMsg, LoadingSpinner},
+	components: {PhotoListItem, ShowMore, PageSkeleton, ErrorMsg, LoadingSpinner},
 	props: ['username'],
 	data() {
 		return {
@@ -156,10 +157,24 @@ export default {
 				<span><b>Posts count: </b> {{ this.user.postsCount }}</span>
 			</div>
 
+			<!-- Photos list -->
 			<div>
 				<div class="posts-grid mt-3">
-					<div v-for="photo in photos" class="posts-grid-item"
+					<div v-for="photo in photos"
+						 class="posts-grid-item"
+						 data-bs-toggle="modal"
+						 :data-bs-target="`#photo-modal-${photo.id}`"
 						 :style="{backgroundImage: `url(${photo.imageUrl})`}"/>
+				</div>
+			</div>
+			<!-- Photo modals -->
+			<div v-for="photo in photos" :id="`photo-modal-${photo.id}`" class="modal fade" role="dialog" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-body">
+							<PhotoListItem :photo="photo" @error="(err) => this.errorMessage = err"/>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -184,5 +199,6 @@ export default {
 	background-repeat: no-repeat;
 	width: 100%;
 	height: 150px;
+	cursor: pointer;
 }
 </style>
