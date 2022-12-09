@@ -22,6 +22,9 @@ export default {
 	},
 	methods: {
 		async refresh(username) {
+			if (!username)
+				username = this.$route.params.username;
+
 			this.loading = true;
 			this.errorMessage = null;
 			this.user = null;
@@ -120,7 +123,7 @@ export default {
 		},
 	},
 	mounted() {
-		this.refresh(this.$route.params.username);
+		this.refresh();
 	},
 	created() {
 		this.$watch(
@@ -173,7 +176,7 @@ export default {
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-body">
-							<PhotoListItem :photo="photo" @error="(err) => this.errorMessage = err"/>
+							<PhotoListItem :photo="photo" @error="(err) => this.errorMessage = err" @refresh="refresh"/>
 						</div>
 					</div>
 				</div>

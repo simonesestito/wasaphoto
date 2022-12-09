@@ -1,15 +1,16 @@
 <script>
-import {LikesService} from "../services";
+import {LikesService, PhotosService} from "../services";
 import router from "../router";
 import {toRefs} from "vue";
 import ErrorMsg from "./ErrorMsg.vue";
 import LoadingSpinner from "./LoadingSpinner.vue";
+import {getCurrentUID} from "../services/auth-store";
 
 export default {
 	name: "PhotoListItem",
 	components: {LoadingSpinner, ErrorMsg},
 	props: ['photo', 'showAuthor'],
-	emits: ['error'],
+	emits: ['error', 'refresh'],
 	data() {
 		return {
 			loading: false,
@@ -45,6 +46,35 @@ export default {
 		},
 		async goToAuthor() {
 			await router.push(`/users/${this.photo.author.username}`);
+		},
+		async deletePhoto() {
+			this.loading = true;
+			this.$emit('error', '');
+			try {
+				await PhotosService.deletePhoto(this.photo.id);
+				this.$emit('refresh');
+			} catch (err) {
+				this.$emit('error', err.toString());
+			} finally {
+				this.close();
+				this.loading = false;
+			}
+		},
+		close() {
+			// Check if we're inside a modal
+			if (this.$el.closest('.modal') !== null) {
+				// Dismiss dialog
+				this.$refs.close.click();
+			} else {
+				// Pop router stack
+				router.back();
+			}
+		},
+	},
+	computed: {
+		isMine() {
+			if (!this.photo) return false;
+			return getCurrentUID() === this.photo.author.id;
 		}
 	}
 }
@@ -52,6 +82,7 @@ export default {
 
 <template>
 	<div class="p-4 mt-3" :class="{card: showAuthor}">
+		<div style="display: none" data-bs-dismiss="modal" ref="close"/> <!-- Close hidden HTML element -->
 		<div v-if="photo" class="col">
 			<div v-if="showAuthor" class="row user-header" data-bs-dismiss="modal" @click="goToAuthor">
 				<p>{{ photo.author.name }} {{ photo.author.surname }} (@<u>{{ photo.author.username }}</u>)</p>
@@ -75,6 +106,9 @@ export default {
 					</svg>
 					<span>{{ photo.commentsCount }}</span>
 				</p>
+			</div>
+			<div class="row d-flex justify-content-end">
+				<button v-if="isMine" @click="deletePhoto" type="button" :disabled="loading" class="btn btn-outline-danger">Delete</button>
 			</div>
 		</div>
 	</div>
