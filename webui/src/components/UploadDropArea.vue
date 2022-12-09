@@ -61,7 +61,7 @@ export default {
 <style scoped>
 .drag-area {
 	width: 100%;
-	height: 100%;
+	height: 90vh;
 }
 
 .drag-area-indicator {
