@@ -6,10 +6,11 @@ import ErrorMsg from "./ErrorMsg.vue";
 import LoadingSpinner from "./LoadingSpinner.vue";
 import {getCurrentUID} from "../services/auth-store";
 import {formatDate} from "../services/format-date";
+import UserNameHeader from "./UserNameHeader.vue";
 
 export default {
 	name: "PhotoListItem",
-	components: {LoadingSpinner, ErrorMsg},
+	components: {UserNameHeader, LoadingSpinner, ErrorMsg},
 	props: ['photo', 'showAuthor'],
 	emits: ['error', 'refresh'],
 	data() {
@@ -21,8 +22,8 @@ export default {
 		return toRefs(props);
 	},
 	methods: {
-		formatDate() {
-			return formatDate
+		formatDate(date) {
+			return formatDate(date);
 		},
 		async doLike(like) {
 			if (this.loading) return;
@@ -47,9 +48,6 @@ export default {
 		},
 		async goToComments() {
 			await router.push(`/photos/${this.photo.id}/comments`);
-		},
-		async goToAuthor() {
-			await router.push(`/users/${this.photo.author.username}`);
 		},
 		async deletePhoto() {
 			this.loading = true;
@@ -88,9 +86,7 @@ export default {
 	<div class="p-4 mt-3" :class="{card: showAuthor}">
 		<div style="display: none" data-bs-dismiss="modal" ref="close"/> <!-- Close hidden HTML element -->
 		<div v-if="photo" class="col">
-			<div v-if="showAuthor" class="row user-header" data-bs-dismiss="modal" @click="goToAuthor">
-				<p>{{ photo.author.name }} {{ photo.author.surname }} (@<u>{{ photo.author.username }}</u>)</p>
-			</div>
+			<UserNameHeader v-if="showAuthor" :user="photo.author"/>
 			<div class="photo-content">
 				<img :src="photo.imageUrl" alt="User photo">
 			</div>
@@ -122,12 +118,6 @@ export default {
 	max-width: 350px;
 	margin: 0 auto;
 	border: 1px gray solid;
-}
-
-.user-header {
-	cursor: pointer;
-	font-size: 1.2rem;
-	text-align: center;
 }
 
 .photo-content {
@@ -181,10 +171,6 @@ export default {
 
 .comments {
 	cursor: pointer;
-}
-
-.user-header {
-	height: 40px;
 }
 
 .actions-row {

@@ -9,6 +9,7 @@ import SingleUserView from "../views/SingleUserView.vue";
 import FollowersView from "../views/FollowersView.vue";
 import FollowingsView from "../views/FollowingsView.vue";
 import PhotoUploadView from "../views/PhotoUploadView.vue";
+import CommentsView from "../views/CommentsView.vue";
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,7 @@ const router = createRouter({
 		{path: '/users/:username/followers', component: FollowersView},
 		{path: '/users/:username/followings', component: FollowingsView},
 		{path: '/upload', component: PhotoUploadView},
+		{path: '/photos/:photoId/comments', component: CommentsView},
 	]
 });
 

@@ -8,7 +8,7 @@ export const CommentsService = Object.freeze({
      * @param {string?} pageCursor
      */
     async getPhotoComments(photoId, pageCursor) {
-        let apiPath = `/photo/${photoId}/comments/`;
+        let apiPath = `/photos/${photoId}/comments/`;
         if (pageCursor) {
             apiPath += '?pageCursor=' + encodeURIComponent(pageCursor);
         }
@@ -28,7 +28,7 @@ export const CommentsService = Object.freeze({
      * @param {string} text Comment text
      */
      async commentPhoto(photoId, text) {
-        const response = await api.post(`/photo/${photoId}/comments/`, {
+        const response = await api.post(`/photos/${photoId}/comments/`, {
             text: text,
         });
 
@@ -45,7 +45,7 @@ export const CommentsService = Object.freeze({
      * @param {string} commentId Comment ID to delete
      */
      async uncommentPhoto(photoId, commentId) {
-        const response = await api.post(`/photo/${photoId}/comments/${commentId}`);
+        const response = await api.delete(`/photos/${photoId}/comments/${commentId}`);
 
         switch (response.status) {
             case 204: return;
