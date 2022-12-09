@@ -20,4 +20,4 @@ var ErrNoResult = sql.ErrNoRows
 var ErrDuplicated = errors.New("operation duplicated")
 var ErrForeignKey = errors.New("foreign key failed")
 
-const MaxPageItems = 20 // According to the docs
+const MaxPageItems = 2 // According to the docs

@@ -44,29 +44,35 @@ export default {
 			await router.push(`/photos/${this.photo.id}/comments`);
 		},
 		async goToAuthor() {
-			await router.push(`/users/${this.photo.author.id}`);
+			await router.push(`/users/${this.photo.author.username}`);
 		}
 	}
 }
 </script>
 
 <template>
-	<div class="p-4 mt-3">
+	<div class="p-4 mt-3" :class="{card: showAuthor}">
 		<div v-if="photo" class="col">
 			<div v-if="showAuthor" class="row user-header" data-bs-dismiss="modal" @click="goToAuthor">
-				<p>{{photo.author.name}} {{photo.author.surname}} (@{{photo.author.username}})</p>
+				<p>{{ photo.author.name }} {{ photo.author.surname }} (@<u>{{ photo.author.username }}</u>)</p>
 			</div>
 			<div class="photo-content">
 				<img :src="photo.imageUrl" alt="User photo">
 			</div>
+			<p class="post-date">{{ new Date(photo.publishDate).toLocaleDateString() }}
+				{{ new Date(photo.publishDate).toLocaleTimeString() }}</p>
 			<div class="row actions-row">
 				<p class="likes" @click="doLike(!photo.liked)">
-					<svg class="feather" :class="{ active: photo.liked, disabled: loading }"><use href="/feather-sprite-v4.29.0.svg#thumbs-up"/></svg>
+					<svg class="feather" :class="{ active: photo.liked, disabled: loading }">
+						<use href="/feather-sprite-v4.29.0.svg#thumbs-up"/>
+					</svg>
 					<span>{{ photo.likesCount }}</span>
 				</p>
 
 				<p class="comments" @click="goToComments" data-bs-dismiss="modal">
-					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-square"/></svg>
+					<svg class="feather">
+						<use href="/feather-sprite-v4.29.0.svg#message-square"/>
+					</svg>
 					<span>{{ photo.commentsCount }}</span>
 				</p>
 			</div>
@@ -75,15 +81,27 @@ export default {
 </template>
 
 <style scoped>
+.card {
+	max-width: 350px;
+	margin: 0 auto;
+	border: 1px gray solid;
+}
+
 .user-header {
 	cursor: pointer;
 	font-size: 1.2rem;
+	text-align: center;
 }
 
 .photo-content {
 	max-width: 300px;
 	height: 300px;
 	margin: 0 auto;
+	position: relative;
+}
+
+.post-date {
+	text-align: center;
 }
 
 .photo-content img {

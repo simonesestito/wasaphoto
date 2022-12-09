@@ -9,7 +9,11 @@ export const StreamService = Object.freeze({
      * @param {string|null} pageCursor
      */
     async getMyStream(pageCursor) {
-        const response = await api.get(`/users/${getCurrentUID()}/stream`);
+		let apiPath = `/users/${getCurrentUID()}/stream`;
+		if (pageCursor) {
+			apiPath += `?pageCursor=${pageCursor}`;
+		}
+        const response = await api.get(apiPath);
 
 		if (response.status === 200) {
 			return response.data;

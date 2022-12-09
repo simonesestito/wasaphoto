@@ -25,6 +25,7 @@ export default {
 			this.loading = true;
 			this.errorMessage = null;
 			this.user = null;
+			this.photos = [];
 
 			try {
 				this.user = await UsersService.getByUsername(username);

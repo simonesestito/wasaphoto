@@ -38,6 +38,11 @@ func (controller Controller) getMyStream(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		api.HandleErrorsResponse(err, w, http.StatusOK, context.Logger)
 	} else {
+		// Add photo URL prefix
+		for i := range nextPhotos {
+			nextPhotos[i].AddImageHost(r)
+		}
+
 		page := api.PageResult[photo.Photo]{
 			NextPageCursor: nextCursor,
 			PageData:       nextPhotos,
