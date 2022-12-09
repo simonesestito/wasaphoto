@@ -1,5 +1,6 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import AppNavMenu from "./components/AppNavMenu.vue";
 </script>
 <script>
 export default {}
@@ -19,24 +20,9 @@ export default {}
 			<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
 				<div class="position-sticky pt-3 sidebar-sticky">
 					<ul class="nav flex-column">
-						<li class="nav-item">
-							<RouterLink to="/" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
-								Stream
-							</RouterLink>
-						</li>
-						<li class="nav-item">
-							<RouterLink to="/search" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
-								Search users
-							</RouterLink>
-						</li>
-						<li class="nav-item">
-							<RouterLink to="/me" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
-								My account
-							</RouterLink>
-						</li>
+						<app-nav-menu to="/" icon="home" text="Stream" />
+						<app-nav-menu to="/search" icon="search" text="Search Users" />
+						<app-nav-menu to="/me" icon="key" text="My Account" />
 					</ul>
 				</div>
 			</nav>
