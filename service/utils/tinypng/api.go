@@ -76,6 +76,9 @@ func (imgApi API) convertToWebp(imageId string) ([]byte, error) {
 	jsonBody, err := json.Marshal(map[string]any{
 		"convert": map[string]string{"type": "image/webp"},
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	request := &http.Request{
 		Method: http.MethodPost,

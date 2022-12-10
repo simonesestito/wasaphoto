@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 )
 
@@ -26,7 +27,7 @@ func (db appSqlDatabase) ExecRows(query string, args ...any) (int64, error) {
 
 	if err != nil {
 		switch {
-		case err == sql.ErrNoRows:
+		case errors.Is(err, sql.ErrNoRows):
 			return 0, nil
 		case strings.HasPrefix(err.Error(), "UNIQUE"):
 			return 0, ErrDuplicated

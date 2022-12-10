@@ -1,6 +1,7 @@
 package follow
 
 import (
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -54,7 +55,7 @@ func (service ServiceImpl) FollowUser(followerId string, followingId string) err
 	}
 
 	newInsert, err := service.Db.FollowUser(followerUuid, followingUuid)
-	if err == database.ErrForeignKey {
+	if errors.Is(err, database.ErrForeignKey) {
 		return api.ErrNotFound
 	} else if err != nil {
 		return err

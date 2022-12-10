@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -58,7 +59,7 @@ func (service ServiceImpl) UpdateUserDetails(id string, newUser NewUser) (User, 
 		Username: newUser.Username,
 	})
 
-	if err == database.ErrDuplicated {
+	if errors.Is(err, database.ErrDuplicated) {
 		return User{}, api.ErrAlreadyTaken
 	} else if err != nil {
 		return User{}, err
@@ -79,7 +80,7 @@ func (service ServiceImpl) UpdateUsername(id string, username string) (User, err
 
 	err := service.Db.EditUsername(userUuid, username)
 
-	if err == database.ErrDuplicated {
+	if errors.Is(err, database.ErrDuplicated) {
 		return User{}, api.ErrAlreadyTaken
 	} else if err != nil {
 		return User{}, err
