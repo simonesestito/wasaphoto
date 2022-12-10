@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func initLogging(cfg WebAPIConfiguration) *logrus.Logger {
+func initLogging(cfg webAPIConfiguration) *logrus.Logger {
 	logger := logrus.New()
 
 	// Set output

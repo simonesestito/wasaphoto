@@ -27,7 +27,7 @@ func (controller Controller) ListRoutes() []route.Route {
 }
 
 func (controller Controller) likePhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &LikeParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &likeParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -39,7 +39,7 @@ func (controller Controller) likePhoto(w http.ResponseWriter, _ *http.Request, p
 	}
 
 	err := controller.Service.LikePhoto(args.PhotoId, context.UserId)
-	result := PhotoLike{
+	result := photoLike{
 		PhotoId: args.PhotoId,
 		UserId:  args.UserId,
 	}
@@ -47,7 +47,7 @@ func (controller Controller) likePhoto(w http.ResponseWriter, _ *http.Request, p
 }
 
 func (controller Controller) unlikePhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &LikeParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &likeParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

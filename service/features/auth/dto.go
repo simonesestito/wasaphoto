@@ -1,9 +1,9 @@
 package auth
 
-type UserLoginCredentials struct {
+type userLoginCredentials struct {
 	Username string `json:"username" validate:"required,username"`
 }
 
-type UserLoginResult struct {
+type userLoginResult struct {
 	UserId string `json:"userId"`
 }

@@ -23,7 +23,7 @@ func (controller LoginController) ListRoutes() []route.Route {
 }
 
 func (controller LoginController) handlePost(w http.ResponseWriter, r *http.Request, _ httprouter.Params, ctx route.RequestContext) {
-	body, bodyErr := api.ParseAndValidateBody(r, &UserLoginCredentials{}, ctx.Logger)
+	body, bodyErr := api.ParseAndValidateBody(r, &userLoginCredentials{}, ctx.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -47,6 +47,6 @@ func (controller LoginController) handlePost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response := UserLoginResult{UserId: authToken}
+	response := userLoginResult{UserId: authToken}
 	api.SendJson(w, response, responseStatus, ctx.Logger)
 }

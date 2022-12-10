@@ -67,7 +67,7 @@ func (controller Controller) setMyDetails(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	body, bodyErr := api.ParseAndValidateBody(r, &NewUser{}, context.Logger)
+	body, bodyErr := api.ParseAndValidateBody(r, &newUser{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -105,7 +105,7 @@ func (controller Controller) setMyUserName(w http.ResponseWriter, r *http.Reques
 	username := string(usernameBytes)
 
 	// Validate read username
-	bodyErr = api.ValidateParsedStruct(&UsernameGetParams{username}, context.Logger)
+	bodyErr = api.ValidateParsedStruct(&usernameGetParams{username}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -121,7 +121,7 @@ func (controller Controller) setMyUserName(w http.ResponseWriter, r *http.Reques
 }
 
 func (controller Controller) searchUsers(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseAllRequestVariables(r, params, &SearchParams{}, context.Logger)
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &searchParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

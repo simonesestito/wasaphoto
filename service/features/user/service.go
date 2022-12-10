@@ -10,7 +10,7 @@ import (
 
 type Service interface {
 	GetUserAs(searchedId string, searchAsId string) (*User, error)
-	UpdateUserDetails(id string, newUser NewUser) (User, error)
+	UpdateUserDetails(id string, newUser newUser) (User, error)
 	UpdateUsername(id string, username string) (User, error)
 	GetUserByUsernameAs(username string, searchAsId string) (*User, error)
 	ListUsersByUsernameAs(username string, searchAsId string, pageCursor string) ([]User, *string, error)
@@ -47,7 +47,7 @@ func (service ServiceImpl) GetUserAs(searchedId string, searchAsId string) (*Use
 	return &result, nil
 }
 
-func (service ServiceImpl) UpdateUserDetails(id string, newUser NewUser) (User, error) {
+func (service ServiceImpl) UpdateUserDetails(id string, newUser newUser) (User, error) {
 	userUuid := uuid.FromStringOrNil(id)
 	if userUuid == uuid.Nil {
 		return User{}, api.ErrWrongUUID

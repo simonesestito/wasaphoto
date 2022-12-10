@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type EntityPhoto struct {
+type entityPhoto struct {
 	Id          []byte `json:"id"`
 	ImageUrl    string `json:"imageUrl"`
 	AuthorId    []byte `json:"authorId"`
@@ -17,27 +17,27 @@ type EntityPhoto struct {
 }
 
 type EntityPhotoInfo struct {
-	EntityPhoto
+	entityPhoto
 	LikesCount    uint `json:"likesCount"`
 	CommentsCount uint `json:"commentsCount"`
 }
 
-type EntityPhotoInfoWithCustom struct {
+type entityPhotoInfoWithCustom struct {
 	EntityPhotoInfo
 	Liked int64 `json:"liked"`
 }
 
 type EntityPhotoAuthorInfo struct {
 	user.ModelUserWithCustom
-	EntityPhotoInfoWithCustom
+	entityPhotoInfoWithCustom
 }
 
-func (photo EntityPhotoAuthorInfo) ToDto() Photo {
+func (photo EntityPhotoAuthorInfo) toDto() Photo {
 	publishDate, _ := time.Parse(timeprovider.UTCFormat, photo.PublishDate)
 	photo.ModelUserWithCustom.Id = photo.AuthorId
 
 	return Photo{
-		Id:            uuid.FromBytesOrNil(photo.EntityPhoto.Id).String(),
+		Id:            uuid.FromBytesOrNil(photo.entityPhoto.Id).String(),
 		Author:        photo.ModelUserWithCustom.ToDto(),
 		PublishDate:   publishDate,
 		LikesCount:    photo.LikesCount,
@@ -50,13 +50,13 @@ func (photo EntityPhotoAuthorInfo) ToDto() Photo {
 func DbPhotosListToPage(dbPhotos []EntityPhotoAuthorInfo) (photos []Photo, pageCursor *string) {
 	photos = make([]Photo, len(dbPhotos))
 	for i, dbPhoto := range dbPhotos {
-		photos[i] = dbPhoto.ToDto()
+		photos[i] = dbPhoto.toDto()
 	}
 
 	// Calculate next cursor
 	if len(dbPhotos) == database.MaxPageItems {
 		lastPhoto := dbPhotos[len(dbPhotos)-1]
-		nextCursor := cursor.CreateDateIdCursor(lastPhoto.EntityPhoto.Id, lastPhoto.PublishDate)
+		nextCursor := cursor.CreateDateIdCursor(lastPhoto.entityPhoto.Id, lastPhoto.PublishDate)
 		pageCursor = &nextCursor
 	} else {
 		pageCursor = nil

@@ -10,15 +10,15 @@ type transactionsDb interface {
 	Begin() (*sql.Tx, error)
 }
 
-// A Transaction is a database interface which can be committed or rollback.
-type Transaction interface {
+// A transaction is a database interface which can be committed or rollback.
+type transaction interface {
 	Exec(query string, args ...any) (sql.Result, error)
 	Query(query string, args ...any) (*sql.Rows, error)
 	Commit() error
 	Rollback() error
 }
 
-func (db appSqlDatabase) BeginTx() (Transaction, error) {
+func (db appSqlDatabase) BeginTx() (transaction, error) {
 	transactDb, ok := db.DB.(transactionsDb)
 	if !ok {
 		return nil, errors.New("cannot create a transaction on this database implementation")

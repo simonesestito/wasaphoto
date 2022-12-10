@@ -22,7 +22,7 @@ type Service interface {
 type ServiceImpl struct {
 	Db             Dao
 	Storage        storage.Storage
-	ImageProcessor ImageProcessor
+	ImageProcessor imageProcessor
 	UserService    user.Service
 	BanService     user.BanService
 }
@@ -34,7 +34,7 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	}
 
 	// Process image
-	imageData, err := service.ImageProcessor.CompressPhotoToWebp(imageData)
+	imageData, err := service.ImageProcessor.compressPhotoToWebp(imageData)
 	if err != nil {
 		return Photo{}, err
 	}
@@ -78,7 +78,7 @@ func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, e
 	isCommitted = true
 
 	// Get current server URL
-	return photo.ToDto(), nil
+	return photo.toDto(), nil
 }
 
 func (ServiceImpl) pathForPhotoFile(photoUuid uuid.UUID) string {
@@ -182,7 +182,7 @@ func (service ServiceImpl) GetPhotoByIdAs(photoId string, searchAs string) (*Pho
 		return nil, nil
 	}
 
-	photo := dbPhoto.ToDto()
+	photo := dbPhoto.toDto()
 
 	// Check author ban
 	isBanned, err := service.BanService.IsUserBanned(searchAs, photo.Author.Id)

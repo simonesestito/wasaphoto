@@ -33,7 +33,7 @@ func (controller Controller) ListRoutes() []route.Route {
 }
 
 func (controller Controller) commentPhoto(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, body, bodyErr := api.ParseVariablesAndBody(r, params, &photo.IdParam{}, &NewComment{}, context.Logger)
+	args, body, bodyErr := api.ParseVariablesAndBody(r, params, &photo.IdParam{}, &newComment{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -49,7 +49,7 @@ func (controller Controller) commentPhoto(w http.ResponseWriter, r *http.Request
 }
 
 func (controller Controller) uncommentPhoto(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &IdParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &idParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -60,7 +60,7 @@ func (controller Controller) uncommentPhoto(w http.ResponseWriter, _ *http.Reque
 }
 
 func (controller Controller) getPhotoComments(w http.ResponseWriter, r *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseAllRequestVariables(r, params, &PhotoCommentsCursor{}, context.Logger)
+	args, bodyErr := api.ParseAllRequestVariables(r, params, &photoCommentsCursor{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

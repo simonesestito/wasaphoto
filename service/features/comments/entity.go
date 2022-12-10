@@ -8,7 +8,7 @@ import (
 	"github.com/simonesestito/wasaphoto/service/utils/cursor"
 )
 
-type EntityComment struct {
+type entityComment struct {
 	Id          []byte `json:"id"`
 	Text        string `json:"text"`
 	PublishDate string `json:"publishDate"`
@@ -16,9 +16,9 @@ type EntityComment struct {
 	PhotoId     []byte `json:"photoId"`
 }
 
-type EntityCommentWithAuthor struct {
+type entityCommentWithAuthor struct {
 	user.ModelUserInfo
-	EntityComment
+	entityComment
 }
 
 // CommentIdWithAuthorAndPhoto is a simple view with just the IDs
@@ -31,32 +31,32 @@ type CommentIdWithAuthorAndPhoto struct {
 
 type EntityCommentWithCustom struct {
 	user.ModelUserWithCustom
-	EntityCommentWithAuthor
+	entityCommentWithAuthor
 }
 
-func (entity EntityCommentWithCustom) ToDto() Comment {
+func (entity EntityCommentWithCustom) toDto() Comment {
 	publishDate, _ := timeprovider.UTCStringToDate(entity.PublishDate)
-	entity.ModelUserWithCustom.ModelUser.Id = entity.EntityComment.AuthorId
+	entity.ModelUserWithCustom.ModelUser.Id = entity.entityComment.AuthorId
 	return Comment{
-		Id:          uuid.FromBytesOrNil(entity.EntityComment.Id).String(),
+		Id:          uuid.FromBytesOrNil(entity.entityComment.Id).String(),
 		PublishDate: publishDate,
 		Author:      entity.ModelUserWithCustom.ToDto(),
-		NewComment: NewComment{
-			Text: entity.EntityComment.Text,
+		newComment: newComment{
+			Text: entity.entityComment.Text,
 		},
 	}
 }
 
-func DbCommentsListToPage(dbComments []EntityCommentWithCustom) (comments []Comment, pageCursor *string) {
+func dbCommentsListToPage(dbComments []EntityCommentWithCustom) (comments []Comment, pageCursor *string) {
 	comments = make([]Comment, len(dbComments))
 	for i, dbComment := range dbComments {
-		comments[i] = dbComment.ToDto()
+		comments[i] = dbComment.toDto()
 	}
 
 	// Calculate next cursor
 	if len(dbComments) == database.MaxPageItems {
 		lastComment := dbComments[len(dbComments)-1]
-		nextCursor := cursor.CreateDateIdCursor(lastComment.EntityComment.Id, lastComment.PublishDate)
+		nextCursor := cursor.CreateDateIdCursor(lastComment.entityComment.Id, lastComment.PublishDate)
 		pageCursor = &nextCursor
 	} else {
 		pageCursor = nil

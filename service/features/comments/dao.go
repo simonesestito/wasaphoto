@@ -8,7 +8,7 @@ import (
 )
 
 type Dao interface {
-	CreateComment(newComment EntityComment) error
+	CreateComment(newComment entityComment) error
 	GetCommentByIdAs(commentId uuid.UUID, userId uuid.UUID) (*EntityCommentWithCustom, error)
 	DeleteByIdPhotoAndAuthor(commentUuid uuid.UUID, photoUuid uuid.UUID, userUuid uuid.UUID) (bool, error)
 	GetCommentInfoIds(commentUuid uuid.UUID) (*CommentIdWithAuthorAndPhoto, error)
@@ -19,7 +19,7 @@ type DbDao struct {
 	Db database.AppDatabase
 }
 
-func (db DbDao) CreateComment(newComment EntityComment) error {
+func (db DbDao) CreateComment(newComment entityComment) error {
 	return db.Db.Exec("INSERT INTO Comment (id, `text`, publishDate, authorId, photoId) VALUES (?, ?, ?, ?, ?)",
 		newComment.Id,
 		newComment.Text,
@@ -42,7 +42,7 @@ WHERE CommentWithAuthor.id = ?`
 	err := db.Db.QueryStructRow(entity, query, userId.Bytes(), userId.Bytes(), commentId.Bytes())
 
 	// Fix shadowed properties
-	entity.ModelUserWithCustom.ModelUser.Id = entity.EntityComment.AuthorId
+	entity.ModelUserWithCustom.ModelUser.Id = entity.entityComment.AuthorId
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil

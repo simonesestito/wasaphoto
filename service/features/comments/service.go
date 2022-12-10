@@ -13,7 +13,7 @@ import (
 )
 
 type Service interface {
-	CommentPhoto(photoId string, userId string, comment NewComment) (Comment, error)
+	CommentPhoto(photoId string, userId string, comment newComment) (Comment, error)
 	DeleteCommentOnPhotoIfAuthor(commentId string, photoId string, userId string) error
 	GetCommentsPageAs(photoId string, userId string, pageCursor string) ([]Comment, *string, error)
 }
@@ -25,7 +25,7 @@ type ServiceImpl struct {
 	TimeProvider timeprovider.TimeProvider
 }
 
-func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment NewComment) (Comment, error) {
+func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment newComment) (Comment, error) {
 	photoUuid := uuid.FromStringOrNil(photoId)
 	userUuid := uuid.FromStringOrNil(userId)
 	if photoUuid.IsNil() || userUuid.IsNil() {
@@ -56,7 +56,7 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 	}
 
 	// Publish the comment
-	err = service.Db.CreateComment(EntityComment{
+	err = service.Db.CreateComment(entityComment{
 		Id:          newCommentUuid.Bytes(),
 		Text:        comment.Text,
 		PublishDate: service.TimeProvider.UTCString(),
@@ -74,7 +74,7 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 		return Comment{}, err
 	}
 
-	return newComment.ToDto(), nil
+	return newComment.toDto(), nil
 }
 
 func (service ServiceImpl) DeleteCommentOnPhotoIfAuthor(commentId string, photoId string, userId string) error {
@@ -135,6 +135,6 @@ func (service ServiceImpl) GetCommentsPageAs(photoId string, userId string, page
 		return nil, nil, err
 	}
 
-	comments, nextCursor := DbCommentsListToPage(dbComments)
+	comments, nextCursor := dbCommentsListToPage(dbComments)
 	return comments, nextCursor, nil
 }

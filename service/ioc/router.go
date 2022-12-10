@@ -7,14 +7,14 @@ import (
 
 func (ioc *Container) CreateControllers() []route.Controller {
 	return []route.Controller{
-		ioc.CreateUserController(),
-		ioc.CreateLoginController(),
-		ioc.CreateBanController(),
-		ioc.CreateFollowController(),
-		ioc.CreatePhotoController(),
-		ioc.CreateLikesController(),
-		ioc.CreateCommentsController(),
-		ioc.CreateStreamController(),
+		ioc.createUserController(),
+		ioc.createLoginController(),
+		ioc.createBanController(),
+		ioc.createFollowController(),
+		ioc.createPhotoController(),
+		ioc.createLikesController(),
+		ioc.createCommentsController(),
+		ioc.createStreamController(),
 	}
 }
 

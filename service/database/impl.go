@@ -74,7 +74,7 @@ func (db appSqlDatabase) Version() (int, error) {
 
 // setVersion sets the database version, without checking it.
 // It does not perform any schema upgrade/migration.
-func (db appSqlDatabase) setVersion(version int, tx Transaction) error {
+func (db appSqlDatabase) setVersion(version int, tx transaction) error {
 	if err := db.Ping(); err != nil {
 		return err
 	}

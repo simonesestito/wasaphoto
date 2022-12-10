@@ -12,47 +12,47 @@ import (
 )
 
 func (ioc *Container) CreateAuthMiddleware() route.AuthMiddleware {
-	return auth.Middleware{LoginService: ioc.CreateAuthService()}
+	return auth.Middleware{LoginService: ioc.createAuthService()}
 }
 
-func (ioc *Container) CreateLoginController() auth.LoginController {
+func (ioc *Container) createLoginController() auth.LoginController {
 	return auth.LoginController{
-		AuthService: ioc.CreateAuthService(),
+		AuthService: ioc.createAuthService(),
 	}
 }
 
-func (ioc *Container) CreateUserController() user.Controller {
+func (ioc *Container) createUserController() user.Controller {
 	return user.Controller{
-		Service: ioc.CreateUserService(),
+		Service: ioc.createUserService(),
 	}
 }
 
-func (ioc *Container) CreateBanController() user.BanController {
+func (ioc *Container) createBanController() user.BanController {
 	return user.BanController{
-		Service: ioc.CreateBanService(),
+		Service: ioc.createBanService(),
 	}
 }
 
-func (ioc *Container) CreateFollowController() follow.Controller {
-	return follow.Controller{Service: ioc.CreateFollowService()}
+func (ioc *Container) createFollowController() follow.Controller {
+	return follow.Controller{Service: ioc.createFollowService()}
 }
 
-func (ioc *Container) CreatePhotoController() photo.Controller {
-	return photo.Controller{Service: ioc.CreatePhotoService()}
+func (ioc *Container) createPhotoController() photo.Controller {
+	return photo.Controller{Service: ioc.createPhotoService()}
 }
 
-func (ioc *Container) CreateLikesController() likes.Controller {
+func (ioc *Container) createLikesController() likes.Controller {
 	return likes.Controller{
-		Service: ioc.CreateLikesService(),
+		Service: ioc.createLikesService(),
 	}
 }
 
-func (ioc *Container) CreateStreamController() stream.Controller {
+func (ioc *Container) createStreamController() stream.Controller {
 	return stream.Controller{
-		Service: ioc.CreateStreamService(),
+		Service: ioc.createStreamService(),
 	}
 }
 
-func (ioc *Container) CreateCommentsController() comments.Controller {
-	return comments.Controller{Service: ioc.CreateCommentsService()}
+func (ioc *Container) createCommentsController() comments.Controller {
+	return comments.Controller{Service: ioc.createCommentsService()}
 }

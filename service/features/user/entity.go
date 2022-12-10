@@ -38,7 +38,7 @@ func (user ModelUserWithCustom) ToDto() User {
 		PostsCount:      user.PostsCount,
 		Banned:          user.Banned > 0,
 		Following:       user.Following > 0,
-		NewUser: NewUser{
+		newUser: newUser{
 			Name:     user.Name,
 			Surname:  user.Surname,
 			Username: user.Username,

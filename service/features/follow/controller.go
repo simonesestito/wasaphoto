@@ -38,7 +38,7 @@ func (controller Controller) ListRoutes() []route.Route {
 }
 
 func (controller Controller) followUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &FollowerParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &followerParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -50,7 +50,7 @@ func (controller Controller) followUser(w http.ResponseWriter, _ *http.Request, 
 	}
 
 	err := controller.Service.FollowUser(context.UserId, args.FollowedId)
-	result := UserFollow{
+	result := userFollow{
 		FollowingId: args.FollowedId,
 		FollowerId:  context.UserId,
 	}
@@ -58,7 +58,7 @@ func (controller Controller) followUser(w http.ResponseWriter, _ *http.Request, 
 }
 
 func (controller Controller) unfollowUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &FollowerParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &followerParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

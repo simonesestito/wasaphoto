@@ -12,7 +12,7 @@ import (
 //go:embed *
 var migrations embed.FS
 
-type Migration struct {
+type migration struct {
 	Version int
 	Name    string
 	File    io.Reader
@@ -25,7 +25,7 @@ func (db appSqlDatabase) runMigrations(logger logrus.FieldLogger) error {
 	}
 	logger.Debugf("Current database schema version: %d", currentVersion)
 
-	newMigrations, err := ListMigrationsAfter(currentVersion, logger)
+	newMigrations, err := listMigrationsAfter(currentVersion, logger)
 	if err != nil {
 		return err
 	}
@@ -82,16 +82,16 @@ func (db appSqlDatabase) runMigrations(logger logrus.FieldLogger) error {
 	return nil
 }
 
-// ListMigrationsAfter is needed to get all the database schema migrations
+// listMigrationsAfter is needed to get all the database schema migrations
 // available on disk, and checks if they look like schema migration files.
 // The returned migrations list contains only the migrations after the currentVersion
-func ListMigrationsAfter(currentVersion int, logger logrus.FieldLogger) ([]Migration, error) {
+func listMigrationsAfter(currentVersion int, logger logrus.FieldLogger) ([]migration, error) {
 	allFiles, err := migrations.ReadDir(".")
 	if err != nil {
 		return nil, err
 	}
 
-	migrationFiles := make([]Migration, 0, len(allFiles))
+	migrationFiles := make([]migration, 0, len(allFiles))
 
 	// Find files that are named like a schema migration
 	for _, entry := range allFiles {
@@ -112,7 +112,7 @@ func ListMigrationsAfter(currentVersion int, logger logrus.FieldLogger) ([]Migra
 					return nil, err
 				}
 
-				migrationFiles = append(migrationFiles, Migration{
+				migrationFiles = append(migrationFiles, migration{
 					Version: schemaVersion,
 					Name:    entry.Name(),
 					File:    file,

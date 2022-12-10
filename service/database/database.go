@@ -13,7 +13,7 @@ type AppDatabase interface {
 	QueryStructRows(entityStruct any, query string, args ...any) (StructRows, error)
 	Exec(query string, args ...any) error
 	ExecRows(query string, args ...any) (int64, error)
-	BeginTx() (Transaction, error)
+	BeginTx() (transaction, error)
 }
 
 var ErrNoResult = sql.ErrNoRows

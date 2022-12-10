@@ -54,7 +54,7 @@ func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatab
 	}, nil
 }
 
-func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
+func (ioc *Container) createTimeProvider() timeprovider.TimeProvider {
 	if ioc.forcedTime != nil {
 		return ioc.forcedTime
 	}
@@ -62,7 +62,7 @@ func (ioc *Container) CreateTimeProvider() timeprovider.TimeProvider {
 	return timeprovider.RealTimeProvider{}
 }
 
-func (ioc *Container) CreateStorage() storage.Storage {
+func (ioc *Container) createStorage() storage.Storage {
 	const key = "storage.Storage"
 	if previousInstance, ok := ioc.instances[key]; ok {
 		castedInstance, ok := previousInstance.(storage.Storage)

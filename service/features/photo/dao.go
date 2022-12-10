@@ -34,7 +34,7 @@ WHERE P.id = ?
 	err := db.Db.QueryStructRow(&photo, query, userId.Bytes(), userId.Bytes(), userId.Bytes(), photoId.Bytes())
 
 	// Fix shadowed properties
-	photo.ModelUser.Id = photo.EntityPhoto.AuthorId
+	photo.ModelUser.Id = photo.entityPhoto.AuthorId
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil

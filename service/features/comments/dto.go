@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-type IdParams struct {
+type idParams struct {
 	photo.IdParam
 	CommentId string `json:"commentId" validate:"required,uuid"`
 }
 
-type NewComment struct {
+type newComment struct {
 	Text string `json:"text" validate:"required,min=1,max=256"`
 }
 
@@ -20,10 +20,10 @@ type Comment struct {
 	Id          string    `json:"id"`
 	PublishDate time.Time `json:"publishDate"`
 	Author      user.User `json:"author"`
-	NewComment
+	newComment
 }
 
-type PhotoCommentsCursor struct {
+type photoCommentsCursor struct {
 	photo.IdParam
 	api.PaginationInfo
 }

@@ -11,14 +11,14 @@ type BanService interface {
 	BanUser(bannedId string, bannerId string) error
 	UnbanUser(bannedId string, bannerId string) error
 	IsUserBanned(bannedId string, bannerId string) (bool, error)
-	AddBanListener(tag string, listener BanListener)
+	AddBanListener(tag string, listener banListener)
 }
 
-type BanListener func(bannedId string, bannerId string) error
+type banListener func(bannedId string, bannerId string) error
 
 type BanServiceImpl struct {
 	Db        Dao
-	listeners map[string]BanListener
+	listeners map[string]banListener
 }
 
 func (service *BanServiceImpl) BanUser(bannedId string, bannerId string) error {
@@ -76,9 +76,9 @@ func (service *BanServiceImpl) IsUserBanned(bannedId string, bannerId string) (b
 	return service.Db.IsUserBannedBy(bannedUuid, bannerUuid)
 }
 
-func (service *BanServiceImpl) AddBanListener(tag string, listener BanListener) {
+func (service *BanServiceImpl) AddBanListener(tag string, listener banListener) {
 	if service.listeners == nil {
-		service.listeners = make(map[string]BanListener)
+		service.listeners = make(map[string]banListener)
 	}
 
 	// Use a tag to avoid adding the same listener twice

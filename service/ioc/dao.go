@@ -9,26 +9,26 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
-func (ioc *Container) CreateUserDao() user.Dao {
+func (ioc *Container) createUserDao() user.Dao {
 	return user.DbDao{Db: ioc.database}
 }
 
-func (ioc *Container) CreateFollowDao() follow.Dao {
+func (ioc *Container) createFollowDao() follow.Dao {
 	return follow.DbDao{Db: ioc.database}
 }
 
-func (ioc *Container) CreatePhotoDao() photo.Dao {
-	return photo.DbDao{Db: ioc.database, Time: ioc.CreateTimeProvider()}
+func (ioc *Container) createPhotoDao() photo.Dao {
+	return photo.DbDao{Db: ioc.database, Time: ioc.createTimeProvider()}
 }
 
-func (ioc *Container) CreateLikesDao() likes.Dao {
+func (ioc *Container) createLikesDao() likes.Dao {
 	return likes.DbDao{Db: ioc.database}
 }
 
-func (ioc *Container) CreateCommentsDao() comments.Dao {
+func (ioc *Container) createCommentsDao() comments.Dao {
 	return comments.DbDao{Db: ioc.database}
 }
 
-func (ioc *Container) CreateStreamDao() stream.Dao {
+func (ioc *Container) createStreamDao() stream.Dao {
 	return stream.DbDao{Db: ioc.database}
 }

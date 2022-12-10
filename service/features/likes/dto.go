@@ -5,12 +5,12 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
-type LikeParams struct {
+type likeParams struct {
 	photo.IdParam
 	user.IdParams
 }
 
-type PhotoLike struct {
+type photoLike struct {
 	PhotoId string `json:"photoId"`
 	UserId  string `json:"userId"`
 }

@@ -46,11 +46,11 @@ func (db appSqlDatabase) ExecRows(query string, args ...any) (int64, error) {
 	return rows, nil
 }
 
-type Closable interface {
+type closable interface {
 	Close() error
 }
 
 // tryClosingRows without error handling (it tries).
-func tryClosingRows(rows Closable) {
+func tryClosingRows(rows closable) {
 	_ = rows.Close()
 }

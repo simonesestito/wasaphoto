@@ -10,21 +10,21 @@ import (
 	"github.com/simonesestito/wasaphoto/service/features/user"
 )
 
-func (ioc *Container) CreateAuthService() auth.LoginService {
+func (ioc *Container) createAuthService() auth.LoginService {
 	return auth.UserIdLoginService{
-		UserDao: ioc.CreateUserDao(),
+		UserDao: ioc.createUserDao(),
 	}
 }
 
-func (ioc *Container) CreateUserService() user.Service {
+func (ioc *Container) createUserService() user.Service {
 	return user.ServiceImpl{
-		Db: ioc.CreateUserDao(),
+		Db: ioc.createUserDao(),
 	}
 }
 
-// CreateBanService creates a Singleton instance of the BanService,
+// createBanService creates a Singleton instance of the BanService,
 // because it's required for this service, on the contrary of others.
-func (ioc *Container) CreateBanService() user.BanService {
+func (ioc *Container) createBanService() user.BanService {
 	const key = "user.BanService"
 	if previousInstance, ok := ioc.instances[key]; ok {
 		castedInstance, ok := previousInstance.(user.BanService)
@@ -37,46 +37,46 @@ func (ioc *Container) CreateBanService() user.BanService {
 
 	// Create a new BanService
 	newInstance := user.BanServiceImpl{
-		Db: ioc.CreateUserDao(),
+		Db: ioc.createUserDao(),
 	}
 	ioc.instances[key] = &newInstance
 	return &newInstance
 }
 
-func (ioc *Container) CreateFollowService() follow.Service {
+func (ioc *Container) createFollowService() follow.Service {
 	return follow.NewServiceImpl(
-		ioc.CreateFollowDao(),
-		ioc.CreateBanService(),
-		ioc.CreateUserService(),
+		ioc.createFollowDao(),
+		ioc.createBanService(),
+		ioc.createUserService(),
 	)
 }
 
-func (ioc *Container) CreatePhotoService() photo.Service {
+func (ioc *Container) createPhotoService() photo.Service {
 	return photo.ServiceImpl{
-		Db:          ioc.CreatePhotoDao(),
-		Storage:     ioc.CreateStorage(),
-		UserService: ioc.CreateUserService(),
-		BanService:  ioc.CreateBanService(),
+		Db:          ioc.createPhotoDao(),
+		Storage:     ioc.createStorage(),
+		UserService: ioc.createUserService(),
+		BanService:  ioc.createBanService(),
 	}
 }
 
-func (ioc *Container) CreateLikesService() likes.Service {
+func (ioc *Container) createLikesService() likes.Service {
 	return likes.ServiceImpl{
-		Db:           ioc.CreateLikesDao(),
-		BanService:   ioc.CreateBanService(),
-		PhotoService: ioc.CreatePhotoService(),
+		Db:           ioc.createLikesDao(),
+		BanService:   ioc.createBanService(),
+		PhotoService: ioc.createPhotoService(),
 	}
 }
 
-func (ioc *Container) CreateCommentsService() comments.Service {
+func (ioc *Container) createCommentsService() comments.Service {
 	return comments.ServiceImpl{
-		Db:           ioc.CreateCommentsDao(),
-		BanService:   ioc.CreateBanService(),
-		PhotoService: ioc.CreatePhotoService(),
-		TimeProvider: ioc.CreateTimeProvider(),
+		Db:           ioc.createCommentsDao(),
+		BanService:   ioc.createBanService(),
+		PhotoService: ioc.createPhotoService(),
+		TimeProvider: ioc.createTimeProvider(),
 	}
 }
 
-func (ioc *Container) CreateStreamService() stream.Service {
-	return stream.ServiceImpl{Db: ioc.CreateStreamDao()}
+func (ioc *Container) createStreamService() stream.Service {
+	return stream.ServiceImpl{Db: ioc.createStreamDao()}
 }

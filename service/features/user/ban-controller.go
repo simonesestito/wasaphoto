@@ -27,7 +27,7 @@ func (controller BanController) ListRoutes() []route.Route {
 }
 
 func (controller BanController) banUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &BanParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &banParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return
@@ -39,7 +39,7 @@ func (controller BanController) banUser(w http.ResponseWriter, _ *http.Request, 
 	}
 
 	err := controller.Service.BanUser(args.BannedId, args.UserId)
-	result := BanResult{
+	result := banResult{
 		BannedId: args.BannedId,
 		BannerId: context.UserId,
 	}
@@ -47,7 +47,7 @@ func (controller BanController) banUser(w http.ResponseWriter, _ *http.Request, 
 }
 
 func (controller BanController) unbanUser(w http.ResponseWriter, _ *http.Request, params httprouter.Params, context route.SecureRequestContext) {
-	args, bodyErr := api.ParseRequestVariables(params, &BanParams{}, context.Logger)
+	args, bodyErr := api.ParseRequestVariables(params, &banParams{}, context.Logger)
 	if bodyErr != nil {
 		http.Error(w, bodyErr.Message, bodyErr.StatusCode)
 		return

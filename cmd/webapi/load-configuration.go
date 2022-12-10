@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-// WebAPIConfiguration describes the web API configuration. This structure is automatically parsed by
+// webAPIConfiguration describes the web API configuration. This structure is automatically parsed by
 // loadConfiguration and values from flags, environment variable or configuration file will be loaded.
-type WebAPIConfiguration struct {
+type webAPIConfiguration struct {
 	Config struct {
 		Path string `conf:"default:/conf/config.yml"`
 	}
@@ -31,13 +31,13 @@ type WebAPIConfiguration struct {
 	}
 }
 
-// loadConfiguration creates a WebAPIConfiguration starting from flags, environment variables and configuration file.
+// loadConfiguration creates a webAPIConfiguration starting from flags, environment variables and configuration file.
 // It works by loading environment variables first, then update the config using command line flags, finally loading the
 // configuration file (specified in WebAPIConfiguration.Config.Path).
 // So, CLI parameters will override the environment, and configuration file will override everything.
 // Note that the configuration file can be specified only via CLI or environment variable.
-func loadConfiguration() (WebAPIConfiguration, error) {
-	var cfg WebAPIConfiguration
+func loadConfiguration() (webAPIConfiguration, error) {
+	var cfg webAPIConfiguration
 
 	// Try to load configuration from environment variables and command line switches
 	if err := conf.Parse(os.Args[1:], "CFG", &cfg); err != nil {
