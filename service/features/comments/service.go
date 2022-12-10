@@ -34,6 +34,9 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 
 	// Get info about the photo to like
 	photoAuthorId, err := service.PhotoService.GetPostAuthorById(photoId)
+	if err != nil {
+		return Comment{}, err
+	}
 	if photoAuthorId == "" {
 		return Comment{}, api.ErrNotFound
 	}
