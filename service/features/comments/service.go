@@ -2,6 +2,7 @@ package comments
 
 import (
 	"bytes"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -59,7 +60,7 @@ func (service ServiceImpl) CommentPhoto(photoId string, userId string, comment N
 		AuthorId:    userUuid.Bytes(),
 		PhotoId:     photoUuid.Bytes(),
 	})
-	if err == database.ErrForeignKey {
+	if errors.Is(err, database.ErrForeignKey) {
 		return Comment{}, api.ErrNotFound
 	} else if err != nil {
 		return Comment{}, err
@@ -117,7 +118,7 @@ func (service ServiceImpl) GetCommentsPageAs(photoId string, userId string, page
 
 	// Check if photo exists and if the author banned me
 	foundPhoto, err := service.PhotoService.GetPhotoByIdAs(photoId, userId)
-	if err == api.ErrUserBanned {
+	if errors.Is(err, api.ErrUserBanned) {
 		return nil, nil, api.ErrUserBanned
 	} else if err != nil {
 		return nil, nil, err

@@ -2,6 +2,7 @@ package photo
 
 import (
 	"bytes"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/features/user"
@@ -148,7 +149,7 @@ func (service ServiceImpl) GetUsersPhotosPage(id string, searchAs string, pageCu
 	// Check if the searched user exists and ban status
 	searchedUser, err := service.UserService.GetUserAs(id, searchAs)
 	switch {
-	case err == api.ErrUserBanned:
+	case errors.Is(err, api.ErrUserBanned):
 		return nil, nil, api.ErrUserBanned
 	case err != nil:
 		return nil, nil, err

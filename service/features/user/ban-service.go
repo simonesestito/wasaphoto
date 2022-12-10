@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -32,7 +33,7 @@ func (service *BanServiceImpl) BanUser(bannedId string, bannerId string) error {
 	}
 
 	newBan, err := service.Db.BanUser(bannedUuid, bannerUuid)
-	if err == database.ErrForeignKey {
+	if errors.Is(err, database.ErrForeignKey) {
 		return api.ErrNotFound
 	} else if err != nil {
 		return err

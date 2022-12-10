@@ -1,6 +1,7 @@
 package likes
 
 import (
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/database"
@@ -43,7 +44,7 @@ func (service ServiceImpl) LikePhoto(photoId string, userId string) error {
 
 	// Like photo
 	newInsert, err := service.Db.LikePhoto(photoUuid, userUuid)
-	if err == database.ErrForeignKey {
+	if errors.Is(err, database.ErrForeignKey) {
 		return api.ErrNotFound
 	} else if err != nil {
 		return err

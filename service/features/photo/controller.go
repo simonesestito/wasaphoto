@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/api/route"
@@ -65,7 +66,7 @@ func (controller Controller) deletePhoto(w http.ResponseWriter, _ *http.Request,
 	}
 
 	err := controller.Service.DeletePostAs(args.PhotoId, context.UserId)
-	if err == api.ErrNotFound {
+	if errors.Is(err, api.ErrNotFound) {
 		// Ignore, since it's intended to be idempotent
 		err = nil
 	}
