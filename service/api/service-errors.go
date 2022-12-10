@@ -8,26 +8,26 @@ import (
 )
 
 func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus int, logger logrus.FieldLogger) {
-	switch err {
-	case ErrWrongUUID:
+	switch {
+	case errors.Is(err, ErrWrongUUID):
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	case ErrWrongCursor:
+	case errors.Is(err, ErrWrongCursor):
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	case ErrSelfOperation:
+	case errors.Is(err, ErrSelfOperation):
 		http.Error(w, err.Error(), http.StatusConflict)
-	case ErrNotFound:
+	case errors.Is(err, ErrNotFound):
 		http.Error(w, err.Error(), http.StatusNotFound)
-	case ErrDuplicated:
+	case errors.Is(err, ErrDuplicated):
 		w.WriteHeader(http.StatusNoContent)
-	case ErrAlreadyTaken:
+	case errors.Is(err, ErrAlreadyTaken):
 		http.Error(w, err.Error(), http.StatusConflict)
-	case ErrUserBanned:
+	case errors.Is(err, ErrUserBanned):
 		http.Error(w, err.Error(), http.StatusForbidden)
-	case ErrMedia:
+	case errors.Is(err, ErrMedia):
 		http.Error(w, err.Error(), http.StatusUnsupportedMediaType)
-	case ErrOthersData:
+	case errors.Is(err, ErrOthersData):
 		http.Error(w, err.Error(), http.StatusForbidden)
-	case nil:
+	case errors.Is(err, nil):
 		w.WriteHeader(defaultSuccessStatus)
 	default:
 		logger.WithError(err).Error("unexpected error processing request")
@@ -37,11 +37,11 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 
 // HandlePutResult handles the error ErrDuplicated in an idempotent PUT operation.
 func HandlePutResult(result any, err error, w http.ResponseWriter, logger logrus.FieldLogger) {
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		// Success, new item has been created!
 		SendJson(w, result, http.StatusCreated, logger)
-	case ErrDuplicated:
+	case errors.Is(err, ErrDuplicated):
 		// Ignore duplicated errors, since it's idempotent.
 		SendJson(w, result, http.StatusOK, logger)
 	default:
