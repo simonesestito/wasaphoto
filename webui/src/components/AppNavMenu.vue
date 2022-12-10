@@ -1,9 +1,9 @@
 <template>
 	<li class="nav-item">
 		<RouterLink :to="to" class="nav-link">
-			<div data-bs-toggle="collapse" data-bs-target="#sidebarMenu.show, #sidebarMenu.collapsing">
+			<div data-bs-target="#sidebarMenu.show, #sidebarMenu.collapsing" data-bs-toggle="collapse">
 				<svg class="feather">
-					<use :href="`/feather-sprite-v4.29.0.svg#${icon}`"/>
+					<use :href="`${baseUrl}feather-sprite-v4.29.0.svg#${icon}`"/>
 				</svg>
 				{{ text }}
 			</div>
@@ -15,6 +15,9 @@
 export default {
 	name: "AppNavMenu",
 	props: ['to', 'text', 'icon'],
+	data() {
+		return {baseUrl: import.meta.env.BASE_URL};
+	},
 }
 </script>
 

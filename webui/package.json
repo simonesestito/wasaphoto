@@ -5,8 +5,10 @@
 		"dev": "vite",
 		"build-dev": "vite build --mode development",
 		"build-prod": "vite build --mode production",
+		"prebuild-embed": "npm run clean",
 		"build-embed": "vite build --mode production --base=/dashboard/",
-		"preview": "vite preview --port 4173"
+		"preview": "vite preview --port 4173",
+		"clean": "shx rm -rf dist/"
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
@@ -15,6 +17,7 @@
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "^3.0.1",
+		"shx": "^0.3.4",
 		"vite": "^3.0.4"
 	}
 }
