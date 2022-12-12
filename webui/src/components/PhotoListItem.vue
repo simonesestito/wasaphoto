@@ -72,6 +72,9 @@ export default {
 				router.back();
 			}
 		},
+		openImageNewTab() {
+			window.open(this.photo.imageUrl, '_blank').focus();
+		},
 	},
 	computed: {
 		isMine() {
@@ -87,8 +90,8 @@ export default {
 		<div style="display: none" data-bs-dismiss="modal" ref="close"/> <!-- Close hidden HTML element -->
 		<div v-if="photo" class="col">
 			<UserNameHeader v-if="showAuthor" :user="photo.author"/>
-			<div class="photo-content">
-				<img :src="photo.imageUrl" alt="User photo">
+			<div class="photo-content" @click="openImageNewTab">
+				<img :src="photo.imageUrl" alt="User photo" loading="lazy">
 			</div>
 			<p class="post-date">{{ formatDate(photo.publishDate) }}</p>
 			<div class="row actions-row">
@@ -140,6 +143,7 @@ export default {
 	left: 0;
 	right: 0;
 	bottom: 0;
+	cursor: zoom-in;
 }
 
 .likes, .comments {
