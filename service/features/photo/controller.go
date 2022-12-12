@@ -48,7 +48,7 @@ func (controller Controller) uploadPhoto(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	photo, err := controller.Service.CreatePost(context.UserId, photoData)
+	photo, err := controller.Service.CreatePost(context.UserId, photoData, context.Logger)
 
 	if err != nil {
 		api.HandleErrorsResponse(err, w, http.StatusCreated, context.Logger)

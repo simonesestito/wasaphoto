@@ -27,7 +27,9 @@ export const PhotosService = Object.freeze({
 	 * @param {File} photoFile
 	 */
 	async uploadPhoto(photoFile) {
-		const response = await api.post('/photos', await photoFile.arrayBuffer());
+		const response = await api.post('/photos', await photoFile.arrayBuffer(), {
+			timeout: 60000, // Enlarge timeout for photo upload
+		});
 
 		switch (response.status) {
 			case 201: return response.data;

@@ -39,6 +39,8 @@ export default {
 				} else if (fileList.length > 1) {
 					this.errorMessage = 'More than one photo selected';
 					this.$refs.input.value = '';
+				} else if (fileList[0].size > 20*1024*1024) {
+					this.errorMessage = 'File is too large (max allowed is 20MB)';
 				} else {
 					await PhotosService.uploadPhoto(fileList[0]);
 					this.success = true;

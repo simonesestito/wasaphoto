@@ -9,10 +9,11 @@ import (
 	"github.com/simonesestito/wasaphoto/service/storage"
 	"github.com/simonesestito/wasaphoto/service/timeprovider"
 	"github.com/simonesestito/wasaphoto/service/utils/cursor"
+	"github.com/sirupsen/logrus"
 )
 
 type Service interface {
-	CreatePost(userId string, imageData []byte) (Photo, error)
+	CreatePost(userId string, imageData []byte, logger logrus.FieldLogger) (Photo, error)
 	DeletePostAs(imageId string, userId string) error
 	GetPostAuthorById(imageId string) (string, error)
 	GetUsersPhotosPage(id string, searchAs string, cursor string) ([]Photo, *string, error)
@@ -27,14 +28,14 @@ type ServiceImpl struct {
 	BanService     user.BanService
 }
 
-func (service ServiceImpl) CreatePost(userId string, imageData []byte) (Photo, error) {
+func (service ServiceImpl) CreatePost(userId string, imageData []byte, logger logrus.FieldLogger) (Photo, error) {
 	userUuid := uuid.FromStringOrNil(userId)
 	if userUuid == uuid.Nil {
 		return Photo{}, api.ErrWrongUUID
 	}
 
 	// Process image
-	imageData, err := service.ImageProcessor.compressPhotoToWebp(imageData)
+	imageData, err := service.ImageProcessor.compressPhotoToWebp(imageData, logger)
 	if err != nil {
 		return Photo{}, err
 	}

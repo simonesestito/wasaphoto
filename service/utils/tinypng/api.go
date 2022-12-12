@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/simonesestito/wasaphoto/service/api"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
@@ -17,13 +18,22 @@ const apiToken = "lHLbzbX5M7v4NqtPVPzjqqqY4zJvHgy8"
 type API struct {
 }
 
-func (imgApi API) CompressPhoto(imageData []byte) ([]byte, error) {
+func (imgApi API) CompressPhoto(imageData []byte, logger logrus.FieldLogger) ([]byte, error) {
+	logger.Debugln("Uploading photo...")
 	imageId, err := imgApi.uploadPhoto(imageData)
 	if err != nil {
 		return nil, err
 	}
 
-	return imgApi.convertToWebp(imageId)
+	logger.Debugln("Converting to WebP...")
+	webp, err := imgApi.convertToWebp(imageId)
+	if err != nil {
+		logger.WithError(err).Errorln("Conversion to WebP failed")
+		return nil, err
+	}
+
+	logger.Debugln("Conversion to WebP successful")
+	return webp, nil
 }
 
 func (API) getAuthString() string {
