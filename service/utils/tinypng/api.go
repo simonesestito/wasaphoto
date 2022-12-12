@@ -85,6 +85,10 @@ func (imgApi API) convertToWebp(imageId string) ([]byte, error) {
 
 	jsonBody, err := json.Marshal(map[string]any{
 		"convert": map[string]string{"type": "image/webp"},
+		"resize": map[string]any{
+			"method": "scale",
+			"width":  500,
+		},
 	})
 	if err != nil {
 		return nil, err
