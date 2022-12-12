@@ -47,13 +47,13 @@ export default {
 			this.errorMessage = null;
 
 			try {
-				await CommentsService.commentPhoto(
+				const newComment = await CommentsService.commentPhoto(
 					this.$route.params.photoId,
 					text,
 				);
-				// HOTFIX: Wait a few ms before refreshing the page, otherwise the server will return old data
-				await new Promise(res => setTimeout(res, 1000));
-				await this.refresh();
+
+				// Add comment to data, no need to refresh the list
+				this.comments.unshift(newComment);
 			} catch (err) {
 				this.errorMessage = err.toString();
 			} finally {
