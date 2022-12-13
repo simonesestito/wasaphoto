@@ -21,6 +21,8 @@ export default {
 				this.$emit('submit', this.userInput);
 		},
 		validate() {
+			this.userInput = this.userInput.toLowerCase();
+
 			if (this.userInput.length < 3)
 				this.errorMessage = 'Username too short';
 			else if (this.userInput.length > 16)
