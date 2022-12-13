@@ -7,15 +7,17 @@ import ErrorMsg from "../components/ErrorMsg.vue";
 import UploadDropArea from "../components/UploadDropArea.vue";
 import router from "../router";
 import {getCurrentUID} from "../services/auth-store";
+import CameraPhoto from "../components/CameraPhoto.vue";
 
 export default {
 	name: "PhotoUploadView",
-	components: {UploadDropArea, LoadingSpinner, PageSkeleton, SuccessMsg, ErrorMsg},
+	components: {CameraPhoto, UploadDropArea, LoadingSpinner, PageSkeleton, SuccessMsg, ErrorMsg},
 	data() {
 		return {
 			loading: false,
 			success: false,
-			errorMessage: null
+			errorMessage: null,
+			isShooting: false,
 		};
 	},
 	methods: {
@@ -39,17 +41,18 @@ export default {
 				} else if (fileList.length > 1) {
 					this.errorMessage = 'More than one photo selected';
 					this.$refs.input.value = '';
-				} else if (fileList[0].size > 20*1024*1024) {
+				} else if (fileList[0].size > 20 * 1024 * 1024) {
 					this.errorMessage = 'File is too large (max allowed is 20MB)';
 				} else {
 					await PhotosService.uploadPhoto(fileList[0]);
 					this.success = true;
+					if (this.$refs.camera) this.$refs.camera.goBack();
 				}
 			} catch (err) {
 				this.errorMessage = err.toString();
 			} finally {
 				this.loading = false;
-				this.$refs.input.value = '';
+				if (this.$refs.input) this.$refs.input.value = '';
 			}
 		},
 		async goToMyProfile() {
@@ -61,19 +64,24 @@ export default {
 </script>
 
 <template>
-	<UploadDropArea @drop="uploadPhoto">
-
+	<UploadDropArea @drop="uploadPhoto" :disabled="isShooting">
 		<PageSkeleton title="Upload New Photo" :actions="[{text:'My profile', onClick: goToMyProfile}]">
 			<ErrorMsg :msg="errorMessage"/>
 			<SuccessMsg v-if="success" msg="Upload succeeded"/>
 			<LoadingSpinner v-if="loading"/>
 
-			<input type="file" accept="image/*" ref="input" class="photo-upload-input" @change="onFilePicked">
+			<div v-if="!isShooting">
+				<input type="file" accept="image/*" ref="input" class="photo-upload-input" @change="onFilePicked">
 
-			<div class="photo-upload-box" :class="{disabled: loading}"
-				 @click="requestPhotoFile">
-				Click to pick an image or drop it here
+				<div class="photo-upload-box" :class="{disabled: loading}"
+					 @click="requestPhotoFile">
+					Click to pick an image or drop it here
+				</div>
+
+				<p class="or-option-text"><i>Or...</i></p>
 			</div>
+
+			<CameraPhoto ref="camera" :loading="loading" @shooting="e => isShooting = e" @shot="uploadPhoto"/>
 		</PageSkeleton>
 	</UploadDropArea>
 </template>
@@ -97,5 +105,9 @@ export default {
 
 .photo-upload-box.disabled {
 	cursor: no-drop;
+}
+
+.or-option-text {
+	text-align: center;
 }
 </style>

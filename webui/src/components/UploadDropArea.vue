@@ -4,6 +4,7 @@ import UploadDropIcon from "./UploadDropIcon.vue";
 export default {
 	name: "UploadDropArea",
 	components: {UploadDropIcon},
+	props: ['disabled'],
 	emits: ['drop'],
 	data() {
 		return {
@@ -12,12 +13,16 @@ export default {
 	},
 	methods: {
 		setActive() {
-			this.droppingStatus++;
+			if (!this.disabled) this.droppingStatus++;
 		},
 		setInactive() {
-			setTimeout(() => this.droppingStatus--, 200);
+			if (!this.disabled) {
+				setTimeout(() => this.droppingStatus--, 200);
+			}
 		},
 		onDrop(event) {
+			if (this.disabled) return;
+
 			event.preventDefault();
 			this.droppingStatus = false;
 
@@ -54,7 +59,6 @@ export default {
 		<div :class="{active: droppingStatus}" class="drag-area-indicator">
 			<UploadDropIcon/>
 		</div>
-
 	</div>
 </template>
 
