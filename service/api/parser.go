@@ -96,7 +96,7 @@ func ParseAndValidateBody[T any](request *http.Request, bodyStruct *T, logger lo
 	}
 
 	// Check if no more JSON is available
-	if decoder.Decode(&struct{}{}) != io.EOF {
+	if !errors.Is(decoder.Decode(&struct{}{}), io.EOF) {
 		return nil, &MalformedRequestError{
 			http.StatusBadRequest, "Request body can only contain one JSON object",
 		}
