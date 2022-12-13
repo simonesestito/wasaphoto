@@ -5,8 +5,10 @@ services:
     image: 'simonesestito/wasaphoto:latest'
     ports:
       - '${DOCKER_HOST_PROXY_PORT:-3000}:3000'
+    environment:
+      - 'CFG_DB_FILENAME=/app/db/wasaphoto.db'
     volumes:
-      - 'database:/app/wasaphoto.db'
+      - 'database:/app/db'
       - 'photos:/app/static/user_content'
 
 volumes:
