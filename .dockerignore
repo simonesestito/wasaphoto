@@ -1,0 +1,17 @@
+/.idea
+/demo
+/doc
+/gen
+/static/user_content
+/.editorconfig
+/.gitignore
+/Dockerfile
+/docker-compose.yml
+/docker-compose.debug.yml
+/.dockerignore
+/LICENSE
+/open-npm.sh
+/build.sh
+/README.md
+/wasaphoto.db
+/webapi

@@ -1,0 +1,14 @@
+version: '3.0'
+
+services:
+  app:
+    image: 'simonesestito/wasaphoto:latest'
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'database:/app/wasaphoto.db'
+      - 'photos:/app/static/user_content'
+
+volumes:
+  database:
+  photos:

@@ -168,11 +168,16 @@ func run() error {
 }
 
 func initDatabase(cfg webAPIConfiguration, logger *logrus.Logger) (*sqlx.DB, func()) {
-	logger.Println("initializing database support")
+	logger.Infoln("initializing database support")
 
 	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename+"?_foreign_keys=on")
 	if err != nil {
 		logger.WithError(err).Fatalln("error opening SQLite DB")
+	}
+
+	logger.Debugln("trying to ping the database")
+	if err = dbConn.Ping(); err != nil {
+		logger.WithError(err).Fatalln("error pinging the DB")
 	}
 
 	return dbConn, func() {
