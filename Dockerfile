@@ -22,7 +22,6 @@ RUN npm run build-embed
 
 ARG DOCKER_PREFIX
 FROM ${DOCKER_PREFIX}enrico204/golang:1.19.4-6 AS builder
-WORKDIR /app
 
 ### Copy Go code, copying required folders only
 COPY cmd cmd
@@ -40,13 +39,23 @@ ARG REPO_HASH
 RUN go generate -mod=vendor ./...
 
 ### Build executables, strip debug symbols and compress with UPX
-ENV CGO_ENABLED=1
-RUN /bin/bash -euo pipefail -c "for ex in \$(ls cmd/); do pushd cmd/\$ex; go build -tags webui,openapi -mod=vendor -ldflags \"-extldflags \\\"-static\\\" -X main.AppVersion=${APP_VERSION} -X main.BuildDate=${BUILD_DATE}\" -a -o /app/\$ex .; popd; done"
-RUN strip ./webapi && upx -9 ./webapi
+WORKDIR /src/cmd
+RUN CGO_ENABLED=1 /bin/bash -euo pipefail -c " \
+    for ex in \$(ls); do \
+    pushd \$ex; \
+    go build  \
+    	-tags webui,openapi,netgo  \
+    	-mod=vendor  \
+    	-ldflags \"-extldflags \\\"-static\\\" -X main.AppVersion=${APP_VERSION} -X main.BuildDate=${BUILD_DATE}\" \
+    	-a \
+    	-o /app/\$ex .; \
+    popd; done" \
+    && strip /app/* \
+    && upx -9 /app/*
 
 ### Create necessary folders that will be used later in the final scratch image
 USER root
-RUN mkdir -p ./db/ ./static/user_content/ && touch ./wasaphoto.db
+RUN mkdir -p /src/db/ /src/static/user_content/
 USER appuser
 
 ### Create final container from scratch
@@ -63,7 +72,7 @@ COPY --from=builder /etc/passwd /etc/passwd
 
 ### Copy the build executable from the builder image
 WORKDIR /app/
-COPY --from=builder /app/webapi .
+COPY --from=builder /app/* ./
 
 ### Set some build variables
 ARG APP_VERSION
@@ -73,13 +82,13 @@ ARG PROJECT_NAME
 ### Downgrade to user level (from root)
 USER appuser
 
-### Configure volumes
-COPY --from=builder --chown=appuser:1000 /app/static/user_content/ ./static/user_content/
-COPY --from=builder --chown=appuser:1000 /app/db/ ./db/
-COPY --from=builder --chown=appuser:1000 /app/wasaphoto.db .
+### Configure volumes, otherwise they are owned by root
+COPY --from=builder --chown=appuser:1000 /src/static/user_content/ ./static/user_content/
+COPY --from=builder --chown=appuser:1000 /src/db/ ./db/
 
 ### Executable command
 ENV CFG_WEB_API_HOST='0.0.0.0:3000'
+ENV CFG_LOG_DEBUG=false
 CMD ["/app/webapi"]
 
 ### OpenContainers tags
