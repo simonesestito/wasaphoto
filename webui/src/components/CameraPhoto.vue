@@ -18,20 +18,20 @@
 				{{ selectedCamera ? selectedCamera.label : 'No camera available' }}
 			</button>
 			<ul class="dropdown-menu" aria-labelledby="cameraSelectorButton">
-				<li v-for="camera in availableCameras" class="dropdown-item">{{ camera.label }}</li>
+				<li v-for="camera in availableCameras" class="dropdown-item" @click="() => updateCamera(camera)">{{ camera.label }}</li>
 			</ul>
 		</div>
 
-		<video ref="cameraStream" width="500" @canplay="startVideoPlaying">Video stream not available.</video>
+		<video ref="cameraStream" :style="{'aspect-ratio': aspectRatio}" class="video-stream" @canplay="startVideoPlaying">Video stream not available.</video>
 		<div class="row-cols-3 mt-3">
 			<button type="button" class="btn btn-primary m-2" @click="shootPhoto">Take photo</button>
 			<button type="button" class="btn btn-outline-danger m-2" @click="goBack">Close camera</button>
 		</div>
-		<canvas ref="photoCanvas" width="500"/>
+		<canvas ref="photoCanvas" style="display: none" width="500" :height="videoHeight"/>
 	</div>
 
 	<div v-if="streamingState === StreamingState.SHOT">
-		<img :src="shotPhoto" alt="Shot photo"/>
+		<img :src="shotPhoto" class="video-stream" alt="Shot photo"/>
 		<div class="row-cols-3 mt-3">
 			<button :disabled="loading" type="button" class="btn btn-success m-2" @click="uploadPhoto">Upload photo
 			</button>
@@ -67,6 +67,7 @@ export default {
 			errorMessage: null,
 			StreamingState,
 			videoHeight: 0,
+			aspectRatio: 0,
 			streamingState: StreamingState.TURNED_OFF,
 			photoStream: null,
 			shotPhoto: null,
@@ -84,6 +85,7 @@ export default {
 				if (!navigator.mediaDevices) {
 					this.errorMessage = 'HTTPS (or localhost) is required to request camera permission';
 				} else {
+					await navigator.permissions.query({name: 'camera'});
 					this.photoStream = await navigator.mediaDevices.getUserMedia({
 						video: this.selectedCamera ? {deviceId: this.selectedCamera.deviceId} : true,
 						audio: false,
@@ -99,6 +101,7 @@ export default {
 					if (!this.selectedCamera) this.selectedCamera = this.availableCameras[0];
 				}
 			} catch (err) {
+				console.error(err);
 				switch (err.name) {
 					case 'NotAllowedError':
 						this.errorMessage = 'Camera permission was not granted';
@@ -107,26 +110,23 @@ export default {
 						this.errorMessage = 'No camera available';
 						break;
 					default:
-						console.error(err);
 						this.errorMessage = err.toString();
 				}
 			}
 		},
 		startVideoPlaying() {
-			if (this.videoHeight === 0) {
-				this.videoHeight = this.$refs.cameraStream.videoHeight / (this.$refs.cameraStream.videoWidth / 500);
-			}
+			let videoHeight = this.$refs.cameraStream.videoHeight / (this.$refs.cameraStream.videoWidth / 500);
 
 			// Firefox currently has a bug where the height can't be read from
 			// the video, so we will make assumptions if this happens.
 
-			if (isNaN(this.videoHeight)) {
-				this.videoHeight = 500 / (4 / 3);
+			if (isNaN(videoHeight)) {
+				videoHeight = 500 / (4 / 3);
 			}
 
-			this.$refs.cameraStream.setAttribute("height", this.videoHeight);
-			this.$refs.photoCanvas.setAttribute("height", this.videoHeight);
-
+			// Resize using aspect ratio
+			this.aspectRatio = this.$refs.cameraStream.videoWidth / this.$refs.cameraStream.videoHeight;
+			this.videoHeight = videoHeight;
 			this.streamingState = StreamingState.TURNED_ON;
 		},
 		closeCamera() {
@@ -135,6 +135,11 @@ export default {
 			}
 			this.photoStream = null;
 			this.videoHeight = 0;
+		},
+		updateCamera(camera) {
+			this.selectedCamera = camera;
+			this.closeCamera();
+			this.askCameraPermission();
 		},
 		shootPhoto() {
 			const context = this.$refs.photoCanvas.getContext("2d");
@@ -169,3 +174,10 @@ function dataURLtoBlob(dataURL) {
 	return new Blob([byteArray], {type: 'image/png'});
 }
 </script>
+
+<style scoped>
+.video-stream {
+	width: 500px;
+	max-width: 90vw;
+}
+</style>
