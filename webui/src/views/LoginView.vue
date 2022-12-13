@@ -3,6 +3,7 @@ import {AuthService} from "../services";
 import UsernameInput from '../components/UsernameInput.vue';
 import router from "../router";
 import PageSkeleton from "../components/PageSkeleton.vue";
+import {getCurrentUID} from "../services/auth-store";
 
 export default {
 	data: function () {
@@ -32,6 +33,12 @@ export default {
 	components: {
 		PageSkeleton,
 		UsernameInput,
+	},
+	mounted() {
+		if (getCurrentUID() != null) {
+			// Already logged in, redirect to My Profile
+			router.replace('/me');
+		}
 	}
 }
 </script>
