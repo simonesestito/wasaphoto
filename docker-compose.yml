@@ -3,6 +3,7 @@ version: '3.0'
 services:
   app:
     image: 'simonesestito/wasaphoto:latest'
+    build: .
     ports:
       - '${DOCKER_HOST_PROXY_PORT:-3000}:3000'
     environment:

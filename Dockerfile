@@ -24,8 +24,12 @@ ARG DOCKER_PREFIX
 FROM ${DOCKER_PREFIX}enrico204/golang:1.19.4-6 AS builder
 WORKDIR /app
 
-### Copy Go code
-COPY . .
+### Copy Go code, copying required folders only
+COPY cmd cmd
+COPY service service
+COPY vendor vendor
+COPY go.mod .
+COPY go.sum .
 COPY --from=uibuilder webui webui
 
 ### Set some build variables
@@ -42,7 +46,7 @@ RUN strip ./webapi && upx -9 ./webapi
 
 ### Create necessary folders that will be used later in the final scratch image
 USER root
-RUN mkdir -p ./db/ ./static/user_content/
+RUN mkdir -p ./db/ ./static/user_content/ && touch ./wasaphoto.db
 USER appuser
 
 ### Create final container from scratch
@@ -72,6 +76,7 @@ USER appuser
 ### Configure volumes
 COPY --from=builder --chown=appuser:1000 /app/static/user_content/ ./static/user_content/
 COPY --from=builder --chown=appuser:1000 /app/db/ ./db/
+COPY --from=builder --chown=appuser:1000 /app/wasaphoto.db .
 
 ### Executable command
 ENV CFG_WEB_API_HOST='0.0.0.0:3000'
