@@ -35,8 +35,18 @@ router.beforeEach((to, from, next) => {
 		next();
 	} else {
 		// Redirect to log in page
-		next('/login');
+		next({
+			path: '/login',
+			query: { previous: router.currentRoute.value.path },
+		});
 	}
 });
+
+router.redirectToLogin = async function () {
+	await this.replace({
+		path: '/login',
+		query: { previous: router.currentRoute.value.path },
+	});
+}.bind(router)
 
 export default router

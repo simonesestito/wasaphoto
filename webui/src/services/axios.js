@@ -17,7 +17,7 @@ api.interceptors.response.use(async response => {
 	if (response && response.status === 401) {
 		// Logout!
 		saveAuthToken(null);
-		await router.replace('/login');
+		await router.redirectToLogin();
 	}
 	return response;
 });

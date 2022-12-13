@@ -19,7 +19,8 @@ export default {
 			this.errorMessage = null;
 			try {
 				const {isNewUser} = await AuthService.doLogin(username, this.keepSignedIn);
-				await router.push(isNewUser ? '/me/edit' : '/');
+				const previousPath = this.$route.query.previous || '/';
+				await router.push(isNewUser ? '/me/edit' : previousPath);
 			} catch (e) {
 				this.errorMessage = e.toString();
 			} finally {
@@ -37,7 +38,9 @@ export default {
 	mounted() {
 		if (getCurrentUID() != null) {
 			// Already logged in, redirect to My Profile
-			router.replace('/me');
+			router.replace(this.$route.query.previous || '/me');
+		} else if (this.$route.query.previous) {
+			this.errorMessage = 'Login to continue';
 		}
 	}
 }
