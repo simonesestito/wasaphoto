@@ -37,7 +37,7 @@ router.beforeEach((to, from, next) => {
 		// Redirect to log in page
 		next({
 			path: '/login',
-			query: { previous: router.currentRoute.value.path },
+			query: { previous: to.path },
 		});
 	}
 });
