@@ -13,8 +13,9 @@
 	<div v-show="streamingState === StreamingState.TURNED_ON">
 		<!-- Camera selector -->
 		<div class="dropdown mb-2">
-			<button class="btn btn-secondary dropdown-toggle" type="button" id="cameraSelectorButton" data-bs-toggle="dropdown" aria-expanded="false">
-				{{selectedCamera ? selectedCamera.label : 'No camera available'}}
+			<button class="btn btn-secondary dropdown-toggle" type="button" id="cameraSelectorButton"
+					data-bs-toggle="dropdown" aria-expanded="false">
+				{{ selectedCamera ? selectedCamera.label : 'No camera available' }}
 			</button>
 			<ul class="dropdown-menu" aria-labelledby="cameraSelectorButton">
 				<li v-for="camera in availableCameras" class="dropdown-item">{{ camera.label }}</li>
@@ -32,8 +33,11 @@
 	<div v-if="streamingState === StreamingState.SHOT">
 		<img :src="shotPhoto" alt="Shot photo"/>
 		<div class="row-cols-3 mt-3">
-			<button :disabled="loading" type="button" class="btn btn-success m-2" @click="uploadPhoto">Upload photo</button>
-			<button :disabled="loading" type="button" class="btn btn-outline-danger m-2" @click="askCameraPermission">Discard photo</button>
+			<button :disabled="loading" type="button" class="btn btn-success m-2" @click="uploadPhoto">Upload photo
+			</button>
+			<button :disabled="loading" type="button" class="btn btn-outline-danger m-2" @click="askCameraPermission">
+				Discard photo
+			</button>
 		</div>
 	</div>
 
@@ -80,17 +84,19 @@ export default {
 				if (!navigator.mediaDevices) {
 					this.errorMessage = 'HTTPS (or localhost) is required to request camera permission';
 				} else {
-					if (!this.availableCameras || this.availableCameras.length === 0) {
-						this.availableCameras = (await navigator.mediaDevices.enumerateDevices()).filter(camera => camera.label);
-						this.selectedCamera = this.availableCameras[0];
-					}
 					this.photoStream = await navigator.mediaDevices.getUserMedia({
-						video: {deviceId: this.selectedCamera.deviceId},
+						video: this.selectedCamera ? {deviceId: this.selectedCamera.deviceId} : true,
 						audio: false,
 					});
 					this.streamingState = StreamingState.TURNING_ON;
 					this.$refs.cameraStream.srcObject = this.photoStream;
 					await this.$refs.cameraStream.play();
+
+					// Now that we have camera permission, read other cameras available
+					this.availableCameras = (await navigator.mediaDevices.enumerateDevices())
+						.filter(camera => camera.kind === 'videoinput')
+						.filter(camera => camera.label);
+					if (!this.selectedCamera) this.selectedCamera = this.availableCameras[0];
 				}
 			} catch (err) {
 				switch (err.name) {
