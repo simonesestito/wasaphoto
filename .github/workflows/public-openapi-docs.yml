@@ -1,0 +1,43 @@
+# Extracted from https://github.com/jizt-it/jizt-api-spec/blob/main/.github/workflows/build-docs.yml
+
+name: Build OpenAPI docs
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docs
+      run: |
+        npx redoc-cli build doc/api.yaml && \
+        mkdir public-openapi-docs/ && \
+        mv redoc-static.html public-openapi-docs/index.html
+    - name: Setup Pages
+      uses: actions/configure-pages@v2
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        # Upload public docs folder
+        path: 'public-openapi-docs/'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
