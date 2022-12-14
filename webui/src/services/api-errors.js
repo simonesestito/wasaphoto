@@ -14,6 +14,7 @@ export function handleApiError(response) {
 		case 404: throw new NotFoundError('Item not found');
 		case 409: throw new ConflictError(null);
         case 500: throw new ServerError();
+		case 503: throw new ThirdPartyError();
 		default: throw new Error('Unexpected error received from server: ' + response.status);
     }
 }
@@ -60,4 +61,10 @@ export class NotFoundError extends Error {
     constructor(message) {
         super(message);
     }
+}
+
+export class ThirdPartyError extends Error {
+	constructor() {
+		super("This operation is unavailable at the moment because a third-party service is unavailable");
+	}
 }

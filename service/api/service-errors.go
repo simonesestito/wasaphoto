@@ -27,6 +27,8 @@ func HandleErrorsResponse(err error, w http.ResponseWriter, defaultSuccessStatus
 		http.Error(w, err.Error(), http.StatusUnsupportedMediaType)
 	case errors.Is(err, ErrOthersData):
 		http.Error(w, err.Error(), http.StatusForbidden)
+	case errors.Is(err, ErrThirdParty):
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 	case errors.Is(err, nil):
 		w.WriteHeader(defaultSuccessStatus)
 	default:
@@ -80,3 +82,8 @@ var ErrMedia = errors.New("wrong media content supplied")
 // ErrOthersData indicates the current operation
 // can only operate on data owned by the user performing it
 var ErrOthersData = errors.New("you are only allowed to operate on data of yours")
+
+// ErrThirdParty indicates the current operation cannot be fulfilled because,
+// even if this server works as expected,
+// it needs a third-party service which is currently not working.
+var ErrThirdParty = errors.New("a third-party service required to fulfill the request is not available")

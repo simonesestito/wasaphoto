@@ -1,5 +1,5 @@
 import api from "./axios";
-import {BadRequestError, handleApiError, NotFoundError} from "./api-errors";
+import {BadRequestError, handleApiError, NotFoundError, ThirdPartyError} from "./api-errors";
 
 export const PhotosService = Object.freeze({
 	/**
@@ -34,6 +34,7 @@ export const PhotosService = Object.freeze({
 		switch (response.status) {
 			case 201: return response.data;
 			case 415: throw new BadRequestError('Selected photo file cannot be processed as an image');
+			case 503: throw new ThirdPartyError();
 			default: handleApiError(response);
 		}
 	},
