@@ -68,6 +68,9 @@ func run() error {
 
 	logger := initLogging(cfg)
 
+	// Run HTTPS testing (it requires a third-party service)
+	mustPerformHttpsRequest(logger)
+
 	logger.Infof("application initializing")
 	db, onClose := initDatabase(cfg, logger)
 	defer onClose()
