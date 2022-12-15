@@ -13,6 +13,7 @@ export function handleApiError(response) {
         case 403: throw new ForbiddenError();
 		case 404: throw new NotFoundError('Item not found');
 		case 409: throw new ConflictError(null);
+		case 413: throw new TooLargeError();
         case 500: throw new ServerError();
 		case 503: throw new ThirdPartyError();
 		default: throw new Error('Unexpected error received from server: ' + response.status);
@@ -66,5 +67,11 @@ export class NotFoundError extends Error {
 export class ThirdPartyError extends Error {
 	constructor() {
 		super("This operation is unavailable at the moment because a third-party service is unavailable");
+	}
+}
+
+export class TooLargeError extends Error {
+	constructor() {
+		super("The file you're uploading is too big");
 	}
 }

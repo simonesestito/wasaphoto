@@ -18,6 +18,7 @@ export default {
 			success: false,
 			errorMessage: null,
 			isShooting: false,
+			uploadProgress: 0,
 		};
 	},
 	methods: {
@@ -44,7 +45,7 @@ export default {
 				} else if (fileList[0].size > 20 * 1024 * 1024) {
 					this.errorMessage = 'File is too large (max allowed is 20MB)';
 				} else {
-					await PhotosService.uploadPhoto(fileList[0]);
+					await PhotosService.uploadPhoto(fileList[0], progress => this.uploadProgress = progress);
 					this.success = true;
 					if (this.$refs.camera) this.$refs.camera.goBack();
 				}
@@ -68,7 +69,11 @@ export default {
 		<PageSkeleton title="Upload New Photo" :actions="[{text:'My profile', onClick: goToMyProfile}]">
 			<ErrorMsg :msg="errorMessage"/>
 			<SuccessMsg v-if="success" msg="Upload succeeded"/>
-			<LoadingSpinner v-if="loading"/>
+
+			<div v-if="loading">
+				<LoadingSpinner />
+				<p class="progress-status">{{ uploadProgress < 100 ? uploadProgress.toFixed(0) + '%' : 'Processing...' }}</p>
+			</div>
 
 			<div v-if="!isShooting">
 				<input type="file" accept="image/*" ref="input" class="photo-upload-input" @change="onFilePicked">
@@ -109,5 +114,10 @@ export default {
 
 .or-option-text {
 	text-align: center;
+}
+
+.progress-status {
+	text-align: center;
+	font-size: 1.2rem;
 }
 </style>
