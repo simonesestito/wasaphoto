@@ -22,9 +22,10 @@ type Photo struct {
 func (photo *Photo) AddImageHost(r *http.Request) {
 	if strings.HasPrefix(photo.ImageUrl, "/") {
 		var schema string
-		if r.TLS == nil {
+		if r.TLS == nil && !strings.HasPrefix(r.Host, "localhost:") {
 			schema = "http"
 		} else {
+			// Force HTTPS on domains different from localhost
 			schema = "https"
 		}
 
