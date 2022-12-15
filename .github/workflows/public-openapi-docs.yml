@@ -1,4 +1,4 @@
-# Extracted from https://github.com/jizt-it/jizt-api-spec/blob/main/.github/workflows/build-docs.yml
+# Extracted from https://github.com/actions/starter-workflows/blob/main/pages/static.yml
 
 name: Build OpenAPI docs
 
