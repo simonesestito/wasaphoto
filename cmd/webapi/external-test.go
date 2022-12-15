@@ -45,6 +45,7 @@ func mustPerformHttpsRequest(logger logrus.FieldLogger) {
 	if err != nil {
 		logger.WithError(err).Fatalln("error performing test HTTPS request")
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
 		logger.Fatalf("HTTPS test response has status %s\n", response.Status)
