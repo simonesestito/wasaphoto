@@ -1,6 +1,6 @@
 <template>
 	<div class="d-flex justify-content-center" v-if="streamingState === StreamingState.TURNED_OFF">
-		<button @click="askCameraPermission" type="button" class="btn btn-primary btn-lg">
+		<button @click="askCameraPermission" :disabled="loading" type="button" class="btn btn-primary btn-lg">
 			Open camera
 		</button>
 	</div>
