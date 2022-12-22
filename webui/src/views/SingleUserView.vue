@@ -177,7 +177,7 @@ export default {
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-body">
-							<PhotoListItem :photo="photo" @error="(err) => this.errorMessage = err" @refresh="refresh"/>
+							<PhotoListItem :photo.sync="photo" @error="(err) => this.errorMessage = err" @refresh="refresh"/>
 						</div>
 					</div>
 				</div>
