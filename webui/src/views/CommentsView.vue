@@ -4,13 +4,12 @@ import ErrorMsg from "../components/ErrorMsg.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import ShowMore from "../components/ShowMore.vue";
 import {CommentsService} from "../services";
-import UserNameHeader from "../components/UserNameHeader.vue";
 import NewCommentModal from "../components/NewCommentModal.vue";
 import CommentListItem from "../components/CommentListItem.vue";
 
 export default {
 	name: "CommentsView",
-	components: {CommentListItem, NewCommentModal, UserNameHeader, ShowMore, LoadingSpinner, ErrorMsg, PageSkeleton},
+	components: {CommentListItem, NewCommentModal, ShowMore, LoadingSpinner, ErrorMsg, PageSkeleton},
 	data() {
 		return {
 			errorMessage: null,

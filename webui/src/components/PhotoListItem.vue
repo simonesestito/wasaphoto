@@ -2,15 +2,13 @@
 import {LikesService, PhotosService} from "../services";
 import router from "../router";
 import {toRefs} from "vue";
-import ErrorMsg from "./ErrorMsg.vue";
-import LoadingSpinner from "./LoadingSpinner.vue";
 import {getCurrentUID} from "../services/auth-store";
 import {formatDate} from "../services/format-date";
 import UserNameHeader from "./UserNameHeader.vue";
 
 export default {
 	name: "PhotoListItem",
-	components: {UserNameHeader, LoadingSpinner, ErrorMsg},
+	components: {UserNameHeader},
 	props: ['photo', 'showAuthor'],
 	emits: ['error', 'refresh'],
 	data() {
