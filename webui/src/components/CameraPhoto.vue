@@ -18,7 +18,7 @@
 				{{ selectedCamera ? selectedCamera.label : 'No camera available' }}
 			</button>
 			<ul class="dropdown-menu" aria-labelledby="cameraSelectorButton">
-				<li v-for="camera in availableCameras" class="dropdown-item" @click="() => updateCamera(camera)">{{ camera.label }}</li>
+				<li v-for="camera in availableCameras" :key="camera.deviceId" class="dropdown-item" @click="() => updateCamera(camera)">{{ camera.label }}</li>
 			</ul>
 		</div>
 

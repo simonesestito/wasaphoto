@@ -5,7 +5,7 @@
 			<h1 class="h2">{{ title }}</h1>
 			<div class="btn-toolbar mb-2 mb-md-0">
 				<div class="btn-group me-2">
-					<button v-for="action in actions" type="button"
+					<button v-for="action in actions" :key="action.text" type="button"
 							class="btn btn-sm btn-outline-secondary" @click="action.onClick">
 						{{ action.text }}
 					</button>

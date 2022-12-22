@@ -57,6 +57,7 @@ export default {
 
 		<!-- Photos list -->
 		<PhotoListItem v-for="photo in photos"
+					   :key="photo.id"
 					   :photo="photo"
 					   @error="(err) => this.errorMessage = err"
 					   :show-author="true"/>

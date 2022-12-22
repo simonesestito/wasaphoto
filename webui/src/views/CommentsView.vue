@@ -82,7 +82,7 @@ export default {
 		<LoadingSpinner v-if="loading"/>
 
 		<!-- Comments list -->
-		<CommentListItem v-for="comment in comments" :comment="comment" @error="err => errorMessage = err"
+		<CommentListItem v-for="comment in comments" :key="comment.id" :comment="comment" @error="err => errorMessage = err"
 						 @refresh="refresh"/>
 		<ShowMore v-if="pageCursor" @loadMore="loadMore"/>
 

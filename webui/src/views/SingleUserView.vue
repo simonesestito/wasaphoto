@@ -165,6 +165,7 @@ export default {
 			<div>
 				<div class="posts-grid mt-3">
 					<div v-for="photo in photos"
+						 :key="photo.id"
 						 class="posts-grid-item"
 						 data-bs-toggle="modal"
 						 :data-bs-target="`#photo-modal-${photo.id}`"
@@ -172,7 +173,7 @@ export default {
 				</div>
 			</div>
 			<!-- Photo modals -->
-			<div v-for="photo in photos" :id="`photo-modal-${photo.id}`" class="modal fade" role="dialog" tabindex="-1">
+			<div v-for="photo in photos" :key="photo.id" :id="`photo-modal-${photo.id}`" class="modal fade" role="dialog" tabindex="-1">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-body">
