@@ -17,7 +17,7 @@ type webAPIConfiguration struct {
 		Path string `conf:"default:/conf/config.yml"`
 	}
 	Web struct {
-		APIHost         string        `conf:"default:127.0.0.1:3000"`
+		APIHost         string        `conf:"default:0.0.0.0:3000"`
 		ReadTimeout     time.Duration `conf:"default:60s"`
 		WriteTimeout    time.Duration `conf:"default:5s"`
 		ShutdownTimeout time.Duration `conf:"default:5s"`
