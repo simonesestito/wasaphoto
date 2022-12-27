@@ -6,7 +6,7 @@
 		"build-dev": "vite build --mode development",
 		"build-prod": "vite build --mode production",
 		"prebuild-embed": "npm run clean",
-		"build-embed": "vite build --mode production --base=/dashboard/",
+		"build-embed": "vite build --mode embedded --base=/dashboard/",
 		"preview": "vite preview --port 4173",
 		"clean": "shx rm -rf dist/"
 	},

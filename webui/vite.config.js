@@ -14,13 +14,13 @@ export default defineConfig(({command, mode, ssrBuild}) => {
 		},
 	};
 
-	if (command === 'serve') {
+	if (mode === 'embedded') {
 		ret.define = {
-			"__API_URL__": JSON.stringify("http://localhost:3000"),
+			"__API_URL__": JSON.stringify("/"),
 		};
 	} else {
 		ret.define = {
-			"__API_URL__": JSON.stringify("/"),
+			"__API_URL__": JSON.stringify("http://localhost:3000"),
 		};
 	}
 	return ret;
