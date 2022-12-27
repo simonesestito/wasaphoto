@@ -58,7 +58,7 @@ export default {
 		<!-- Photos list -->
 		<PhotoListItem v-for="photo in photos"
 					   :key="photo.id"
-					   :photo.sync="photo"
+					   v-model:photo="photo"
 					   @error="(err) => this.errorMessage = err"
 					   :show-author="true"/>
 
