@@ -171,7 +171,9 @@ func run() error {
 }
 
 func initDatabase(cfg webAPIConfiguration, logger *logrus.Logger) (*sqlx.DB, func()) {
-	logger.Infoln("initializing database support")
+	logger.Infoln("initializing database support", cfg.DB.Filename)
+	wd, _ := os.Getwd()
+	logger.Debugln("Working Directory:", wd)
 
 	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename+"?_foreign_keys=on")
 	if err != nil {
