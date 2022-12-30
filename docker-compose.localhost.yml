@@ -23,8 +23,6 @@ services:
       context: .
     ports:
       - '3000:3000'
-    environment:
-      - 'CFG_DB_FILENAME=/app/db/wasaphoto.db'
     volumes:
       - 'database:/app/db'
       - 'photos:/app/static/user_content'
