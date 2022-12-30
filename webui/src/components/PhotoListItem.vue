@@ -13,6 +13,7 @@ export default {
 	emits: ['error', 'refresh'],
 	data() {
 		return {
+			photoData: this.photo, // Use another internal variable for changes
 			loading: false,
 		};
 	},
@@ -30,14 +31,14 @@ export default {
 			this.$emit('error', '');
 			try {
 				if (like) {
-					await LikesService.likePhoto(this.photo.id);
-					this.photo.likesCount++;
+					await LikesService.likePhoto(this.photoData.id);
+					this.photoData.likesCount++;
 				} else {
-					await LikesService.unlikePhoto(this.photo.id);
-					this.photo.likesCount--;
+					await LikesService.unlikePhoto(this.photoData.id);
+					this.photoData.likesCount--;
 				}
 
-				this.photo.liked = like;
+				this.photoData.liked = like;
 			} catch (err) {
 				this.$emit('error', err);
 			} finally {
@@ -45,13 +46,13 @@ export default {
 			}
 		},
 		async goToComments() {
-			await router.push(`/photos/${this.photo.id}/comments`);
+			await router.push(`/photos/${this.photoData.id}/comments`);
 		},
 		async deletePhoto() {
 			this.loading = true;
 			this.$emit('error', '');
 			try {
-				await PhotosService.deletePhoto(this.photo.id);
+				await PhotosService.deletePhoto(this.photoData.id);
 				this.$emit('refresh');
 			} catch (err) {
 				this.$emit('error', err.toString());
@@ -71,13 +72,13 @@ export default {
 			}
 		},
 		openImageNewTab() {
-			window.open(this.photo.imageUrl, '_blank').focus();
+			window.open(this.photoData.imageUrl, '_blank').focus();
 		},
 	},
 	computed: {
 		isMine() {
-			if (!this.photo) return false;
-			return getCurrentUID() === this.photo.author.id;
+			if (!this.photoData) return false;
+			return getCurrentUID() === this.photoData.author.id;
 		}
 	}
 }
@@ -86,25 +87,25 @@ export default {
 <template>
 	<div class="p-4 mt-3" :class="{card: showAuthor}">
 		<div style="display: none" data-bs-dismiss="modal" ref="close"/> <!-- Close hidden HTML element -->
-		<div v-if="photo" class="col">
-			<UserNameHeader v-if="showAuthor" :user="photo.author"/>
+		<div v-if="photoData" class="col">
+			<UserNameHeader v-if="showAuthor" :user="photoData.author"/>
 			<div class="photo-content" @click="openImageNewTab">
-				<img :src="photo.imageUrl" alt="User photo" loading="lazy">
+				<img :src="photoData.imageUrl" alt="User photo" loading="lazy">
 			</div>
-			<p class="post-date">{{ formatDate(photo.publishDate) }}</p>
+			<p class="post-date">{{ formatDate(photoData.publishDate) }}</p>
 			<div class="row actions-row">
-				<p class="likes" @click="doLike(!photo.liked)">
-					<svg class="feather" :class="{ active: photo.liked, disabled: loading }">
+				<p class="likes" @click="doLike(!photoData.liked)">
+					<svg class="feather" :class="{ active: photoData.liked, disabled: loading }">
 						<use href="/feather-sprite-v4.29.0.svg#thumbs-up"/>
 					</svg>
-					<span>{{ photo.likesCount }}</span>
+					<span>{{ photoData.likesCount }}</span>
 				</p>
 
 				<p class="comments" @click="goToComments" data-bs-dismiss="modal">
 					<svg class="feather">
 						<use href="/feather-sprite-v4.29.0.svg#message-square"/>
 					</svg>
-					<span>{{ photo.commentsCount }}</span>
+					<span>{{ photoData.commentsCount }}</span>
 				</p>
 			</div>
 			<div class="row d-flex justify-content-end">

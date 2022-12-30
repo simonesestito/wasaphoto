@@ -9,6 +9,7 @@ export default {
 	emits: ['error'],
 	data() {
 		return {
+			userData: this.user, // Use another internal variable for changes
 			loading: false,
 		};
 	},
@@ -32,7 +33,7 @@ export default {
 					await FollowService.unfollowUser(this.user.id);
 				}
 
-				this.user.following = follow;
+				this.userData.following = follow;
 			} catch (err) {
 				this.$emit('error', err);
 			} finally {
@@ -40,7 +41,7 @@ export default {
 			}
 		},
 		async goToUser() {
-			await router.push(`/users/${this.user.username}`);
+			await router.push(`/users/${this.userData.username}`);
 		}
 	}
 }
@@ -51,16 +52,17 @@ export default {
 		<div class="row">
 			<div class="col col-lg-10 d-flex align-items-center" @click="goToUser">
 				<p>
-					<span><b>{{ user.name }} {{ user.surname }}</b></span>
+					<span><b>{{ userData.name }} {{ userData.surname }}</b></span>
 					<br>
-					<span>@{{ user.username }}</span>
+					<span>@{{ userData.username }}</span>
 				</p>
 			</div>
 			<div class="col-md-auto d-flex align-items-center">
-				<button @click="follow" v-if="!user.following && !user.banned" :disabled="loading" type="button"
+				<button @click="follow" v-if="!userData.following && !userData.banned" :disabled="loading" type="button"
 						class="btn btn-outline-primary">Follow
 				</button>
-				<button @click="unfollow" v-if="user.following && !user.banned" :disabled="loading" type="button"
+				<button @click="unfollow" v-if="userData.following && !userData.banned" :disabled="loading"
+						type="button"
 						class="btn btn-outline-secondary">Unfollow
 				</button>
 			</div>

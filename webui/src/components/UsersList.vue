@@ -58,7 +58,7 @@ export default {
 	<ErrorMsg v-if="errorMessage" :msg="errorMessage"/>
 
 	<!-- Show users -->
-	<UserListItem v-for="user in foundUsers" @error="onError" v-model:user="user" :key="user.id"/>
+	<UserListItem v-for="user in foundUsers" @error="onError" :user="user" :key="user.id"/>
 
 	<!-- Loading -->
 	<LoadingSpinner v-if="loading"/>
