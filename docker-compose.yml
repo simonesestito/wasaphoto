@@ -8,6 +8,8 @@ services:
       - '${DOCKER_HOST_PROXY_PORT:-3000}:3000'
     environment:
       - 'CFG_DB_FILENAME=/app/db/wasaphoto.db'
+      - 'CFG_WEB_API_HOST=0.0.0.0:3000'
+      - 'CFG_LOG_DEBUG=false'
     volumes:
       - 'database:/app/db'
       - 'photos:/app/static/user_content'

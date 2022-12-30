@@ -64,6 +64,4 @@ WORKDIR /app/
 COPY --from=builder /app/* ./
 
 ### Executable command
-ENV CFG_WEB_API_HOST='0.0.0.0:3000'
-ENV CFG_LOG_DEBUG=false
 CMD ["/app/webapi"]
