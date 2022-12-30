@@ -1,19 +1,14 @@
-ARG DOCKER_PREFIX
-FROM ${DOCKER_PREFIX}node:lts AS uibuilder
-WORKDIR /webui
+ARG NODE_VERSION=18.12.1
+FROM node:${NODE_VERSION}-alpine3.17 AS uibuilder
+WORKDIR /webui/
 RUN npm config set update-notifier false
-
-### Copy node_modules only (updating only source code won't rerun this part)
-COPY webui/package.json .
-COPY webui/package-lock.json .
-COPY webui/node_modules ./node_modules
-RUN npm install
 
 ### Copy actual frontend source code
 COPY webui .
 
 ### Compile frontend
 RUN npm run build-prod
+
 
 ### Create final image
 FROM ${DOCKER_PREFIX}nginx:1.23.3-alpine-slim

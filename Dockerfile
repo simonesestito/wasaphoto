@@ -1,17 +1,9 @@
-# This file is used by Docker "build" or "buildah" to create a container image for this Go project
-# The build is done using "multi-stage" approach, where a temporary container ("builder") is used to build the Go
-# executable, and the final image is from scratch (empty container) for both security and performance reasons.
+# This file is used to build an embedded all-in-one image
 
-ARG DOCKER_PREFIX
-FROM ${DOCKER_PREFIX}node:lts AS uibuilder
-WORKDIR webui
+ARG NODE_VERSION=18.12.1
+FROM node:${NODE_VERSION}-alpine3.17 AS uibuilder
+WORKDIR /webui/
 RUN npm config set update-notifier false
-
-### Copy node_modules only (updating only source code won't rerun this part)
-COPY webui/package.json .
-COPY webui/package-lock.json .
-COPY webui/node_modules ./node_modules
-RUN npm install
 
 ### Copy actual frontend source code
 COPY webui .
@@ -20,43 +12,39 @@ COPY webui .
 RUN npm run build-embed
 
 
-ARG DOCKER_PREFIX
-FROM ${DOCKER_PREFIX}enrico204/golang:1.19.4-6 AS builder
+FROM golang:1.19.4-alpine3.17 AS builder
 
-### Copy Go code, copying required folders only
-COPY cmd cmd
-COPY service service
-COPY vendor vendor
-COPY go.mod .
-COPY go.sum .
-COPY --from=uibuilder webui webui
+### Install gcc in order to be able to use CGO later
+### and ca-certificates in order to be able to perform HTTPS requests
+RUN apk add --no-cache build-base ca-certificates && \
+	update-ca-certificates
 
-### Set some build variables
-ARG APP_VERSION
-ARG BUILD_DATE
-ARG REPO_HASH
+### Create "appuser" standard user, later used in final image to run ./cmd/webapi as non-root
+RUN adduser \
+	--home /app/ \
+	--disabled-password \
+	--shell /bin/false \
+	 appuser
 
-RUN go generate -mod=vendor ./...
+### Copy Go code, copying required folders only (use .dockerignore)
+WORKDIR /src/
+COPY . .
+
+### Copy built frontend
+COPY --from=uibuilder /webui/dist ./webui/dist
 
 ### Build executables, strip debug symbols and compress with UPX
-WORKDIR /src/cmd
-RUN CGO_ENABLED=1 /bin/bash -euo pipefail -c " \
-    for ex in \$(ls); do \
-    pushd \$ex; \
-    go build  \
-    	-tags webui,openapi,netgo  \
+# Use the "netgo" tag to resolve DNS queries in Go directly
+RUN CGO_ENABLED=1 \
+	go build  \
+    	-tags netgo,webui  \
     	-mod=vendor  \
-    	-ldflags \"-extldflags \\\"-static\\\" -X main.AppVersion=${APP_VERSION} -X main.BuildDate=${BUILD_DATE}\" \
+    	-ldflags '-extldflags "-static"' \
     	-a \
-    	-o /app/\$ex .; \
-    popd; done" \
-    && strip /app/* \
-    && upx -9 /app/*
+    	-o /app/webapi \
+    	./cmd/webapi \
+    && strip /app/*
 
-### Create necessary folders that will be used later in the final scratch image
-USER root
-RUN mkdir -p /src/db/ /src/static/user_content/
-USER appuser
 
 ### Create final container from scratch
 FROM scratch
@@ -64,38 +52,22 @@ FROM scratch
 ### Inform Docker about which port is used
 EXPOSE 3000
 
-### Populate scratch with CA certificates and Timezone infos from the builder image
-ENV ZONEINFO /zoneinfo.zip
+### Copy the CA Certificates in order to run HTTPS requests
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /zoneinfo.zip /
+
+### Copy the "appuser" standard user from the build stage
 COPY --from=builder /etc/passwd /etc/passwd
+USER appuser
+
+### Configure volume directories (use WORKDIR as workaround)
+WORKDIR /app/static/user_content/
+WORKDIR /app/db/
 
 ### Copy the build executable from the builder image
 WORKDIR /app/
 COPY --from=builder /app/* ./
 
-### Set some build variables
-ARG APP_VERSION
-ARG BUILD_DATE
-ARG PROJECT_NAME
-
-### Downgrade to user level (from root)
-USER appuser
-
-### Configure volumes, otherwise they are owned by root
-COPY --from=builder --chown=appuser:1000 /src/static/user_content/ ./static/user_content/
-COPY --from=builder --chown=appuser:1000 /src/db/ ./db/
-
 ### Executable command
 ENV CFG_WEB_API_HOST='0.0.0.0:3000'
 ENV CFG_LOG_DEBUG=false
 CMD ["/app/webapi"]
-
-### OpenContainers tags
-LABEL org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.title="${PROJECT_NAME}" \
-      org.opencontainers.image.authors="Simone Sestito <simone@simonesestito.com>" \
-      org.opencontainers.image.source="https://github.com/simonesestito/${PROJECT_NAME}" \
-      org.opencontainers.image.revision="${REPO_HASH}" \
-      org.opencontainers.image.vendor="Simone Sestito" \
-	  org.opencontainers.image.version="${APP_VERSION}"
