@@ -25,7 +25,6 @@ services:
       - '3000:3000'
     environment:
       - 'CFG_DB_FILENAME=/app/db/wasaphoto.db'
-      - 'CFG_LOG_DEBUG=true'
     volumes:
       - 'database:/app/db'
       - 'photos:/app/static/user_content'
