@@ -13,5 +13,5 @@ docker-compose.log
 /doc/markdown
 *.sqlite
 static/user_content/
-/wasaphoto.db
+wasaphoto.db
 /webapi
