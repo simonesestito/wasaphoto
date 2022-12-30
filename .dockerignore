@@ -1,13 +1,14 @@
 /.idea
+/.github
+/.git
 /demo
 /doc
 /gen
 /static/user_content
 /.editorconfig
 /.gitignore
-/Dockerfile
-/docker-compose.yml
-/docker-compose.debug.yml
+/Dockerfile*
+/docker-compose.*
 /.dockerignore
 /LICENSE
 /open-npm.sh
