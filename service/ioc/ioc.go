@@ -62,7 +62,7 @@ func (ioc *Container) createTimeProvider() timeprovider.TimeProvider {
 	return timeprovider.RealTimeProvider{}
 }
 
-func (ioc *Container) createStorage() storage.Storage {
+func (ioc *Container) CreateStorage() storage.Storage {
 	const key = "storage.Storage"
 	if previousInstance, ok := ioc.instances[key]; ok {
 		castedInstance, ok := previousInstance.(storage.Storage)

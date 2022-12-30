@@ -28,11 +28,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ardanlabs/conf"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/ioc"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
@@ -102,6 +99,9 @@ func run() error {
 		return fmt.Errorf("creating the API server instance: %w", err)
 	}
 
+	// Test storage
+	mustWriteToStorage(iocContainer.CreateStorage(), logger)
+
 	// Static user content files (such as uploaded photos)
 	apiRouter.RegisterStatic("static/user_content", "/static/user_content")
 
@@ -170,23 +170,4 @@ func run() error {
 	return nil
 }
 
-func initDatabase(cfg webAPIConfiguration, logger *logrus.Logger) (*sqlx.DB, func()) {
-	logger.Infoln("initializing database support", cfg.DB.Filename)
-	wd, _ := os.Getwd()
-	logger.Debugln("Working Directory:", wd)
 
-	dbConn, err := sqlx.Open("sqlite3", cfg.DB.Filename+"?_foreign_keys=on")
-	if err != nil {
-		logger.WithError(err).Fatalln("error opening SQLite DB")
-	}
-
-	logger.Debugln("trying to ping the database")
-	if err = dbConn.Ping(); err != nil {
-		logger.WithError(err).Fatalln("error pinging the DB")
-	}
-
-	return dbConn, func() {
-		logger.Debug("database stopping")
-		_ = dbConn.Close()
-	}
-}

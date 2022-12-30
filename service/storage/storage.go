@@ -14,7 +14,7 @@ type Storage interface {
 	//
 	// The locationUrl can be a full HTTP URL or a relative URL starting with /.
 	// In case it begins with /, the prefix is intended to be the current server.
-	SaveFile(name string, data []byte) (locationUrl string, err error)
+	SaveFile(path string, data []byte) (locationUrl string, err error)
 
 	// DeleteFile deletes a stored file given its path.
 	// It should have been saved using the same Storage implementation.

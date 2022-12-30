@@ -1,9 +1,11 @@
 package main
 
 import (
+	"github.com/simonesestito/wasaphoto/service/storage"
 	"github.com/sirupsen/logrus"
 	"net"
 	"net/http"
+	"os"
 )
 
 // mustPerformDnsQuery checks if DNS queries work.
@@ -52,4 +54,31 @@ func mustPerformHttpsRequest(logger logrus.FieldLogger) {
 	}
 
 	logger.Debugf("HTTPS test response has status %s\n", response.Status)
+}
+
+// mustWriteToStorage checks if the specified Storage works, and it's read-write.
+//
+// This test was added to be sure this feature works,
+// even in special Docker situations (someone can forget to mount a volume).
+//
+// As the name "must" says, in case of an error, it'll be logged as Fatal
+// and the execution will stop.
+func mustWriteToStorage(storageFs storage.Storage, logger logrus.FieldLogger) {
+	logger.Debugln("performing write Storage test")
+
+	var testData = []byte{ 0xFF, 0x00, 0x01 }
+	const testFileName = "test.hex"
+
+	locationUrl, err := storageFs.SaveFile(testFileName, testData)
+	if err != nil {
+		cwd, _ := os.Getwd()
+		fsPath := cwd + "/" + storage.FsStorageRootDir
+		logger.WithError(err).Fatalln("unable to write files: make sure to mount a writable volume to", fsPath)
+	}
+
+	logger.Debugln("successfully written test data with locationUrl =", locationUrl)
+
+	if err = storageFs.DeleteFile(testFileName); err != nil {
+		logger.WithError(err).Fatalln("unable to delete previously written test file, available at", locationUrl)
+	}
 }

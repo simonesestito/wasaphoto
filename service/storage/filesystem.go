@@ -13,7 +13,7 @@ import (
 type FilesystemStorage struct {
 }
 
-const fsStorageRootDir = "static/user_content"
+const FsStorageRootDir = "static/user_content"
 
 func (fs FilesystemStorage) SaveFile(name string, data []byte) (string, error) {
 	// Create missing directories
@@ -90,7 +90,7 @@ func (fs FilesystemStorage) pathForFileWithData(applicationFileName string, data
 }
 
 func (FilesystemStorage) getFileDirPath(pathParts filePathParts) string {
-	return fmt.Sprintf("%s/%s/%s", fsStorageRootDir, pathParts.pathPrefix, pathParts.filename)
+	return fmt.Sprintf("%s/%s/%s", FsStorageRootDir, pathParts.pathPrefix, pathParts.filename)
 }
 
 // getFilePath returns the actual location.
