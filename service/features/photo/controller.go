@@ -17,7 +17,7 @@ func (controller Controller) ListRoutes() []route.Route {
 	return []route.Route{
 		route.SecureRoute{
 			Method:  http.MethodPost,
-			Path:    "/photos",
+			Path:    "/photos/",
 			Handler: controller.uploadPhoto,
 		},
 		route.SecureRoute{

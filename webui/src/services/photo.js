@@ -28,7 +28,7 @@ export const PhotosService = Object.freeze({
 	 * @param {Function} onProgress Progress callback
 	 */
 	async uploadPhoto(photoFile, onProgress) {
-		const response = await api.post('/photos', await photoFile.arrayBuffer(), {
+		const response = await api.post('/photos/', await photoFile.arrayBuffer(), {
 			timeout: 60000, // Enlarge timeout for photo upload, check if enough on server side
 			onUploadProgress: progressEvent => onProgress(100.0 * progressEvent.loaded / progressEvent.total),
 		});
