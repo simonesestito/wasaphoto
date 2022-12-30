@@ -42,10 +42,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser
 
-### Configure volume directories (use WORKDIR as workaround)
-WORKDIR /app/static/user_content/
-WORKDIR /app/db/
-
 ### Copy the build executable from the builder image
 WORKDIR /app/
 COPY --from=builder /app/* ./
