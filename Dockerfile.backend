@@ -30,7 +30,7 @@ RUN CGO_ENABLED=1 \
     && strip /app/*
 
 ### Create final container from scratch
-FROM scratch
+FROM alpine:3.17.0
 
 ### Inform Docker about which port is used
 EXPOSE 3000
@@ -49,5 +49,6 @@ COPY --from=builder /app/* ./
 ### Executable command
 ENV CFG_WEB_API_HOST='0.0.0.0:3000'
 ENV CFG_LOG_DEBUG=false
-ENV CFG_DB_FILENAME='/app/db/wasaphoto.db'
+ENV CFG_DB_FILENAME='/tmp/wasaphoto.db'
+ENV CFG_USER_CONTENT_DIR='/tmp/static/user_content'
 CMD ["/app/webapi"]
