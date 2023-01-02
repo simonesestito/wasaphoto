@@ -72,7 +72,7 @@ func mustWriteToStorage(storageFs storage.Storage, logger logrus.FieldLogger) {
 	locationUrl, err := storageFs.SaveFile(testFileName, testData)
 	if err != nil {
 		cwd, _ := os.Getwd()
-		fsPath := cwd + "/" + storage.FsStorageRootDir
+		fsPath := cwd + "/" + storageFs.GetRoot()
 		logger.WithError(err).Fatalln("unable to write files: make sure to mount a writable volume to", fsPath)
 	}
 

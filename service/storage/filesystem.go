@@ -11,9 +11,8 @@ import (
 
 // FilesystemStorage implements Storage using the disk filesystem as a storage media
 type FilesystemStorage struct {
+	FsStorageRootDir string
 }
-
-const FsStorageRootDir = "static/user_content"
 
 func (fs FilesystemStorage) SaveFile(name string, data []byte) (string, error) {
 	// Create missing directories
@@ -53,6 +52,10 @@ func (fs FilesystemStorage) DeleteFile(path string) error {
 	return nil
 }
 
+func (fs FilesystemStorage) GetRoot() string {
+	return fs.FsStorageRootDir
+}
+
 // pathForExistingFile can only return paths for existing files.
 //
 // Since two different logical files with same filename cannot exist,
@@ -89,8 +92,8 @@ func (fs FilesystemStorage) pathForFileWithData(applicationFileName string, data
 	return fs.getFilePath(pathParts, hash)
 }
 
-func (FilesystemStorage) getFileDirPath(pathParts filePathParts) string {
-	return fmt.Sprintf("%s/%s/%s", FsStorageRootDir, pathParts.pathPrefix, pathParts.filename)
+func (fs FilesystemStorage) getFileDirPath(pathParts filePathParts) string {
+	return fmt.Sprintf("%s/%s/%s", fs.FsStorageRootDir, pathParts.pathPrefix, pathParts.filename)
 }
 
 // getFilePath returns the actual location.

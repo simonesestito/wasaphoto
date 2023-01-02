@@ -19,6 +19,10 @@ type Storage interface {
 	// DeleteFile deletes a stored file given its path.
 	// It should have been saved using the same Storage implementation.
 	DeleteFile(path string) error
+
+	// GetRoot returns the root path (on this device or somewhere else) that this storage implementation
+	// is using to save given data.
+	GetRoot() string
 }
 
 type filePathParts struct {

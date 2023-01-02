@@ -25,6 +25,7 @@ type Container struct {
 	forcedTime timeprovider.TimeProvider
 	logger     *logrus.Logger
 	database   database.AppDatabase
+	storageDir string
 
 	// instances collects singleton instances for those
 	// dependencies which need to be a shared instance.
@@ -32,7 +33,7 @@ type Container struct {
 	instances map[string]any
 }
 
-func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB) (Container, error) {
+func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB, storageDir string) (Container, error) {
 	if logger == nil {
 		return Container{}, errors.New("logger is required")
 	}
@@ -50,6 +51,7 @@ func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatab
 		forcedTime: timeProvider,
 		logger:     logger,
 		database:   appDatabase,
+		storageDir: storageDir,
 		instances:  make(map[string]any),
 	}, nil
 }
@@ -74,7 +76,9 @@ func (ioc *Container) CreateStorage() storage.Storage {
 	}
 
 	// Create a new storage.Storage
-	newInstance := storage.FilesystemStorage{}
+	newInstance := storage.FilesystemStorage{
+		FsStorageRootDir: ioc.storageDir,
+	}
 	ioc.instances[key] = &newInstance
 	return &newInstance
 }
