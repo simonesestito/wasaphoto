@@ -45,8 +45,8 @@ func mustWriteDatabase(db *sqlx.DB, logger logrus.FieldLogger) {
 	logger.Debugln("trying to write on the database")
 
 	var (
-		tx  *sqlx.Tx = nil
-		err error    = nil
+		tx  *sqlx.Tx
+		err error
 	)
 
 	// Function to log the help message and close the database connection
