@@ -26,7 +26,8 @@ of framework, UI, database or any other external components.
 
 ## Other folders
 
-* `api` is the package with the **common** functionalities and types necessary to every other real controller or REST API endpoint.
+* `api` is the package with the **common** functionalities and types necessary to every other real controller or REST
+  API endpoint.
 * `utils` has all necessary utility functions, logically divided by type
 * `ioc` since this app heavily uses **Dependency Injection**, the code here is responsible for
   creating instances of all interfaces providing real implementations (Inversion of Control).

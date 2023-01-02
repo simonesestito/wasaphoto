@@ -66,7 +66,7 @@ func mustPerformHttpsRequest(logger logrus.FieldLogger) {
 func mustWriteToStorage(storageFs storage.Storage, logger logrus.FieldLogger) {
 	logger.Debugln("performing write Storage test")
 
-	var testData = []byte{ 0xFF, 0x00, 0x01 }
+	var testData = []byte{0xFF, 0x00, 0x01}
 	const testFileName = "test.hex"
 
 	locationUrl, err := storageFs.SaveFile(testFileName, testData)

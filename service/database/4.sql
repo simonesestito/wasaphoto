@@ -1,4 +1,3 @@
-
 DROP VIEW IF EXISTS CommentWithAuthor;
 CREATE VIEW CommentWithAuthor AS
 SELECT Comment.*,
