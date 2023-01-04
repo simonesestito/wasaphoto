@@ -18,6 +18,15 @@ It consists of:
 * Vue.js frontend app, which of course interfaces with the implemented REST API.
 * All distributed using a Docker image
 
+## How to run
+
+Since it uses Docker, just one run command:
+```shell
+docker compose up # Optionally with --build to rebuild the project
+```
+
+The project is now running on localhost:3000
+
 ## Project structure and architecture
 
 First of all, a quick note on **webui/node_modules**:
