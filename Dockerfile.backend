@@ -2,22 +2,13 @@ ARG GO_VERSION=1.19.4
 FROM golang:${GO_VERSION}-alpine3.17 AS builder
 
 ### Install gcc in order to be able to use CGO later
-### and ca-certificates in order to be able to perform HTTPS requests
-RUN apk add --no-cache build-base ca-certificates && \
-	update-ca-certificates
-
-### Create "appuser" standard user, later used in final image to run ./cmd/webapi as non-root
-RUN adduser \
-	--home /app/ \
-	--disabled-password \
-	--shell /bin/false \
-	 appuser
+RUN apk add --no-cache build-base
 
 ### Copy Go code, copying required folders only (use .dockerignore)
 WORKDIR /src/
 COPY . .
 
-### Build executables, strip debug symbols and compress with UPX
+### Build executables and strip debug symbols
 # Use the "netgo" tag to resolve DNS queries in Go directly
 RUN CGO_ENABLED=1 \
 	go build  \
@@ -30,16 +21,17 @@ RUN CGO_ENABLED=1 \
     && strip /app/*
 
 ### Create final container from scratch
-FROM alpine:3.17.0
+FROM alpine:3.17
 
 ### Inform Docker about which port is used
 EXPOSE 3000
 
-### Copy the CA Certificates in order to run HTTPS requests
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-### Copy the "appuser" standard user from the build stage
-COPY --from=builder /etc/passwd /etc/passwd
+### Create and use the "appuser" standard user
+RUN adduser \
+	--home /app/ \
+	--disabled-password \
+	--shell /bin/false \
+	 appuser
 USER appuser
 
 ### Copy the build executable from the builder image
