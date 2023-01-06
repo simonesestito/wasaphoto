@@ -20,9 +20,11 @@ type Photo struct {
 }
 
 func (photo *Photo) AddImageHost(r *http.Request) {
+	// Check if the actual URL is relative to this host, or it's already an absolute URL
 	if strings.HasPrefix(photo.ImageUrl, "/") {
+		// Detect if HTTP or HTTPS
 		var schema string
-		if r.TLS == nil && !strings.HasPrefix(r.Host, "localhost:") {
+		if r.TLS == nil && strings.HasPrefix(r.Host, "localhost:") {
 			schema = "http"
 		} else {
 			// Force HTTPS on domains different from localhost
