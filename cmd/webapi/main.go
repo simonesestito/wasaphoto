@@ -73,7 +73,7 @@ func run() error {
 	defer onClose()
 
 	// Initialize dependency injection Inversion of Control container
-	iocContainer, err := ioc.New(nil, logger, db, cfg.UserContentDir)
+	iocContainer, err := ioc.New(nil, logger, db, cfg.UserContent.FsDir, cfg.UserContent.WebPrefix)
 	if err != nil {
 		logger.WithError(err).Error("error creating dependency container")
 		return fmt.Errorf("creating dependency container: %w", err)
@@ -103,7 +103,7 @@ func run() error {
 	mustWriteToStorage(iocContainer.CreateStorage(), logger)
 
 	// Static user content files (such as uploaded photos)
-	apiRouter.RegisterStatic(cfg.UserContentDir, "/static/user_content")
+	apiRouter.RegisterStatic(cfg.UserContent.FsDir, cfg.UserContent.WebPrefix)
 
 	router := apiRouter.Handler()
 

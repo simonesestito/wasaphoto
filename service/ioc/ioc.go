@@ -22,10 +22,11 @@ import (
 
 type Container struct {
 	// External dependencies here
-	forcedTime timeprovider.TimeProvider
-	logger     *logrus.Logger
-	database   database.AppDatabase
-	storageDir string
+	forcedTime      timeprovider.TimeProvider
+	logger          *logrus.Logger
+	database        database.AppDatabase
+	storageDir      string
+	staticFilesPath string
 
 	// instances collects singleton instances for those
 	// dependencies which need to be a shared instance.
@@ -33,7 +34,7 @@ type Container struct {
 	instances map[string]any
 }
 
-func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB, storageDir string) (Container, error) {
+func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatabase *sqlx.DB, storageDir string, staticFilesPath string) (Container, error) {
 	if logger == nil {
 		return Container{}, errors.New("logger is required")
 	}
@@ -48,11 +49,12 @@ func New(timeProvider timeprovider.TimeProvider, logger *logrus.Logger, rawDatab
 	}
 
 	return Container{
-		forcedTime: timeProvider,
-		logger:     logger,
-		database:   appDatabase,
-		storageDir: storageDir,
-		instances:  make(map[string]any),
+		forcedTime:      timeProvider,
+		logger:          logger,
+		database:        appDatabase,
+		storageDir:      storageDir,
+		staticFilesPath: staticFilesPath,
+		instances:       make(map[string]any),
 	}, nil
 }
 
@@ -78,6 +80,7 @@ func (ioc *Container) CreateStorage() storage.Storage {
 	// Create a new storage.Storage
 	newInstance := storage.FilesystemStorage{
 		FsStorageRootDir: ioc.storageDir,
+		StaticFilesPath:  ioc.staticFilesPath,
 	}
 	ioc.instances[key] = &newInstance
 	return &newInstance

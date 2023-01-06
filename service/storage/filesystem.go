@@ -12,6 +12,7 @@ import (
 // FilesystemStorage implements Storage using the disk filesystem as a storage media
 type FilesystemStorage struct {
 	FsStorageRootDir string
+	StaticFilesPath  string
 }
 
 func (fs FilesystemStorage) SaveFile(name string, data []byte) (string, error) {
@@ -28,7 +29,9 @@ func (fs FilesystemStorage) SaveFile(name string, data []byte) (string, error) {
 	err = os.WriteFile(path, data, 0o644&os.ModePerm)
 
 	// Return a path starting with / to refer to the current server
-	return "/" + path, err
+	// Replace the FsStorageRootDir prefix (local FS) in path,
+	// with the actual StaticFilesPath, in order to return the URL path
+	return strings.Replace(path, fs.FsStorageRootDir, fs.StaticFilesPath, 1), err
 }
 
 func (fs FilesystemStorage) DeleteFile(path string) error {

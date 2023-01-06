@@ -29,7 +29,14 @@ type webAPIConfiguration struct {
 	DB struct {
 		Filename string `conf:"default:wasaphoto.db"`
 	}
-	UserContentDir string `conf:"default:static/user_content"`
+	// Setup user content storage params
+	UserContent struct {
+		// The local filesystem path where to store data
+		FsDir string `conf:"default:static/user_content"`
+
+		// The virtual API path prefix to prepend to request a static file on this server
+		WebPrefix string `conf:"default:/static/user_content"`
+	}
 }
 
 // loadConfiguration creates a webAPIConfiguration starting from flags, environment variables and configuration file.
