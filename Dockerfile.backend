@@ -36,11 +36,11 @@ USER appuser
 
 ### Copy the build executable from the builder image
 WORKDIR /app/
-COPY --from=builder /app/* ./
+COPY --from=builder --chown=appuser:appuser /app/* ./
 
 ### Executable command
 ENV CFG_WEB_API_HOST='0.0.0.0:3000'
 ENV CFG_LOG_DEBUG=false
 ENV CFG_DB_FILENAME='/tmp/wasaphoto.db'
-ENV CFG_USER_CONTENT_DIR='/tmp/static/user_content'
+ENV CFG_USER_CONTENT_FS_DIR='/tmp/static/user_content'
 CMD ["/app/webapi"]
