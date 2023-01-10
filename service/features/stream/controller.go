@@ -40,7 +40,7 @@ func (controller Controller) getMyStream(w http.ResponseWriter, r *http.Request,
 	} else {
 		// Add photo URL prefix
 		for i := range nextPhotos {
-			nextPhotos[i].AddImageHost(r)
+			nextPhotos[i].AddImageHost(r, context.Logger)
 		}
 
 		page := api.PageResult[photo.Photo]{

@@ -1,9 +1,10 @@
 package photo
 
 import (
-	"fmt"
 	"github.com/simonesestito/wasaphoto/service/api"
 	"github.com/simonesestito/wasaphoto/service/features/user"
+	"github.com/simonesestito/wasaphoto/service/utils"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"time"
@@ -19,19 +20,10 @@ type Photo struct {
 	ImageUrl      string    `json:"imageUrl"`
 }
 
-func (photo *Photo) AddImageHost(r *http.Request) {
+func (photo *Photo) AddImageHost(r *http.Request, logger logrus.FieldLogger) {
 	// Check if the actual URL is relative to this host, or it's already an absolute URL
 	if strings.HasPrefix(photo.ImageUrl, "/") {
-		// Detect if HTTP or HTTPS
-		var schema string
-		if r.TLS == nil && strings.HasPrefix(r.Host, "localhost:") {
-			schema = "http"
-		} else {
-			// Force HTTPS on domains different from localhost
-			schema = "https"
-		}
-
-		photo.ImageUrl = fmt.Sprintf("%s://%s%s", schema, r.Host, photo.ImageUrl)
+		photo.ImageUrl = utils.GetUrlPrefix(r, logger) + photo.ImageUrl
 	}
 }
 
