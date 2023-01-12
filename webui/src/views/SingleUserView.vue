@@ -22,8 +22,14 @@ export default {
 	},
 	methods: {
 		async refresh(username) {
+			// Set default value
 			if (!username)
 				username = this.$route.params.username;
+
+			// Handle double loading or null (/undefined) parameters.
+			if (!username /* with default value */ || this.loading) {
+				return;
+			}
 
 			this.loading = true;
 			this.errorMessage = null;

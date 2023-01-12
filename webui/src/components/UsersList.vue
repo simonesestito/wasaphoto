@@ -23,12 +23,15 @@ export default {
 			await this.loadNextPage();
 		},
 		async loadNextPage() {
+			// Handle double loading or null (/undefined) parameters.
+			if (!this.refreshKey || this.loading) {
+				return;
+			}
+
 			this.loading = true;
 			this.errorMessage = null;
 
 			try {
-				if (!this.refreshKey) return;
-
 				const response = await this.loaderFunction(this.pageCursor);
 				this.foundUsers.push(...response.pageData);
 				this.pageCursor = response.nextPageCursor;

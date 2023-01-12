@@ -25,14 +25,17 @@ export default {
 			await this.loadMore();
 		},
 		async loadMore() {
+			// Handle double loading or null (/undefined) parameters.
+			const photoId = this.$route.params.photoId;
+			if (!photoId || this.loading) {
+				return;
+			}
+
 			this.loading = true;
 			this.errorMessage = null;
 
 			try {
-				const commentsPage = await CommentsService.getPhotoComments(
-					this.$route.params.photoId,
-					this.pageCursor,
-				);
+				const commentsPage = await CommentsService.getPhotoComments(photoId, this.pageCursor);
 				this.pageCursor = commentsPage.nextPageCursor;
 				this.comments.push(...commentsPage.pageData);
 			} catch (err) {

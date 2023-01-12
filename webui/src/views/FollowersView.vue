@@ -16,6 +16,7 @@ export default {
 			this.user = null;
 			this.username = username;
 		},
+		// Used in <UsersList> component as the refresh function. It returns a value.
 		async loadNextPage(cursor) {
 			if (this.user == null) {
 				this.user = await UsersService.getByUsername(this.username);
