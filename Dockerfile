@@ -11,20 +11,12 @@ COPY webui .
 ### Compile frontend
 RUN npm run build-embed
 
+#################
 
 FROM golang:1.19.4-alpine3.17 AS builder
 
 ### Install gcc in order to be able to use CGO later
-### and ca-certificates in order to be able to perform HTTPS requests
-RUN apk add --no-cache build-base ca-certificates && \
-	update-ca-certificates
-
-### Create "appuser" standard user, later used in final image to run ./cmd/webapi as non-root
-RUN adduser \
-	--home /app/ \
-	--disabled-password \
-	--shell /bin/false \
-	 appuser
+RUN apk add --no-cache build-base
 
 ### Copy Go code, copying required folders only (use .dockerignore)
 WORKDIR /src/
@@ -45,23 +37,34 @@ RUN CGO_ENABLED=1 \
     	./cmd/webapi \
     && strip /app/*
 
+#############################
 
 ### Create final container from scratch
-FROM scratch
+FROM alpine:3.17
 
 ### Inform Docker about which port is used
 EXPOSE 3000
 
-### Copy the CA Certificates in order to run HTTPS requests
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+### Install the CA Certificates in order to run HTTPS requests
+RUN apk add --no-cache ca-certificates && \
+    update-ca-certificates
 
-### Copy the "appuser" standard user from the build stage
-COPY --from=builder /etc/passwd /etc/passwd
+### Create the "appuser" standard user
+RUN adduser \
+	--home /app/ \
+	--disabled-password \
+	--shell /bin/false \
+	 appuser
 USER appuser
 
 ### Copy the build executable from the builder image
 WORKDIR /app/
 COPY --from=builder /app/* ./
+
+### Create appropriate volume
+ENV CFG_DB_FILENAME=/app/db/wasaphoto.db
+ENV CFG_USER_CONTENT_DIR=/app/static/user_content
+RUN mkdir -p /app/db /app/static/user_content
 
 ### Executable command
 CMD ["/app/webapi"]
